@@ -52,14 +52,14 @@ The warehouse integrates data from:
 ```sql
 WITH revenue_by_day AS (
   SELECT 
-    DATE(order_date) AS order_date,
-    SUM(total_price_usd) AS daily_revenue,
+    DATE(PARSE_DATE('%Y%m%d', CAST(order_date_key AS STRING))) AS order_date,
+    SUM(CAST(order_total_price AS FLOAT64)) AS daily_revenue,
     CASE 
-      WHEN DATE(order_date) >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY) THEN 'current_30'
-      WHEN DATE(order_date) >= DATE_SUB(CURRENT_DATE(), INTERVAL 60 DAY) THEN 'previous_30'
+      WHEN DATE(PARSE_DATE('%Y%m%d', CAST(order_date_key AS STRING))) >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY) THEN 'current_30'
+      WHEN DATE(PARSE_DATE('%Y%m%d', CAST(order_date_key AS STRING))) >= DATE_SUB(CURRENT_DATE(), INTERVAL 60 DAY) THEN 'previous_30'
     END AS period
   FROM `analytics_ecommerce_ecommerce.fact_orders`
-  WHERE DATE(order_date) >= DATE_SUB(CURRENT_DATE(), INTERVAL 60 DAY)
+  WHERE DATE(PARSE_DATE('%Y%m%d', CAST(order_date_key AS STRING))) >= DATE_SUB(CURRENT_DATE(), INTERVAL 60 DAY)
   GROUP BY order_date
 )
 SELECT 
@@ -74,15 +74,19 @@ ORDER BY order_date;
 #### 📊 Top 5 Channels by Revenue Contribution – Horizontal bar
 ```sql
 SELECT 
-  c.channel_name,
-  SUM(o.total_price_usd) AS total_revenue,
+  COALESCE(c.channel_group, 'Direct') AS channel_name,
+  SUM(CAST(o.order_total_price AS FLOAT64)) AS total_revenue,
   COUNT(DISTINCT o.order_id) AS total_orders,
-  ROUND(SUM(o.total_price_usd) / COUNT(DISTINCT o.order_id), 2) AS avg_order_value
+  ROUND(AVG(CAST(o.order_total_price AS FLOAT64)), 2) AS avg_order_value
 FROM `analytics_ecommerce_ecommerce.fact_orders` o
-JOIN `analytics_ecommerce_ecommerce.dim_channels` c
-  ON o.utm_source = c.utm_source
-WHERE DATE(o.order_date) >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)
-GROUP BY c.channel_name
+LEFT JOIN `analytics_ecommerce_ecommerce.fact_sessions` s
+  ON o.customer_email = s.user_pseudo_id
+  AND DATE(PARSE_DATE('%Y%m%d', CAST(o.order_date_key AS STRING))) = DATE(PARSE_DATE('%Y%m%d', CAST(s.session_date_key AS STRING)))
+LEFT JOIN `analytics_ecommerce_ecommerce.dim_channels` c
+  ON CONCAT(c.channel_source, '/', c.channel_medium) = 
+     CONCAT(IFNULL(o.source_name, 'direct'), '/', IFNULL(o.referring_site, 'none'))
+WHERE DATE(PARSE_DATE('%Y%m%d', CAST(o.order_date_key AS STRING))) >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)
+GROUP BY channel_name
 ORDER BY total_revenue DESC
 LIMIT 5;
 ```
@@ -91,12 +95,13 @@ LIMIT 5;
 ```sql
 SELECT 
   platform,
-  SUM(cost_usd) AS total_spend,
+  SUM(spend_amount) AS total_spend,
   SUM(revenue) AS total_revenue,
-  SAFE_DIVIDE(SUM(revenue), SUM(cost_usd)) AS roas,
-  COUNT(DISTINCT campaign_name) AS campaign_count
+  SAFE_DIVIDE(SUM(revenue), SUM(spend_amount)) AS roas,
+  COUNT(DISTINCT content_name) AS campaign_count
 FROM `analytics_ecommerce_ecommerce.fact_marketing_performance`
-WHERE DATE(report_date) >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)
+WHERE DATE(activity_date) >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)
+  AND spend_amount > 0
 GROUP BY platform
 ORDER BY total_spend DESC;
 ```
@@ -106,12 +111,21 @@ ORDER BY total_spend DESC;
 SELECT 
   p.product_type AS category,
   COUNT(DISTINCT p.product_id) AS product_count,
-  SUM(p.price * COALESCE(inv.quantity_available, 0)) AS inventory_value,
-  AVG(p.price) AS avg_product_price
+  SUM(COALESCE(i.total_inventory_value, CAST(p.total_revenue AS FLOAT64))) AS inventory_value,
+  AVG(CAST(p.avg_selling_price AS FLOAT64)) AS avg_product_price
 FROM `analytics_ecommerce_ecommerce.dim_products` p
-LEFT JOIN `analytics_ecommerce_ecommerce.fact_inventory` inv
-  ON p.product_id = inv.product_id
+LEFT JOIN (
+  SELECT 
+    product_id,
+    SUM(total_inventory_value) as total_inventory_value
+  FROM `analytics_ecommerce_ecommerce.fact_inventory`
+  GROUP BY product_id
+) i
+  ON p.product_id = i.product_id
+WHERE p.product_status = 'active' 
+  AND p.is_current = true
 GROUP BY p.product_type
+HAVING category IS NOT NULL
 ORDER BY inventory_value DESC;
 ```
 
@@ -119,21 +133,24 @@ ORDER BY inventory_value DESC;
 ```sql
 WITH funnel_metrics AS (
   SELECT 
-    COUNT(DISTINCT CASE WHEN event_name = 'session_start' THEN session_id END) AS sessions,
-    COUNT(DISTINCT CASE WHEN event_name = 'add_to_cart' THEN session_id END) AS add_to_cart,
-    COUNT(DISTINCT CASE WHEN event_name = 'begin_checkout' THEN session_id END) AS begin_checkout,
-    COUNT(DISTINCT CASE WHEN event_name = 'purchase' THEN session_id END) AS purchases
-  FROM `analytics_ecommerce_ecommerce.fact_events`
-  WHERE DATE(event_timestamp) >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)
+    COUNT(DISTINCT session_id) as sessions,
+    COUNT(DISTINCT CASE WHEN viewed_products = true THEN session_id END) as product_views,
+    COUNT(DISTINCT CASE WHEN added_to_cart = true THEN session_id END) as add_to_cart,
+    COUNT(DISTINCT CASE WHEN began_checkout = true THEN session_id END) as begin_checkout,
+    COUNT(DISTINCT CASE WHEN completed_purchase = true THEN session_id END) as purchases
+  FROM `analytics_ecommerce_ecommerce.fact_sessions`
+  WHERE DATE(PARSE_DATE('%Y%m%d', CAST(session_date_key AS STRING))) >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)
 )
 SELECT 
   'Sessions' AS stage, sessions AS count, 1 AS stage_order FROM funnel_metrics
 UNION ALL
-SELECT 'Add to Cart', add_to_cart, 2 FROM funnel_metrics  
+SELECT 'Product Views', product_views, 2 FROM funnel_metrics  
 UNION ALL
-SELECT 'Begin Checkout', begin_checkout, 3 FROM funnel_metrics
+SELECT 'Add to Cart', add_to_cart, 3 FROM funnel_metrics
 UNION ALL
-SELECT 'Purchase', purchases, 4 FROM funnel_metrics
+SELECT 'Begin Checkout', begin_checkout, 4 FROM funnel_metrics
+UNION ALL
+SELECT 'Purchase', purchases, 5 FROM funnel_metrics
 ORDER BY stage_order;
 ```
 
@@ -156,12 +173,12 @@ ORDER BY stage_order;
 #### 📅 Daily Revenue & Orders Trend – Line + bar combo chart
 ```sql
 SELECT 
-  DATE(order_date) AS order_date,
+  DATE(PARSE_DATE('%Y%m%d', CAST(order_date_key AS STRING))) AS order_date,
   COUNT(DISTINCT order_id) AS daily_orders,
-  SUM(total_price_usd) AS daily_revenue,
-  ROUND(SUM(total_price_usd) / COUNT(DISTINCT order_id), 2) AS avg_order_value
+  SUM(order_total_price) AS daily_revenue,
+  ROUND(SUM(order_total_price) / COUNT(DISTINCT order_id), 2) AS avg_order_value
 FROM `analytics_ecommerce_ecommerce.fact_orders`
-WHERE DATE(order_date) >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)
+WHERE DATE(PARSE_DATE('%Y%m%d', CAST(order_date_key AS STRING))) >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)
 GROUP BY order_date
 ORDER BY order_date;
 ```
@@ -170,14 +187,14 @@ ORDER BY order_date;
 ```sql
 SELECT 
   p.product_type,
-  DATE_TRUNC(DATE(o.order_date), WEEK) AS week,
+  DATE_TRUNC(DATE(PARSE_DATE('%Y%m%d', CAST(o.order_date_key AS STRING))), WEEK) AS week,
   COUNT(DISTINCT o.order_id) AS orders,
   SUM(o.line_item_quantity) AS quantity_sold,
   SUM(o.line_item_total_usd) AS revenue
 FROM `analytics_ecommerce_ecommerce.fact_orders` o
 JOIN `analytics_ecommerce_ecommerce.dim_products` p
   ON o.product_id = p.product_id
-WHERE DATE(o.order_date) >= DATE_SUB(CURRENT_DATE(), INTERVAL 8 WEEK)
+WHERE DATE(PARSE_DATE('%Y%m%d', CAST(o.order_date_key AS STRING))) >= DATE_SUB(CURRENT_DATE(), INTERVAL 8 WEEK)
 GROUP BY p.product_type, week
 ORDER BY week, revenue DESC;
 ```
@@ -193,7 +210,7 @@ SELECT
 FROM `analytics_ecommerce_ecommerce.fact_orders` o
 JOIN `analytics_ecommerce_ecommerce.dim_products` p
   ON o.product_id = p.product_id
-WHERE DATE(o.order_date) >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)
+WHERE DATE(PARSE_DATE('%Y%m%d', CAST(o.order_date_key AS STRING))) >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)
 GROUP BY p.product_title, p.product_type
 ORDER BY total_quantity DESC
 LIMIT 10;
@@ -202,7 +219,7 @@ LIMIT 10;
 #### 🧾 Discount Rate vs Order Volume – Scatter plot
 ```sql
 SELECT 
-  DATE(order_date) AS order_date,
+  DATE(PARSE_DATE('%Y%m%d', CAST(order_date_key AS STRING))) AS order_date,
   COUNT(DISTINCT order_id) AS order_volume,
   SAFE_DIVIDE(
     SUM(CASE WHEN total_discounts_usd > 0 THEN 1 ELSE 0 END),
@@ -210,7 +227,7 @@ SELECT
   ) * 100 AS discount_rate_pct,
   AVG(total_discounts_usd) AS avg_discount_amount
 FROM `analytics_ecommerce_ecommerce.fact_orders`
-WHERE DATE(order_date) >= DATE_SUB(CURRENT_DATE(), INTERVAL 90 DAY)
+WHERE DATE(PARSE_DATE('%Y%m%d', CAST(order_date_key AS STRING))) >= DATE_SUB(CURRENT_DATE(), INTERVAL 90 DAY)
 GROUP BY order_date
 ORDER BY order_date;
 ```
@@ -234,13 +251,13 @@ ORDER BY order_date;
 #### 💹 Platform Spend vs Revenue – Line or bar comparison
 ```sql
 SELECT 
-  DATE_TRUNC(DATE(report_date), WEEK) AS week,
+  DATE_TRUNC(DATE(activity_date), WEEK) AS week,
   platform,
-  SUM(cost_usd) AS weekly_spend,
+  SUM(spend_amount) AS weekly_spend,
   SUM(revenue) AS weekly_revenue,
-  SAFE_DIVIDE(SUM(revenue), SUM(cost_usd)) AS weekly_roas
+  SAFE_DIVIDE(SUM(revenue), SUM(spend_amount)) AS weekly_roas
 FROM `analytics_ecommerce_ecommerce.fact_marketing_performance`
-WHERE DATE(report_date) >= DATE_SUB(CURRENT_DATE(), INTERVAL 12 WEEK)
+WHERE DATE(activity_date) >= DATE_SUB(CURRENT_DATE(), INTERVAL 12 WEEK)
 GROUP BY week, platform
 ORDER BY week, weekly_spend DESC;
 ```
@@ -248,18 +265,18 @@ ORDER BY week, weekly_spend DESC;
 #### 🪧 Top Campaigns by ROAS – Table with color-coded metrics
 ```sql
 SELECT 
-  campaign_name,
+  content_name,
   platform,
-  SUM(cost_usd) AS total_spend,
+  SUM(spend_amount) AS total_spend,
   SUM(revenue) AS total_revenue,
-  SAFE_DIVIDE(SUM(revenue), SUM(cost_usd)) AS roas,
+  SAFE_DIVIDE(SUM(revenue), SUM(spend_amount)) AS roas,
   SUM(conversions) AS total_conversions,
-  SAFE_DIVIDE(SUM(cost_usd), SUM(conversions)) AS cpa,
+  SAFE_DIVIDE(SUM(spend_amount), SUM(conversions)) AS cpa,
   performance_tier
 FROM `analytics_ecommerce_ecommerce.fact_marketing_performance`
-WHERE DATE(report_date) >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)
-  AND cost_usd > 0
-GROUP BY campaign_name, platform, performance_tier
+WHERE DATE(activity_date) >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)
+  AND spend_amount > 0
+GROUP BY content_name, platform, performance_tier
 ORDER BY roas DESC
 LIMIT 20;
 ```
@@ -286,7 +303,7 @@ SELECT
   COUNT(*) AS transition_count,
   AVG(days_to_next_touch) AS avg_days_between
 FROM `analytics_ecommerce_ecommerce.fact_customer_journey`
-WHERE DATE(event_timestamp) >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)
+WHERE DATE(event_date) >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)
   AND journey_step <= 5  -- Limit to first 5 touchpoints
 GROUP BY journey_step, channel_source, next_channel_source
 HAVING transition_count >= 10  -- Only show significant paths
@@ -312,16 +329,16 @@ ORDER BY journey_step, transition_count DESC;
 #### 🔄 Conversion Funnel by Day – Sessions → Cart → Checkout → Purchase
 ```sql
 SELECT 
-  DATE(session_start_time) AS session_date,
+  DATE(PARSE_DATE('%Y%m%d', CAST(session_date_key AS STRING))) AS session_date,
   COUNT(DISTINCT session_id) AS total_sessions,
   COUNT(DISTINCT CASE WHEN has_add_to_cart THEN session_id END) AS sessions_with_cart,
   COUNT(DISTINCT CASE WHEN has_checkout THEN session_id END) AS sessions_with_checkout,
   COUNT(DISTINCT CASE WHEN has_purchase THEN session_id END) AS sessions_with_purchase,
   SAFE_DIVIDE(COUNT(DISTINCT CASE WHEN has_purchase THEN session_id END), COUNT(DISTINCT session_id)) * 100 AS conversion_rate
 FROM `analytics_ecommerce_ecommerce.fact_sessions`
-WHERE DATE(session_start_time) >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)
-GROUP BY session_date
-ORDER BY session_date;
+WHERE DATE(PARSE_DATE('%Y%m%d', CAST(session_date_key AS STRING))) >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)
+GROUP BY DATE(PARSE_DATE('%Y%m%d', CAST(session_date_key AS STRING)))
+ORDER BY DATE(PARSE_DATE('%Y%m%d', CAST(session_date_key AS STRING)));
 ```
 
 #### ⏱️ Session Duration vs Conversion Probability – Scatter chart
@@ -339,7 +356,7 @@ SELECT
   SAFE_DIVIDE(COUNT(DISTINCT CASE WHEN has_purchase THEN session_id END), COUNT(DISTINCT session_id)) * 100 AS conversion_rate,
   AVG(session_duration_minutes) AS avg_duration
 FROM `analytics_ecommerce_ecommerce.fact_sessions`
-WHERE DATE(session_start_time) >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)
+WHERE DATE(PARSE_DATE('%Y%m%d', CAST(session_date_key AS STRING))) >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)
   AND session_duration_minutes > 0
 GROUP BY duration_bucket
 ORDER BY avg_duration;
@@ -354,7 +371,7 @@ SELECT
   AVG(time_on_page_seconds) AS avg_time_on_page,
   SUM(CASE WHEN event_name = 'page_view' THEN 1 ELSE 0 END) AS total_pageviews
 FROM `analytics_ecommerce_ecommerce.fact_events`
-WHERE DATE(event_timestamp) >= DATE_SUB(CURRENT_DATE(), INTERVAL 7 DAY)
+WHERE DATE(event_date) >= DATE_SUB(CURRENT_DATE(), INTERVAL 7 DAY)
   AND page_path IS NOT NULL
 GROUP BY page_path
 ORDER BY page_views DESC
@@ -364,15 +381,15 @@ LIMIT 20;
 #### 📉 Bounce Rate Trend – Line chart
 ```sql
 SELECT 
-  DATE(session_start_time) AS session_date,
+  DATE(PARSE_DATE('%Y%m%d', CAST(session_date_key AS STRING))) AS session_date,
   COUNT(DISTINCT session_id) AS total_sessions,
   COUNT(DISTINCT CASE WHEN is_bounce THEN session_id END) AS bounce_sessions,
   SAFE_DIVIDE(COUNT(DISTINCT CASE WHEN is_bounce THEN session_id END), COUNT(DISTINCT session_id)) * 100 AS bounce_rate,
   AVG(session_duration_minutes) AS avg_session_duration
 FROM `analytics_ecommerce_ecommerce.fact_sessions`
-WHERE DATE(session_start_time) >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)
-GROUP BY session_date
-ORDER BY session_date;
+WHERE DATE(PARSE_DATE('%Y%m%d', CAST(session_date_key AS STRING))) >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)
+GROUP BY DATE(PARSE_DATE('%Y%m%d', CAST(session_date_key AS STRING)))
+ORDER BY DATE(PARSE_DATE('%Y%m%d', CAST(session_date_key AS STRING)));
 ```
 
 ---
@@ -478,18 +495,18 @@ WITH product_sales AS (
     SUM(o.line_item_total_usd) AS revenue_30d
   FROM `analytics_ecommerce_ecommerce.fact_orders` o
   JOIN `analytics_ecommerce_ecommerce.dim_products` p ON o.product_id = p.product_id
-  WHERE DATE(o.order_date) >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)
+  WHERE DATE(PARSE_DATE('%Y%m%d', CAST(o.order_date_key AS STRING))) >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)
   GROUP BY p.product_id, p.product_title, p.product_type
 )
 SELECT 
   ps.product_title,
   ps.product_type,
-  COALESCE(inv.quantity_available, 0) AS current_inventory,
+  COALESCE(inv.current_stock, 0) AS current_inventory,
   ps.units_sold_30d,
-  SAFE_DIVIDE(ps.units_sold_30d, NULLIF(inv.quantity_available, 0)) AS turnover_ratio,
+  SAFE_DIVIDE(ps.units_sold_30d, NULLIF(inv.current_stock, 0)) AS turnover_ratio,
   CASE 
-    WHEN inv.quantity_available <= ps.units_sold_30d * 0.5 THEN 'Low Stock'
-    WHEN inv.quantity_available <= ps.units_sold_30d THEN 'Medium Stock'
+    WHEN inv.current_stock <= ps.units_sold_30d * 0.5 THEN 'Low Stock'
+    WHEN inv.current_stock <= ps.units_sold_30d THEN 'Medium Stock'
     ELSE 'High Stock'
   END AS stock_level
 FROM product_sales ps
@@ -507,22 +524,22 @@ WITH recent_sales AS (
     SUM(line_item_quantity) AS sold_last_30d,
     SAFE_DIVIDE(SUM(line_item_quantity), 30) AS avg_daily_sales
   FROM `analytics_ecommerce_ecommerce.fact_orders`
-  WHERE DATE(order_date) >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)
+  WHERE DATE(PARSE_DATE('%Y%m%d', CAST(order_date_key AS STRING))) >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)
   GROUP BY product_id
 )
 SELECT 
   p.product_title,
   p.product_type,
-  COALESCE(inv.quantity_available, 0) AS current_stock,
+  COALESCE(inv.current_stock, 0) AS current_stock,
   rs.avg_daily_sales,
-  SAFE_DIVIDE(inv.quantity_available, NULLIF(rs.avg_daily_sales, 0)) AS days_of_inventory,
+  SAFE_DIVIDE(inv.current_stock, NULLIF(rs.avg_daily_sales, 0)) AS days_of_inventory,
   CASE 
-    WHEN inv.quantity_available = 0 THEN 'Out of Stock'
-    WHEN SAFE_DIVIDE(inv.quantity_available, NULLIF(rs.avg_daily_sales, 0)) <= 7 THEN 'Low Stock'
-    WHEN SAFE_DIVIDE(inv.quantity_available, NULLIF(rs.avg_daily_sales, 0)) <= 14 THEN 'Medium Stock'
+    WHEN inv.current_stock = 0 THEN 'Out of Stock'
+    WHEN SAFE_DIVIDE(inv.current_stock, NULLIF(rs.avg_daily_sales, 0)) <= 7 THEN 'Low Stock'
+    WHEN SAFE_DIVIDE(inv.current_stock, NULLIF(rs.avg_daily_sales, 0)) <= 14 THEN 'Medium Stock'
     ELSE 'Well Stocked'
   END AS stock_status,
-  rs.sold_last_30d * p.price AS potential_lost_revenue
+  rs.sold_last_30d * CAST(p.avg_selling_price AS FLOAT64) AS potential_lost_revenue
 FROM `analytics_ecommerce_ecommerce.dim_products` p
 LEFT JOIN `analytics_ecommerce_ecommerce.fact_inventory` inv ON p.product_id = inv.product_id
 LEFT JOIN recent_sales rs ON p.product_id = rs.product_id
@@ -533,14 +550,14 @@ ORDER BY days_of_inventory ASC;
 #### 📈 Product Performance Category Trends – Line chart
 ```sql
 SELECT 
-  DATE_TRUNC(DATE(order_date), WEEK) AS week,
+  DATE_TRUNC(DATE(PARSE_DATE('%Y%m%d', CAST(order_date_key AS STRING))), WEEK) AS week,
   p.product_type,
   SUM(o.line_item_quantity) AS units_sold,
   SUM(o.line_item_total_usd) AS revenue,
   COUNT(DISTINCT o.order_id) AS orders
 FROM `analytics_ecommerce_ecommerce.fact_orders` o
 JOIN `analytics_ecommerce_ecommerce.dim_products` p ON o.product_id = p.product_id
-WHERE DATE(o.order_date) >= DATE_SUB(CURRENT_DATE(), INTERVAL 12 WEEK)
+WHERE DATE(PARSE_DATE('%Y%m%d', CAST(o.order_date_key AS STRING))) >= DATE_SUB(CURRENT_DATE(), INTERVAL 12 WEEK)
 GROUP BY week, p.product_type
 ORDER BY week, revenue DESC;
 ```
@@ -550,18 +567,18 @@ ORDER BY week, revenue DESC;
 SELECT 
   p.product_title,
   p.product_type,
-  p.price AS selling_price,
+  CAST(p.avg_selling_price AS FLOAT64) AS selling_price,
   p.cost AS product_cost,
-  p.price - p.cost AS gross_margin_per_unit,
-  SAFE_DIVIDE(p.price - p.cost, p.price) * 100 AS gross_margin_pct,
+  CAST(p.avg_selling_price AS FLOAT64) - p.cost AS gross_margin_per_unit,
+  SAFE_DIVIDE(CAST(p.avg_selling_price AS FLOAT64) - p.cost, CAST(p.avg_selling_price AS FLOAT64)) * 100 AS gross_margin_pct,
   SUM(o.line_item_quantity) AS units_sold_30d,
-  SUM((p.price - p.cost) * o.line_item_quantity) AS total_margin_30d
+  SUM((CAST(p.avg_selling_price AS FLOAT64) - p.cost) * o.line_item_quantity) AS total_margin_30d
 FROM `analytics_ecommerce_ecommerce.dim_products` p
 LEFT JOIN `analytics_ecommerce_ecommerce.fact_orders` o 
   ON p.product_id = o.product_id 
-  AND DATE(o.order_date) >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)
-WHERE p.price > 0 AND p.cost > 0
-GROUP BY p.product_title, p.product_type, p.price, p.cost
+  AND DATE(PARSE_DATE('%Y%m%d', CAST(o.order_date_key AS STRING))) >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)
+WHERE CAST(p.avg_selling_price AS FLOAT64) > 0 AND p.cost > 0
+GROUP BY p.product_title, p.product_type, CAST(p.avg_selling_price AS FLOAT64), p.cost
 ORDER BY total_margin_30d DESC;
 ```
 
@@ -618,7 +635,7 @@ ORDER BY avg_engagement_score DESC;
 #### 📈 Revenue per Email by Campaign – Bar chart
 ```sql
 SELECT 
-  ec.campaign_name,
+  ec.content_name,
   ec.campaign_category,
   ec.email_program_type,
   SUM(em.emails_delivered) AS total_emails_delivered,
@@ -630,7 +647,7 @@ JOIN `analytics_ecommerce_ecommerce.fact_email_marketing` em
   ON ec.campaign_key = em.email_marketing_key
 WHERE em.event_date >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)
   AND em.emails_delivered > 0
-GROUP BY ec.campaign_name, ec.campaign_category, ec.email_program_type
+GROUP BY ec.content_name, ec.campaign_category, ec.email_program_type
 ORDER BY revenue_per_email DESC
 LIMIT 20;
 ```
@@ -814,7 +831,7 @@ JOIN dim_customers c ON o.customer_id = c.customer_id
 
 -- Marketing with Channels
 FROM fact_marketing_performance m
-JOIN dim_channels ch ON m.utm_source = ch.utm_source
+JOIN dim_channels ch ON m.source_name = ch.source_name
 
 -- Events with Sessions
 FROM fact_events e
