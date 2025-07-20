@@ -1,0 +1,11 @@
+id,name,created,updated,integration,_fivetran_synced
+01HJ6KS3O4P5Q6R7S8T9U0V1W2,Received Email,2022-07-15 09:00:00,2022-12-01 10:00:00,"{""object"": ""integration"", ""id"": ""klaviyo_email"", ""name"": ""Klaviyo Email""}",2024-12-01 00:00:00
+01HJ6KS3O4P5Q6R7S8T9U0V1W3,Opened Email,2022-07-15 09:00:00,2022-12-01 10:00:00,"{""object"": ""integration"", ""id"": ""klaviyo_email"", ""name"": ""Klaviyo Email""}",2024-12-01 00:00:00
+01HJ6KS3O4P5Q6R7S8T9U0V1W4,Clicked Email,2022-07-15 09:00:00,2022-12-01 10:00:00,"{""object"": ""integration"", ""id"": ""klaviyo_email"", ""name"": ""Klaviyo Email""}",2024-12-01 00:00:00
+01HJ6KS3O4P5Q6R7S8T9U0V1W5,Marked Email as Spam,2022-07-15 09:00:00,2022-12-01 10:00:00,"{""object"": ""integration"", ""id"": ""klaviyo_email"", ""name"": ""Klaviyo Email""}",2024-12-01 00:00:00
+01HJ6KS3O4P5Q6R7S8T9U0V1W6,Unsubscribed,2022-07-15 09:00:00,2022-12-01 10:00:00,"{""object"": ""integration"", ""id"": ""klaviyo_email"", ""name"": ""Klaviyo Email""}",2024-12-01 00:00:00
+01HJ6KS3O4P5Q6R7S8T9U0V1W7,Placed Order,2022-07-15 09:00:00,2022-12-01 10:00:00,"{""object"": ""integration"", ""id"": ""shopify"", ""name"": ""Shopify""}",2024-12-01 00:00:00
+01HJ6KS3O4P5Q6R7S8T9U0V1W8,Ordered Product,2022-07-15 09:00:00,2022-12-01 10:00:00,"{""object"": ""integration"", ""id"": ""shopify"", ""name"": ""Shopify""}",2024-12-01 00:00:00
+01HJ6KS3O4P5Q6R7S8T9U0V1W9,Viewed Product,2022-07-15 09:00:00,2022-12-01 10:00:00,"{""object"": ""integration"", ""id"": ""web"", ""name"": ""Website""}",2024-12-01 00:00:00
+01HJ6KS3O4P5Q6R7S8T9U0V1X0,Started Checkout,2022-07-15 09:00:00,2022-12-01 10:00:00,"{""object"": ""integration"", ""id"": ""shopify"", ""name"": ""Shopify""}",2024-12-01 00:00:00
+01HJ6KS3O4P5Q6R7S8T9U0V1X1,Active on Site,2022-07-15 09:00:00,2022-12-01 10:00:00,"{""object"": ""integration"", ""id"": ""web"", ""name"": ""Website""}",2024-12-01 00:00:00

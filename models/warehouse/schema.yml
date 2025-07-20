@@ -1,0 +1,1295 @@
+version: 2
+
+models:
+  - name: wh_dim_date
+    description: "Date dimension table with comprehensive calendar attributes for time-based analysis and reporting"
+    columns:
+      - name: date_key
+        description: "Surrogate key for date dimension (YYYYMMDD format)"
+        tests:
+          - unique
+          - not_null
+      - name: date_actual
+        description: "Actual date value"
+        tests:
+          - unique
+          - not_null
+      - name: year_number
+        description: "Calendar year (e.g., 2024)"
+        tests:
+          - not_null
+      - name: quarter_number
+        description: "Calendar quarter (1-4)"
+        tests:
+          - not_null
+          - accepted_values:
+              values: [1, 2, 3, 4]
+      - name: month_number
+        description: "Calendar month (1-12)"
+        tests:
+          - not_null
+          - accepted_values:
+              values: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+      - name: month_name
+        description: "Full month name (e.g., January)"
+      - name: month_name_short
+        description: "Abbreviated month name (e.g., Jan)"
+      - name: day_of_month
+        description: "Day of month (1-31)"
+      - name: day_of_week_number
+        description: "Day of week number (1=Sunday, 7=Saturday)"
+        tests:
+          - not_null
+          - accepted_values:
+              values: [1, 2, 3, 4, 5, 6, 7]
+      - name: day_of_week_name
+        description: "Full day name (e.g., Monday)"
+      - name: day_of_week_name_short
+        description: "Abbreviated day name (e.g., Mon)"
+      - name: day_of_year
+        description: "Day number within the year (1-366)"
+      - name: week_of_year
+        description: "Week number within the year (1-53)"
+      - name: is_weekend
+        description: "Boolean indicating if date is weekend"
+        tests:
+          - accepted_values:
+              values: [true, false]
+      - name: is_holiday
+        description: "Boolean indicating if date is a holiday"
+        tests:
+          - accepted_values:
+              values: [true, false]
+      - name: fiscal_year
+        description: "Fiscal year (if different from calendar year)"
+      - name: fiscal_quarter
+        description: "Fiscal quarter"
+      - name: fiscal_month
+        description: "Fiscal month"
+
+  - name: wh_dim_customers
+    description: "Customer dimension with SCD Type 2 implementation, comprehensive customer attributes, and calculated metrics"
+    columns:
+      - name: customer_key
+        description: "Surrogate key for customer dimension"
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: "Natural key from Shopify"
+        tests:
+          - not_null
+      - name: customer_email
+        description: "Customer email address"
+        tests:
+          - not_null
+      - name: customer_first_name
+        description: "Customer first name"
+      - name: customer_last_name
+        description: "Customer last name"
+      - name: customer_full_name
+        description: "Concatenated full name"
+      - name: customer_phone
+        description: "Customer phone number"
+      - name: customer_created_at
+        description: "Timestamp when customer was created"
+        tests:
+          - not_null
+      - name: customer_accepts_marketing
+        description: "Boolean indicating if customer accepts marketing"
+        tests:
+          - accepted_values:
+              values: [true, false]
+      - name: customer_state
+        description: "Customer account state"
+      - name: customer_tags
+        description: "Tags associated with customer"
+      - name: total_spent_usd
+        description: "Total amount spent by customer (lifetime value)"
+        tests:
+          - not_null
+      - name: order_count
+        description: "Number of orders placed by customer"
+        tests:
+          - not_null
+      - name: avg_order_value_usd
+        description: "Average order value for this customer"
+      - name: first_order_date
+        description: "Date of customer's first order"
+      - name: last_order_date
+        description: "Date of customer's most recent order"
+      - name: days_since_first_order
+        description: "Days since customer's first order"
+      - name: days_since_last_order
+        description: "Days since customer's last order"
+      - name: customer_segment
+        description: "Customer segmentation based on purchase behavior and value"
+        tests:
+          - accepted_values:
+              values: ['High Value', 'Repeat Customer', 'One-time Customer', 'No Orders']
+      - name: customer_value_tier
+        description: "Customer value tier based on lifetime spend"
+        tests:
+          - accepted_values:
+              values: ['VIP', 'High Value', 'Medium Value', 'Low Value', 'Minimal Value']
+      - name: churn_risk_score
+        description: "Calculated churn risk score (0-100, higher = more risk)"
+      - name: engagement_score
+        description: "Customer engagement score based on activity"
+      - name: predicted_ltv_usd
+        description: "Predicted lifetime value"
+      - name: is_active_customer
+        description: "Boolean indicating if customer is currently active"
+        tests:
+          - accepted_values:
+              values: [true, false]
+      - name: effective_from_date
+        description: "SCD Type 2: Start date for this record version"
+        tests:
+          - not_null
+      - name: effective_to_date
+        description: "SCD Type 2: End date for this record version"
+      - name: is_current
+        description: "SCD Type 2 flag indicating current record"
+        tests:
+          - not_null
+          - accepted_values:
+              values: [true, false]
+      - name: record_source
+        description: "Source system that created this record"
+      - name: created_at
+        description: "Timestamp when record was created"
+        tests:
+          - not_null
+      - name: updated_at
+        description: "Timestamp when record was last updated"
+        tests:
+          - not_null
+
+  - name: wh_dim_products
+    description: "Product dimension with SCD Type 2 implementation, comprehensive product attributes, and performance metrics"
+    columns:
+      - name: product_key
+        description: "Surrogate key for product dimension"
+        tests:
+          - unique
+          - not_null
+      - name: product_id
+        description: "Natural key from Shopify"
+        tests:
+          - not_null
+      - name: product_title
+        description: "Product title"
+        tests:
+          - not_null
+      - name: product_handle
+        description: "URL handle for product"
+      - name: product_type
+        description: "Product type/category"
+      - name: vendor
+        description: "Product vendor/brand"
+      - name: product_status
+        description: "Current product status"
+        tests:
+          - accepted_values:
+              values: ['active', 'draft', 'archived']
+      - name: product_created_at
+        description: "Timestamp when product was created"
+      - name: product_updated_at
+        description: "Timestamp when product was last updated"
+      - name: tags
+        description: "Product tags"
+      - name: price
+        description: "Current product price"
+      - name: cost
+        description: "Product cost"
+      - name: weight
+        description: "Product weight"
+      - name: inventory_tracking
+        description: "Whether inventory is tracked for this product"
+        tests:
+          - accepted_values:
+              values: [true, false]
+      - name: requires_shipping
+        description: "Whether product requires shipping"
+        tests:
+          - accepted_values:
+              values: [true, false]
+      - name: is_taxable
+        description: "Whether product is taxable"
+        tests:
+          - accepted_values:
+              values: [true, false]
+      - name: total_revenue_usd
+        description: "Total revenue generated by this product"
+        tests:
+          - not_null
+      - name: total_orders
+        description: "Total number of orders containing this product"
+        tests:
+          - not_null
+      - name: total_quantity_sold
+        description: "Total quantity sold"
+        tests:
+          - not_null
+      - name: avg_order_value_usd
+        description: "Average order value for orders containing this product"
+      - name: gross_margin_usd
+        description: "Gross margin per unit (price - cost)"
+      - name: gross_margin_percentage
+        description: "Gross margin as percentage"
+      - name: product_performance_category
+        description: "Performance categorization based on sales"
+        tests:
+          - accepted_values:
+              values: ['Best Seller', 'Popular', 'Moderate', 'Low Selling', 'No Sales']
+      - name: revenue_tier
+        description: "Revenue tier classification"
+        tests:
+          - accepted_values:
+              values: ['Top Revenue Generator', 'High Revenue', 'Medium Revenue', 'Low Revenue', 'No Revenue']
+      - name: days_since_last_sale
+        description: "Days since product was last sold"
+      - name: is_active_seller
+        description: "Boolean indicating if product has sold recently"
+        tests:
+          - accepted_values:
+              values: [true, false]
+      - name: effective_from_date
+        description: "SCD Type 2: Start date for this record version"
+        tests:
+          - not_null
+      - name: effective_to_date
+        description: "SCD Type 2: End date for this record version"
+      - name: is_current
+        description: "SCD Type 2 flag indicating current record"
+        tests:
+          - not_null
+          - accepted_values:
+              values: [true, false]
+      - name: created_at
+        description: "Timestamp when record was created"
+        tests:
+          - not_null
+      - name: updated_at
+        description: "Timestamp when record was last updated"
+        tests:
+          - not_null
+
+  - name: wh_dim_channels_enhanced
+    description: "Enhanced marketing channel dimension with attribution mappings and channel categorization"
+    columns:
+      - name: channel_key
+        description: "Surrogate key for channel dimension"
+        tests:
+          - unique
+          - not_null
+      - name: utm_source
+        description: "UTM source value"
+        tests:
+          - not_null
+      - name: utm_medium
+        description: "UTM medium value"
+      - name: utm_campaign
+        description: "UTM campaign value"
+      - name: channel_name
+        description: "Standardized channel name"
+        tests:
+          - not_null
+      - name: channel_category
+        description: "High-level channel category"
+        tests:
+          - accepted_values:
+              values: ['Paid Search', 'Paid Social', 'Organic Search', 'Email', 'Direct', 'Referral', 'Display', 'Video', 'Social Organic', 'Other']
+      - name: channel_type
+        description: "Paid vs Organic classification"
+        tests:
+          - accepted_values:
+              values: ['Paid', 'Organic', 'Direct', 'Unknown']
+      - name: platform
+        description: "Marketing platform"
+      - name: is_digital
+        description: "Boolean indicating if channel is digital"
+        tests:
+          - accepted_values:
+              values: [true, false]
+      - name: attribution_weight
+        description: "Default attribution weight for this channel"
+      - name: cost_model
+        description: "How costs are calculated for this channel"
+        tests:
+          - accepted_values:
+              values: ['CPC', 'CPM', 'CPA', 'Fixed', 'Revenue Share', 'Unknown']
+      - name: is_active
+        description: "Boolean indicating if channel is actively used"
+        tests:
+          - accepted_values:
+              values: [true, false]
+
+  - name: wh_dim_email_campaigns
+    description: "Email campaign dimension with campaign details, performance tiers, and categorization"
+    columns:
+      - name: campaign_key
+        description: "Surrogate key for email campaign"
+        tests:
+          - unique
+          - not_null
+      - name: campaign_id
+        description: "Campaign identifier from Klaviyo"
+        tests:
+          - not_null
+      - name: program_id
+        description: "Program identifier (campaign or flow)"
+      - name: program_name
+        description: "Program name"
+      - name: email_program_type
+        description: "Type of email program"
+        tests:
+          - accepted_values:
+              values: ['campaign', 'flow']
+      - name: campaign_name
+        description: "Campaign name"
+        tests:
+          - not_null
+      - name: campaign_subject
+        description: "Email subject line"
+      - name: campaign_type
+        description: "Campaign type from Klaviyo"
+      - name: campaign_category
+        description: "Categorized campaign type"
+        tests:
+          - accepted_values:
+              values: ['welcome', 'promotional', 'retention', 'vip', 'newsletter', 'lifecycle', 'transactional', 'other']
+      - name: from_email
+        description: "Sender email address"
+      - name: from_name
+        description: "Sender name"
+      - name: sender_category
+        description: "Categorized sender type"
+        tests:
+          - accepted_values:
+              values: ['promotional', 'vip', 'editorial', 'transactional', 'general', 'automated']
+      - name: subject_length
+        description: "Length of subject line in characters"
+      - name: subject_length_category
+        description: "Subject length category"
+        tests:
+          - accepted_values:
+              values: ['short', 'medium', 'long']
+      - name: has_emoji
+        description: "Boolean indicating if subject has emoji"
+        tests:
+          - accepted_values:
+              values: [true, false]
+      - name: has_promotion
+        description: "Boolean indicating if subject has promotional terms"
+        tests:
+          - accepted_values:
+              values: [true, false]
+      - name: sent_at
+        description: "Timestamp when campaign was sent"
+      - name: campaign_created_at
+        description: "Timestamp when campaign was created"
+      - name: campaign_updated_at
+        description: "Timestamp when campaign was last updated"
+      - name: performance_tier
+        description: "Performance tier based on metrics"
+        tests:
+          - accepted_values:
+              values: ['high_performing', 'medium_performing', 'low_performing', 'no_engagement']
+
+  - name: wh_fact_orders
+    description: "Order fact table with comprehensive order metrics, line item details, and business classifications"
+    columns:
+      - name: order_key
+        description: "Surrogate key for order fact"
+        tests:
+          - unique
+          - not_null
+      - name: customer_key
+        description: "Foreign key to customer dimension"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('wh_dim_customers')
+              field: customer_key
+      - name: product_key
+        description: "Foreign key to product dimension"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('wh_dim_products')
+              field: product_key
+      - name: order_date_key
+        description: "Foreign key to date dimension for order date"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('wh_dim_date')
+              field: date_key
+      - name: order_id
+        description: "Natural key from Shopify"
+        tests:
+          - not_null
+      - name: order_line_id
+        description: "Line item identifier"
+        tests:
+          - not_null
+      - name: customer_id
+        description: "Customer natural key"
+        tests:
+          - not_null
+      - name: product_id
+        description: "Product natural key"
+        tests:
+          - not_null
+      - name: order_number
+        description: "Human-readable order number"
+        tests:
+          - not_null
+      - name: order_date
+        description: "Date when order was placed"
+        tests:
+          - not_null
+      - name: order_created_at
+        description: "Timestamp when order was created"
+        tests:
+          - not_null
+      - name: financial_status
+        description: "Financial status of order"
+        tests:
+          - accepted_values:
+              values: ['paid', 'pending', 'authorized', 'partially_paid', 'refunded', 'voided', 'partially_refunded']
+      - name: fulfillment_status
+        description: "Fulfillment status of order"
+      - name: currency
+        description: "Order currency"
+      - name: line_item_quantity
+        description: "Quantity of this product in order"
+        tests:
+          - not_null
+      - name: line_item_price_usd
+        description: "Unit price in USD"
+        tests:
+          - not_null
+      - name: line_item_total_usd
+        description: "Line item total (price * quantity)"
+        tests:
+          - not_null
+      - name: line_item_discount_usd
+        description: "Discount applied to line item"
+      - name: total_price_usd
+        description: "Total order amount including taxes and shipping"
+        tests:
+          - not_null
+      - name: subtotal_price_usd
+        description: "Subtotal before taxes and shipping"
+      - name: total_tax_usd
+        description: "Total tax amount"
+      - name: total_discounts_usd
+        description: "Total discount amount"
+      - name: shipping_cost_usd
+        description: "Shipping cost"
+      - name: gross_margin_usd
+        description: "Gross margin for this line item"
+      - name: gross_margin_percentage
+        description: "Gross margin as percentage"
+      - name: order_type
+        description: "Classification of order type"
+        tests:
+          - accepted_values:
+              values: ['Single Item', 'Multiple Items', 'Bulk Order', 'High Value']
+      - name: is_first_order
+        description: "Boolean indicating if this is customer's first order"
+        tests:
+          - accepted_values:
+              values: [true, false]
+      - name: order_sequence_number
+        description: "Sequential order number for this customer"
+      - name: utm_source
+        description: "UTM source for attribution"
+      - name: utm_medium
+        description: "UTM medium for attribution"
+      - name: utm_campaign
+        description: "UTM campaign for attribution"
+      - name: created_at
+        description: "Timestamp when fact record was created"
+        tests:
+          - not_null
+      - name: updated_at
+        description: "Timestamp when fact record was last updated"
+        tests:
+          - not_null
+
+  - name: wh_fact_sessions
+    description: "Website session fact table with engagement metrics, conversion indicators, and user journey context"
+    columns:
+      - name: session_key
+        description: "Surrogate key for session fact"
+        tests:
+          - unique
+          - not_null
+      - name: session_date_key
+        description: "Foreign key to date dimension for session date"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('wh_dim_date')
+              field: date_key
+      - name: session_id
+        description: "Natural key for website session"
+        tests:
+          - not_null
+      - name: user_pseudo_id
+        description: "User pseudo ID from website analytics"
+        tests:
+          - not_null
+      - name: session_date
+        description: "Date of the session"
+        tests:
+          - not_null
+      - name: session_start_time
+        description: "Timestamp when session started"
+        tests:
+          - not_null
+      - name: session_end_time
+        description: "Timestamp when session ended"
+      - name: session_duration_minutes
+        description: "Duration of session in minutes"
+      - name: page_views
+        description: "Number of page views in session"
+        tests:
+          - not_null
+      - name: unique_pages_viewed
+        description: "Number of unique pages viewed"
+      - name: events_count
+        description: "Total number of events in session"
+      - name: engaged_session_indicator
+        description: "Boolean indicating if session was engaged"
+        tests:
+          - accepted_values:
+              values: [true, false]
+      - name: traffic_source_source
+        description: "Traffic source"
+      - name: traffic_source_medium
+        description: "Traffic medium"
+      - name: traffic_source_campaign
+        description: "Campaign that drove session"
+      - name: device_category
+        description: "Device category"
+        tests:
+          - accepted_values:
+              values: ['desktop', 'mobile', 'tablet']
+      - name: device_operating_system
+        description: "Operating system"
+      - name: device_browser
+        description: "Browser used"
+      - name: geo_country
+        description: "Country of user"
+      - name: geo_region
+        description: "Region of user"
+      - name: geo_city
+        description: "City of user"
+      - name: has_purchase
+        description: "Boolean indicating if session resulted in purchase"
+        tests:
+          - accepted_values:
+              values: [true, false]
+      - name: has_add_to_cart
+        description: "Boolean indicating if session had add to cart"
+        tests:
+          - accepted_values:
+              values: [true, false]
+      - name: has_checkout
+        description: "Boolean indicating if session had checkout"
+        tests:
+          - accepted_values:
+              values: [true, false]
+      - name: session_type
+        description: "Classification of session based on behavior"
+        tests:
+          - accepted_values:
+              values: ['Converting', 'Checkout Started', 'Added to Cart', 'Product Browsing', 'General Browsing']
+      - name: is_bounce
+        description: "Boolean indicating if session was a bounce"
+        tests:
+          - accepted_values:
+              values: [true, false]
+      - name: engagement_score
+        description: "Calculated engagement score"
+      - name: conversion_probability
+        description: "Predicted conversion probability"
+      - name: ecommerce_revenue_usd
+        description: "Revenue attributed to this session"
+
+  - name: wh_fact_events
+    description: "Website event fact table with standardized event structure and business context"
+    columns:
+      - name: event_key
+        description: "Surrogate key for event fact"
+        tests:
+          - unique
+          - not_null
+      - name: event_date_key
+        description: "Foreign key to date dimension"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('wh_dim_date')
+              field: date_key
+      - name: session_key
+        description: "Foreign key to session fact"
+        tests:
+          - relationships:
+              to: ref('wh_fact_sessions')
+              field: session_key
+      - name: event_id
+        description: "Natural key for event"
+      - name: session_id
+        description: "Session identifier"
+        tests:
+          - not_null
+      - name: user_pseudo_id
+        description: "User pseudo ID"
+        tests:
+          - not_null
+      - name: event_date
+        description: "Date of event"
+        tests:
+          - not_null
+      - name: event_timestamp
+        description: "Timestamp of event"
+        tests:
+          - not_null
+      - name: event_name
+        description: "Name of the event"
+        tests:
+          - not_null
+      - name: event_category
+        description: "Category of event"
+        tests:
+          - accepted_values:
+              values: ['engagement', 'ecommerce', 'navigation', 'social', 'video']
+      - name: page_location
+        description: "URL where event occurred"
+      - name: page_title
+        description: "Title of page where event occurred"
+      - name: page_referrer
+        description: "Referrer URL"
+      - name: ecommerce_value_usd
+        description: "Monetary value for ecommerce events"
+      - name: transaction_id
+        description: "Transaction identifier for purchase events"
+      - name: item_count
+        description: "Number of items for ecommerce events"
+      - name: time_on_page_seconds
+        description: "Time spent on page before this event"
+      - name: scroll_percentage
+        description: "Scroll percentage reached"
+
+  - name: wh_fact_customer_journey
+    description: "Customer journey fact table linking website sessions to conversions with attribution weights"
+    columns:
+      - name: journey_key
+        description: "Surrogate key for customer journey fact"
+        tests:
+          - unique
+          - not_null
+      - name: customer_key
+        description: "Foreign key to customer dimension"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('wh_dim_customers')
+              field: customer_key
+      - name: order_key
+        description: "Foreign key to order fact"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('wh_fact_orders')
+              field: order_key
+      - name: session_key
+        description: "Foreign key to session fact"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('wh_fact_sessions')
+              field: session_key
+      - name: touchpoint_date_key
+        description: "Foreign key to date dimension for touchpoint date"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('wh_dim_date')
+              field: date_key
+      - name: conversion_date_key
+        description: "Foreign key to date dimension for conversion date"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('wh_dim_date')
+              field: date_key
+      - name: customer_id
+        description: "Customer natural key"
+        tests:
+          - not_null
+      - name: order_id
+        description: "Order natural key"
+        tests:
+          - not_null
+      - name: session_id
+        description: "Session natural key"
+        tests:
+          - not_null
+      - name: journey_step
+        description: "Step number in customer journey"
+        tests:
+          - not_null
+      - name: touchpoint_timestamp
+        description: "Timestamp of touchpoint"
+        tests:
+          - not_null
+      - name: conversion_timestamp
+        description: "Timestamp of conversion"
+        tests:
+          - not_null
+      - name: days_to_conversion
+        description: "Days from touchpoint to conversion"
+        tests:
+          - not_null
+      - name: hours_to_conversion
+        description: "Hours from touchpoint to conversion"
+      - name: channel_source
+        description: "Marketing channel for this touchpoint"
+      - name: channel_medium
+        description: "Marketing medium for this touchpoint"
+      - name: channel_campaign
+        description: "Marketing campaign for this touchpoint"
+      - name: next_channel_source
+        description: "Next channel in journey"
+      - name: device_category
+        description: "Device category for touchpoint"
+      - name: session_duration_minutes
+        description: "Duration of touchpoint session"
+      - name: session_page_views
+        description: "Page views in touchpoint session"
+      - name: event_timestamp
+        description: "Event timestamp"
+      - name: order_value_usd
+        description: "Value of the conversion order"
+        tests:
+          - not_null
+      - name: attribution_weight
+        description: "Attribution weight for this touchpoint"
+        tests:
+          - not_null
+      - name: normalized_attribution_weight
+        description: "Normalized attribution weight (sums to 1.0 per order)"
+        tests:
+          - not_null
+      - name: attributed_revenue_usd
+        description: "Revenue attributed to this touchpoint"
+        tests:
+          - not_null
+      - name: attributed_conversions
+        description: "Fractional conversions attributed to touchpoint"
+        tests:
+          - not_null
+      - name: journey_complexity
+        description: "Classification of journey complexity"
+        tests:
+          - accepted_values:
+              values: ['Single Session', 'Short Journey', 'Medium Journey', 'Long Journey']
+      - name: conversion_timeline
+        description: "Timeline from first touch to conversion"
+        tests:
+          - accepted_values:
+              values: ['Same Day', 'Within 3 Days', 'Within 1 Week', 'Within 1 Month', 'Long Consideration']
+      - name: is_first_touch
+        description: "Boolean indicating if this is first touchpoint"
+        tests:
+          - accepted_values:
+              values: [true, false]
+      - name: is_last_touch
+        description: "Boolean indicating if this is last touchpoint"
+        tests:
+          - accepted_values:
+              values: [true, false]
+      - name: is_converting_session
+        description: "Boolean indicating if session resulted in conversion"
+        tests:
+          - accepted_values:
+              values: [true, false]
+      - name: days_to_next_touch
+        description: "Days to next touchpoint in journey"
+
+  - name: wh_fact_marketing_performance
+    description: "Marketing performance fact table with unified metrics across all advertising platforms"
+    columns:
+      - name: marketing_performance_key
+        description: "Surrogate key for marketing performance fact"
+        tests:
+          - unique
+          - not_null
+      - name: campaign_key
+        description: "Foreign key to campaign dimension"
+      - name: channel_key
+        description: "Foreign key to channel dimension"
+        tests:
+          - relationships:
+              to: ref('wh_dim_channels_enhanced')
+              field: channel_key
+      - name: report_date_key
+        description: "Foreign key to date dimension"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('wh_dim_date')
+              field: date_key
+      - name: platform
+        description: "Marketing platform"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['google_ads', 'facebook_ads', 'pinterest_ads', 'email', 'organic_social']
+      - name: campaign_id
+        description: "Campaign identifier"
+      - name: campaign_name
+        description: "Campaign name"
+      - name: report_date
+        description: "Date of performance metrics"
+        tests:
+          - not_null
+      - name: cost_usd
+        description: "Cost in USD"
+        tests:
+          - not_null
+      - name: impressions
+        description: "Number of impressions"
+        tests:
+          - not_null
+      - name: clicks
+        description: "Number of clicks"
+        tests:
+          - not_null
+      - name: conversions
+        description: "Number of conversions"
+        tests:
+          - not_null
+      - name: revenue
+        description: "Revenue attributed to marketing"
+        tests:
+          - not_null
+      - name: ctr
+        description: "Click-through rate"
+      - name: cpc_usd
+        description: "Cost per click in USD"
+      - name: cpm_usd
+        description: "Cost per thousand impressions in USD"
+      - name: cpa_usd
+        description: "Cost per acquisition in USD"
+      - name: roas
+        description: "Return on ad spend"
+      - name: conversion_rate
+        description: "Conversion rate"
+      - name: performance_tier
+        description: "Performance tier classification"
+        tests:
+          - accepted_values:
+              values: ['top_performer', 'good_performer', 'underperformer', 'poor_performer']
+
+  - name: wh_fact_email_marketing
+    description: "Email marketing performance fact table with comprehensive engagement and conversion metrics"
+    columns:
+      - name: email_marketing_key
+        description: "Surrogate key for email marketing fact"
+        tests:
+          - unique
+          - not_null
+      - name: campaign_key
+        description: "Foreign key to email campaign dimension"
+        tests:
+          - relationships:
+              to: ref('wh_dim_email_campaigns')
+              field: campaign_key
+      - name: event_date_key
+        description: "Foreign key to date dimension"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('wh_dim_date')
+              field: date_key
+      - name: event_date
+        description: "Date of email events"
+        tests:
+          - not_null
+      - name: campaign_id
+        description: "Campaign identifier"
+      - name: flow_id
+        description: "Flow identifier for automated emails"
+      - name: campaign_name
+        description: "Campaign name"
+      - name: campaign_subject
+        description: "Email subject line"
+      - name: utm_source
+        description: "UTM source for tracking"
+      - name: utm_medium
+        description: "UTM medium for tracking"
+      - name: utm_campaign
+        description: "UTM campaign for tracking"
+      - name: marketing_type
+        description: "Type of marketing (email_marketing)"
+        tests:
+          - accepted_values:
+              values: ['email_marketing']
+      - name: emails_delivered
+        description: "Number of emails delivered"
+        tests:
+          - not_null
+      - name: emails_opened
+        description: "Number of emails opened"
+        tests:
+          - not_null
+      - name: emails_clicked
+        description: "Number of emails clicked"
+        tests:
+          - not_null
+      - name: emails_marked_spam
+        description: "Number of emails marked as spam"
+        tests:
+          - not_null
+      - name: unsubscribes
+        description: "Number of unsubscribes"
+        tests:
+          - not_null
+      - name: orders
+        description: "Number of orders attributed"
+        tests:
+          - not_null
+      - name: product_orders
+        description: "Number of product orders"
+        tests:
+          - not_null
+      - name: revenue
+        description: "Revenue attributed to email"
+        tests:
+          - not_null
+      - name: unique_recipients
+        description: "Number of unique recipients"
+        tests:
+          - not_null
+      - name: unique_openers
+        description: "Number of unique openers"
+        tests:
+          - not_null
+      - name: unique_clickers
+        description: "Number of unique clickers"
+        tests:
+          - not_null
+      - name: unique_converters
+        description: "Number of unique converters"
+        tests:
+          - not_null
+      - name: open_rate
+        description: "Email open rate"
+      - name: click_rate
+        description: "Email click rate"
+      - name: click_to_delivery_rate
+        description: "Click to delivery rate"
+      - name: conversion_rate
+        description: "Email conversion rate"
+      - name: revenue_per_email
+        description: "Revenue per email delivered"
+      - name: average_order_value
+        description: "Average order value from email"
+      - name: unique_open_rate
+        description: "Unique open rate"
+      - name: unique_click_rate
+        description: "Unique click rate"
+      - name: unique_conversion_rate
+        description: "Unique conversion rate"
+      - name: performance_tier
+        description: "Performance tier classification"
+        tests:
+          - accepted_values:
+              values: ['high_performing', 'medium_performing', 'low_performing', 'no_engagement']
+      - name: email_type
+        description: "Type of email (campaign vs flow)"
+        tests:
+          - accepted_values:
+              values: ['one_time_campaign', 'automated_flow', 'flow_campaign', 'unknown']
+      - name: engagement_score
+        description: "Overall engagement score (0-100)"
+
+  - name: wh_fact_social_posts
+    description: "Social media content performance fact table with engagement metrics and content analysis"
+    columns:
+      - name: social_post_key
+        description: "Surrogate key for social post fact"
+        tests:
+          - unique
+          - not_null
+      - name: post_date_key
+        description: "Foreign key to date dimension"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('wh_dim_date')
+              field: date_key
+      - name: post_id
+        description: "Social media post identifier"
+        tests:
+          - not_null
+      - name: media_id
+        description: "Media identifier from Instagram Business"
+      - name: platform
+        description: "Social media platform"
+        tests:
+          - accepted_values:
+              values: ['instagram']
+      - name: post_created_date
+        description: "Date when post was created"
+        tests:
+          - not_null
+      - name: post_type
+        description: "Type of post"
+        tests:
+          - accepted_values:
+              values: ['image', 'video', 'carousel', 'story', 'reel']
+      - name: content_type
+        description: "Categorized content type"
+        tests:
+          - accepted_values:
+              values: ['product_showcase', 'lifestyle', 'behind_scenes', 'user_generated', 'promotional', 'educational', 'other']
+      - name: caption_text
+        description: "Post caption text"
+      - name: hashtag_count
+        description: "Number of hashtags used"
+      - name: mention_count
+        description: "Number of mentions used"
+      - name: impressions
+        description: "Number of impressions"
+        tests:
+          - not_null
+      - name: reach
+        description: "Number of unique accounts reached"
+      - name: total_engagements
+        description: "Total engagement actions"
+        tests:
+          - not_null
+      - name: likes
+        description: "Number of likes"
+      - name: comments
+        description: "Number of comments"
+      - name: shares
+        description: "Number of shares"
+      - name: saves
+        description: "Number of saves"
+      - name: profile_visits
+        description: "Profile visits from post"
+      - name: website_clicks
+        description: "Website clicks from post"
+      - name: engagement_rate
+        description: "Engagement rate (engagements/impressions)"
+      - name: reach_rate
+        description: "Reach rate (reach/impressions)"
+      - name: like_rate
+        description: "Like rate (likes/impressions)"
+      - name: comment_rate
+        description: "Comment rate (comments/impressions)"
+      - name: save_rate
+        description: "Save rate (saves/impressions)"
+      - name: performance_tier
+        description: "Performance tier based on engagement"
+        tests:
+          - accepted_values:
+              values: ['top_performer', 'high_performer', 'average_performer', 'low_performer']
+      - name: influencer_tier
+        description: "Influencer tier classification"
+        tests:
+          - accepted_values:
+              values: ['mega_influencer', 'macro_influencer', 'micro_influencer', 'nano_influencer']
+      - name: engagement_score
+        description: "Calculated engagement score (0-100)"
+      - name: viral_potential_score
+        description: "Viral potential score based on early engagement"
+
+  - name: wh_fact_data_quality
+    description: "Data quality monitoring fact table with pipeline health metrics and data flow indicators"
+    columns:
+      - name: data_quality_key
+        description: "Surrogate key for data quality fact"
+        tests:
+          - unique
+          - not_null
+      - name: report_date_key
+        description: "Foreign key to date dimension"
+        tests:
+          - relationships:
+              to: ref('wh_dim_date')
+              field: date_key
+      - name: data_source
+        description: "Data source name"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Shopify', 'Google Analytics 4', 'Google Ads', 'Facebook Ads', 'Pinterest Ads', 'Instagram Business', 'Klaviyo', 'Multi-Source']
+      - name: source_rows
+        description: "Number of rows in source tables"
+        tests:
+          - not_null
+      - name: staging_rows
+        description: "Number of rows in staging tables"
+        tests:
+          - not_null
+      - name: integration_rows
+        description: "Number of rows in integration tables"
+        tests:
+          - not_null
+      - name: warehouse_rows
+        description: "Number of rows in warehouse tables"
+        tests:
+          - not_null
+      - name: source_table_count
+        description: "Number of source tables"
+        tests:
+          - not_null
+      - name: staging_table_count
+        description: "Number of staging tables"
+        tests:
+          - not_null
+      - name: integration_table_count
+        description: "Number of integration tables"
+        tests:
+          - not_null
+      - name: warehouse_table_count
+        description: "Number of warehouse tables"
+        tests:
+          - not_null
+      - name: staging_flow_pct
+        description: "Percentage flow from source to staging"
+        tests:
+          - not_null
+      - name: integration_flow_pct
+        description: "Percentage flow from source to integration"
+        tests:
+          - not_null
+      - name: warehouse_flow_pct
+        description: "Percentage flow from source to warehouse"
+        tests:
+          - not_null
+      - name: source_test_pass_rate
+        description: "Test pass rate for source data"
+        tests:
+          - not_null
+      - name: staging_test_pass_rate
+        description: "Test pass rate for staging data"
+        tests:
+          - not_null
+      - name: integration_test_pass_rate
+        description: "Test pass rate for integration data"
+        tests:
+          - not_null
+      - name: warehouse_test_pass_rate
+        description: "Test pass rate for warehouse data"
+        tests:
+          - not_null
+      - name: source_quality_score
+        description: "Quality score for source data (0-100)"
+      - name: staging_quality_score
+        description: "Quality score for staging data (0-100)"
+      - name: integration_quality_score
+        description: "Quality score for integration data (0-100)"
+      - name: warehouse_quality_score
+        description: "Quality score for warehouse data (0-100)"
+      - name: overall_pipeline_health_score
+        description: "Overall pipeline health score (0-100)"
+        tests:
+          - not_null
+      - name: total_tests_run
+        description: "Total number of tests executed"
+        tests:
+          - not_null
+      - name: total_tests_passed
+        description: "Total number of tests passed"
+        tests:
+          - not_null
+      - name: overall_test_pass_rate
+        description: "Overall test pass rate"
+        tests:
+          - not_null
+      - name: data_completeness_pct
+        description: "Data completeness percentage"
+        tests:
+          - not_null
+      - name: pipeline_efficiency_rating
+        description: "Pipeline efficiency rating"
+        tests:
+          - accepted_values:
+              values: ['Excellent', 'Good', 'Needs Improvement', 'Poor']
+      - name: data_quality_rating
+        description: "Data quality rating"
+        tests:
+          - accepted_values:
+              values: ['Excellent', 'Good', 'Needs Improvement', 'Poor']
+      - name: report_date
+        description: "Date of quality report"
+        tests:
+          - not_null
+
+tests:
+  - name: test_dim_customer_scd_type2_integrity
+    description: "Ensures SCD Type 2 integrity for customer dimension - only one current record per customer"
+    sql: |
+      select customer_id
+      from {{ ref('wh_dim_customers') }}
+      where is_current = true
+      group by customer_id
+      having count(*) > 1
+
+  - name: test_dim_product_scd_type2_integrity
+    description: "Ensures SCD Type 2 integrity for product dimension - only one current record per product"
+    sql: |
+      select product_id
+      from {{ ref('wh_dim_products') }}
+      where is_current = true
+      group by product_id
+      having count(*) > 1
+
+  - name: test_fact_order_referential_integrity
+    description: "Validates all order facts have valid dimensional references"
+    sql: |
+      select count(*)
+      from {{ ref('fact_orders') }} o
+      left join {{ ref('wh_dim_customers') }} c on o.customer_key = c.customer_key and c.is_current = true
+      left join {{ ref('wh_dim_products') }} p on o.product_key = p.product_key and p.is_current = true
+      left join {{ ref('wh_dim_date') }} d on o.order_date_key = d.date_key
+      where c.customer_key is null or p.product_key is null or d.date_key is null
+
+  - name: test_customer_journey_attribution_weights
+    description: "Validates attribution weights sum correctly per order"
+    sql: |
+      select order_id
+      from {{ ref('fact_customer_journey') }}
+      group by order_id
+      having abs(sum(normalized_attribution_weight) - 1.0) > 0.01
+
+  - name: test_email_marketing_metrics_consistency
+    description: "Validates email marketing metrics are logically consistent"
+    sql: |
+      select email_marketing_key
+      from {{ ref('fact_email_marketing') }}
+      where emails_opened > emails_delivered
+         or emails_clicked > emails_opened
+         or unique_openers > unique_recipients
+
+  - name: test_data_quality_completeness
+    description: "Ensures data quality metrics are within expected ranges"
+    sql: |
+      select data_source
+      from {{ ref('fact_data_quality') }}
+      where overall_pipeline_health_score < 0 
+         or overall_pipeline_health_score > 100
+         or overall_test_pass_rate < 0 
+         or overall_test_pass_rate > 100

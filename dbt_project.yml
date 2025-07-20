@@ -141,6 +141,8 @@ seeds:
         +alias: pin_promotion_report
     instagram_business:
       +schema: instagram_business
+    klaviyo:
+      +schema: klaviyo
 
 vars:
     shopify_using_fulfillment_event: false # false by default. 
@@ -201,3 +203,11 @@ vars:
     ad_reporting__snapchat_ads_enabled: false
     ad_reporting__tiktok_ads_enabled: false
     ad_reporting__twitter_ads_enabled: false
+    
+    # Klaviyo configuration
+    klaviyo_database: ra-development
+    klaviyo_schema: analytics_ecommerce_klaviyo
+    klaviyo__email_attribution_lookback: 120
+    klaviyo__sms_attribution_lookback: 24
+    klaviyo__count_metrics: ['Received Email', 'Opened Email', 'Clicked Email', 'Marked Email as Spam', 'Unsubscribed', 'Placed Order', 'Ordered Product', 'Viewed Product', 'Started Checkout', 'Active on Site']
+    klaviyo__sum_revenue_metrics: ['Placed Order', 'Ordered Product']

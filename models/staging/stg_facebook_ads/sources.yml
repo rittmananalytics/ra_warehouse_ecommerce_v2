@@ -1,0 +1,17 @@
+version: 2
+
+sources:
+  - name: facebook_ads_raw
+    description: Facebook Ads raw data from seed files
+    schema: analytics_ecommerce_facebook_ads
+    tables:
+      - name: account_history
+        description: Facebook Ads account historical data
+      - name: campaign_history
+        description: Facebook Ads campaign historical data
+      - name: basic_ad
+        description: Facebook Ads basic ad performance data
+      - name: ad_set_history
+        description: Facebook Ads ad set historical data
+      - name: ad_history
+        description: Facebook Ads ad historical data

@@ -75,10 +75,48 @@ organic_social AS (
     FROM {{ ref('wh_fact_social_posts') }}
 ),
 
+email_marketing AS (
+    SELECT
+        {{ dbt_utils.generate_surrogate_key(['event_date', 'utm_campaign', "'email'", 'campaign_id']) }} AS marketing_key,
+        event_date AS activity_date,
+        'klaviyo' AS platform,
+        'email_marketing' AS marketing_type,
+        email_type AS content_type,
+        campaign_name AS content_name,
+        utm_source,
+        utm_medium,
+        
+        -- Email marketing metrics (no spend for organic email)
+        0.0 AS spend_amount,
+        emails_clicked AS clicks,
+        emails_delivered AS impressions,
+        orders AS conversions,
+        revenue,
+        CAST(NULL AS FLOAT64) AS cost_per_click,
+        click_to_delivery_rate AS click_through_rate,
+        CAST(NULL AS FLOAT64) AS return_on_ad_spend,
+        CAST(NULL AS FLOAT64) AS cost_per_acquisition,
+        
+        -- Email engagement metrics
+        emails_opened AS likes,
+        CAST(NULL AS INT64) AS comments,
+        CAST(NULL AS INT64) AS shares,
+        CAST(NULL AS INT64) AS saves,
+        open_rate AS engagement_rate,
+        performance_tier,
+        
+        -- Metadata
+        'email_marketing' AS source_table
+        
+    FROM {{ ref('wh_fact_email_marketing') }}
+),
+
 unified_marketing AS (
     SELECT * FROM paid_advertising
     UNION ALL
     SELECT * FROM organic_social
+    UNION ALL
+    SELECT * FROM email_marketing
 ),
 
 marketing_performance AS (
@@ -123,6 +161,7 @@ marketing_performance AS (
             WHEN platform = 'google_ads' THEN 'Search'
             WHEN platform IN ('facebook_ads', 'instagram') THEN 'Social'
             WHEN platform = 'pinterest_ads' THEN 'Discovery'
+            WHEN platform = 'klaviyo' THEN 'Email'
             ELSE 'Other'
         END AS channel_category,
         
@@ -132,6 +171,12 @@ marketing_performance AS (
                 LEAST(100, GREATEST(0, 
                     COALESCE(return_on_ad_spend * 20, 0) + 
                     COALESCE(click_through_rate * 1000, 0) +
+                    COALESCE(conversions * 10, 0)
+                ))
+            WHEN marketing_type = 'email_marketing' THEN
+                LEAST(100, GREATEST(0,
+                    COALESCE(engagement_rate * 60, 0) +
+                    COALESCE(click_through_rate * 100, 0) +
                     COALESCE(conversions * 10, 0)
                 ))
             ELSE

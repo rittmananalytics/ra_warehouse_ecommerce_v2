@@ -1,0 +1,21 @@
+version: 2
+
+sources:
+  - name: google_ads_raw
+    description: Google Ads raw data from seed files
+    schema: analytics_ecommerce_google_ads
+    tables:
+      - name: campaign_history
+        description: Google Ads campaign historical data
+      - name: ad_group_history
+        description: Google Ads ad group historical data
+      - name: campaign_stats
+        description: Google Ads campaign performance statistics
+      - name: ad_group_stats
+        description: Google Ads ad group performance statistics
+      - name: ad_history
+        description: Google Ads ad historical data
+      - name: ad_stats
+        description: Google Ads ad performance statistics
+      - name: keyword_stats
+        description: Google Ads keyword performance statistics

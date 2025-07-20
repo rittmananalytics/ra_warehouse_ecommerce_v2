@@ -1,0 +1,11 @@
+version: 2
+
+sources:
+  - name: instagram_business_raw
+    description: Instagram Business raw data from seed files
+    schema: analytics_ecommerce_instagram_business
+    tables:
+      - name: user_history
+        description: Instagram Business user account historical data
+      - name: media_insights
+        description: Instagram Business media performance insights

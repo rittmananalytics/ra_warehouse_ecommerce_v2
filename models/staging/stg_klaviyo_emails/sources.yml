@@ -1,0 +1,13 @@
+version: 2
+
+sources:
+  - name: klaviyo_raw
+    description: Klaviyo email marketing raw data from seed files
+    schema: analytics_ecommerce_klaviyo
+    tables:
+      - name: person
+        description: Klaviyo customer/subscriber profiles
+      - name: campaign
+        description: Klaviyo email campaign data
+      - name: event
+        description: Klaviyo email events and interactions

@@ -1,0 +1,13 @@
+version: 2
+
+sources:
+  - name: pinterest_ads_raw
+    description: Pinterest Ads raw data from seed files
+    schema: analytics_ecommerce_pinterest_ads
+    tables:
+      - name: advertiser_history
+        description: Pinterest Ads advertiser historical data
+      - name: campaign_history
+        description: Pinterest Ads campaign historical data
+      - name: ad_group_report
+        description: Pinterest Ads ad group performance report

@@ -1,0 +1,454 @@
+version: 2
+
+models:
+  # Shopify Staging Models
+  - name: stg_shopify_ecommerce__customers
+    description: "Cleaned and standardized customer data from Shopify with calculated metrics and segments"
+    columns:
+      - name: customer_id
+        description: "Unique identifier for customer from Shopify"
+        tests:
+          - unique
+          - not_null
+      - name: customer_email
+        description: "Customer email address"
+        tests:
+          - not_null
+      - name: customer_first_name
+        description: "Customer first name"
+      - name: customer_last_name
+        description: "Customer last name"
+      - name: customer_phone
+        description: "Customer phone number"
+      - name: customer_created_at
+        description: "Timestamp when customer was created in Shopify"
+        tests:
+          - not_null
+      - name: customer_accepts_marketing
+        description: "Boolean indicating if customer accepts marketing"
+        tests:
+          - accepted_values:
+              values: [true, false]
+      - name: customer_state
+        description: "Customer account state (enabled, disabled, etc.)"
+      - name: customer_tags
+        description: "Tags associated with customer"
+      - name: orders_count
+        description: "Number of orders placed by customer"
+        tests:
+          - not_null
+      - name: total_spent
+        description: "Total amount spent by customer"
+        tests:
+          - not_null
+
+  - name: stg_shopify_ecommerce__orders
+    description: "Cleaned and standardized order data from Shopify with calculated metrics"
+    columns:
+      - name: order_id
+        description: "Unique identifier for order from Shopify"
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: "Foreign key to customer who placed order"
+        tests:
+          - not_null
+      - name: order_number
+        description: "Human-readable order number"
+        tests:
+          - not_null
+      - name: order_created_at
+        description: "Timestamp when order was created"
+        tests:
+          - not_null
+      - name: order_updated_at
+        description: "Timestamp when order was last updated"
+      - name: order_processed_at
+        description: "Timestamp when order was processed"
+      - name: financial_status
+        description: "Financial status of order (paid, pending, etc.)"
+        tests:
+          - accepted_values:
+              values: ['paid', 'pending', 'authorized', 'partially_paid', 'refunded', 'voided', 'partially_refunded']
+      - name: fulfillment_status
+        description: "Fulfillment status of order"
+      - name: total_price
+        description: "Total price of order including taxes and shipping"
+        tests:
+          - not_null
+      - name: subtotal_price
+        description: "Subtotal price before taxes and shipping"
+      - name: total_tax
+        description: "Total tax amount"
+      - name: total_discounts
+        description: "Total discount amount"
+      - name: shipping_cost
+        description: "Shipping cost"
+      - name: currency
+        description: "Currency code for order"
+        tests:
+          - not_null
+
+  - name: stg_shopify_ecommerce__order_lines
+    description: "Cleaned order line items from Shopify with product details"
+    columns:
+      - name: order_line_id
+        description: "Unique identifier for order line item"
+        tests:
+          - unique
+          - not_null
+      - name: order_id
+        description: "Foreign key to order"
+        tests:
+          - not_null
+      - name: product_id
+        description: "Foreign key to product"
+        tests:
+          - not_null
+      - name: variant_id
+        description: "Product variant identifier"
+      - name: quantity
+        description: "Quantity of product ordered"
+        tests:
+          - not_null
+      - name: price
+        description: "Unit price of product"
+        tests:
+          - not_null
+      - name: total_discount
+        description: "Total discount applied to line item"
+      - name: line_item_total
+        description: "Total amount for line item (price * quantity - discounts)"
+        tests:
+          - not_null
+
+  - name: stg_shopify_ecommerce__products
+    description: "Cleaned and standardized product data from Shopify"
+    columns:
+      - name: product_id
+        description: "Unique identifier for product from Shopify"
+        tests:
+          - unique
+          - not_null
+      - name: product_title
+        description: "Product title"
+        tests:
+          - not_null
+      - name: product_handle
+        description: "URL handle for product"
+      - name: product_type
+        description: "Product type/category"
+      - name: vendor
+        description: "Product vendor"
+      - name: product_created_at
+        description: "Timestamp when product was created"
+        tests:
+          - not_null
+      - name: product_updated_at
+        description: "Timestamp when product was last updated"
+      - name: product_status
+        description: "Product status (active, draft, archived)"
+        tests:
+          - accepted_values:
+              values: ['active', 'draft', 'archived']
+      - name: tags
+        description: "Product tags"
+
+  # GA4 Staging Models
+  - name: stg_ga4_events__page_view
+    description: "Page view events from Google Analytics 4 with cleaned and standardized fields"
+    columns:
+      - name: event_key
+        description: "Unique key for event record"
+        tests:
+          - unique
+          - not_null
+      - name: event_date
+        description: "Date of the event"
+        tests:
+          - not_null
+      - name: event_timestamp
+        description: "Timestamp of the event"
+        tests:
+          - not_null
+      - name: user_pseudo_id
+        description: "User pseudo ID from GA4"
+        tests:
+          - not_null
+      - name: session_id
+        description: "Session identifier"
+        tests:
+          - not_null
+      - name: page_title
+        description: "Title of the page viewed"
+      - name: page_location
+        description: "URL of the page viewed"
+      - name: page_referrer
+        description: "Referrer URL"
+      - name: traffic_source_source
+        description: "Traffic source"
+      - name: traffic_source_medium
+        description: "Traffic medium"
+      - name: traffic_source_campaign
+        description: "Campaign name"
+      - name: device_category
+        description: "Device category (desktop, mobile, tablet)"
+        tests:
+          - accepted_values:
+              values: ['desktop', 'mobile', 'tablet']
+      - name: geo_country
+        description: "Country of user"
+      - name: geo_region
+        description: "Region of user"
+      - name: geo_city
+        description: "City of user"
+
+  - name: stg_ga4_events__purchase
+    description: "Purchase events from Google Analytics 4 with ecommerce data"
+    columns:
+      - name: event_key
+        description: "Unique key for event record"
+        tests:
+          - unique
+          - not_null
+      - name: event_date
+        description: "Date of the purchase event"
+        tests:
+          - not_null
+      - name: event_timestamp
+        description: "Timestamp of the purchase event"
+        tests:
+          - not_null
+      - name: user_pseudo_id
+        description: "User pseudo ID from GA4"
+        tests:
+          - not_null
+      - name: session_id
+        description: "Session identifier"
+        tests:
+          - not_null
+      - name: transaction_id
+        description: "Transaction/order identifier"
+      - name: value
+        description: "Purchase value"
+        tests:
+          - not_null
+      - name: currency
+        description: "Currency code"
+        tests:
+          - not_null
+      - name: tax
+        description: "Tax amount"
+      - name: shipping
+        description: "Shipping amount"
+      - name: coupon
+        description: "Coupon code used"
+
+  - name: stg_ga4_events__add_to_cart
+    description: "Add to cart events from Google Analytics 4"
+    columns:
+      - name: event_key
+        description: "Unique key for event record"
+        tests:
+          - unique
+          - not_null
+      - name: event_date
+        description: "Date of the event"
+        tests:
+          - not_null
+      - name: event_timestamp
+        description: "Timestamp of the event"
+        tests:
+          - not_null
+      - name: user_pseudo_id
+        description: "User pseudo ID from GA4"
+        tests:
+          - not_null
+      - name: session_id
+        description: "Session identifier"
+        tests:
+          - not_null
+      - name: value
+        description: "Value of items added to cart"
+      - name: currency
+        description: "Currency code"
+
+  # Ad Platform Staging Models
+  - name: stg_google_ads__campaigns
+    description: "Google Ads campaign performance data with standardized metrics"
+    columns:
+      - name: campaign_id
+        description: "Unique identifier for Google Ads campaign"
+        tests:
+          - unique
+          - not_null
+      - name: campaign_name
+        description: "Campaign name"
+        tests:
+          - not_null
+      - name: campaign_status
+        description: "Campaign status (enabled, paused, removed)"
+        tests:
+          - accepted_values:
+              values: ['ENABLED', 'PAUSED', 'REMOVED']
+      - name: start_date
+        description: "Campaign start date"
+      - name: end_date
+        description: "Campaign end date"
+      - name: total_cost
+        description: "Total cost in micros"
+        tests:
+          - not_null
+      - name: total_clicks
+        description: "Total clicks"
+        tests:
+          - not_null
+      - name: total_impressions
+        description: "Total impressions"
+        tests:
+          - not_null
+      - name: total_conversions
+        description: "Total conversions"
+        tests:
+          - not_null
+      - name: ctr
+        description: "Click-through rate"
+      - name: cpc
+        description: "Cost per click"
+      - name: cpm
+        description: "Cost per thousand impressions"
+
+  - name: stg_facebook_ads__campaigns
+    description: "Facebook Ads campaign performance data with standardized metrics"
+    columns:
+      - name: campaign_id
+        description: "Unique identifier for Facebook Ads campaign"
+        tests:
+          - unique
+          - not_null
+      - name: campaign_name
+        description: "Campaign name"
+        tests:
+          - not_null
+      - name: campaign_status
+        description: "Campaign status"
+        tests:
+          - accepted_values:
+              values: ['ACTIVE', 'PAUSED', 'DELETED', 'ARCHIVED']
+      - name: start_time
+        description: "Campaign start time"
+      - name: stop_time
+        description: "Campaign stop time"
+      - name: daily_budget
+        description: "Daily budget"
+      - name: total_spend
+        description: "Total spend"
+        tests:
+          - not_null
+      - name: total_clicks
+        description: "Total clicks"
+        tests:
+          - not_null
+      - name: total_impressions
+        description: "Total impressions"
+        tests:
+          - not_null
+
+  - name: stg_klaviyo__campaign
+    description: "Klaviyo email campaign data with performance metrics and categorization"
+    columns:
+      - name: campaign_id
+        description: "Unique identifier for Klaviyo campaign"
+        tests:
+          - unique
+          - not_null
+      - name: campaign_name
+        description: "Campaign name"
+        tests:
+          - not_null
+      - name: campaign_subject
+        description: "Email subject line"
+      - name: from_email
+        description: "Sender email address"
+      - name: from_name
+        description: "Sender name"
+      - name: campaign_type
+        description: "Type of campaign"
+      - name: campaign_category
+        description: "Categorized campaign type (welcome, promotional, etc.)"
+        tests:
+          - accepted_values:
+              values: ['welcome', 'vip', 'product_recommendation', 'cart_recovery', 'newsletter', 'promotional', 'other']
+      - name: sent_at
+        description: "Timestamp when campaign was sent"
+      - name: has_emoji
+        description: "Boolean indicating if subject has emoji"
+        tests:
+          - accepted_values:
+              values: [true, false]
+      - name: has_personalization
+        description: "Boolean indicating if subject has personalization"
+        tests:
+          - accepted_values:
+              values: [true, false]
+
+  - name: stg_klaviyo__event
+    description: "Klaviyo email events (opens, clicks, conversions) with customer context"
+    columns:
+      - name: event_id
+        description: "Unique identifier for email event"
+        tests:
+          - unique
+          - not_null
+      - name: person_id
+        description: "Person/customer identifier"
+        tests:
+          - not_null
+      - name: campaign_id
+        description: "Campaign identifier"
+      - name: event_timestamp
+        description: "Timestamp of event"
+        tests:
+          - not_null
+      - name: event_date
+        description: "Date of event"
+        tests:
+          - not_null
+      - name: event_category
+        description: "Event category (campaign_event, flow_event, other_event)"
+        tests:
+          - accepted_values:
+              values: ['campaign_event', 'flow_event', 'other_event']
+      - name: customer_tier_at_event
+        description: "Customer tier at time of event"
+        tests:
+          - accepted_values:
+              values: ['vip', 'high_value', 'medium_value', 'low_value']
+
+tests:
+  - name: test_shopify_referential_integrity
+    description: "Ensures order lines reference valid orders and products"
+    sql: |
+      select ol.order_line_id
+      from {{ ref('stg_shopify_ecommerce__order_lines') }} ol
+      left join {{ ref('stg_shopify_ecommerce__orders') }} o on ol.order_id = o.order_id
+      left join {{ ref('stg_shopify_ecommerce__products') }} p on ol.product_id = p.product_id
+      where o.order_id is null or p.product_id is null
+
+  - name: test_ga4_events_data_quality
+    description: "Validates GA4 events have required fields"
+    sql: |
+      select event_key
+      from {{ ref('stg_ga4_events__page_view') }}
+      where user_pseudo_id is null 
+         or session_id is null 
+         or event_timestamp is null
+
+  - name: test_klaviyo_campaign_event_relationships
+    description: "Ensures Klaviyo events reference valid campaigns"
+    sql: |
+      select e.event_id
+      from {{ ref('stg_klaviyo__event') }} e
+      left join {{ ref('stg_klaviyo__campaign') }} c on e.campaign_id = c.campaign_id
+      where e.campaign_id is not null and c.campaign_id is null

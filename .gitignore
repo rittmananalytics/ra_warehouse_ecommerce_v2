@@ -1,13 +1,39 @@
+# Python virtual environment
 dbt-ecomm-env/
-ra_dw_ecommerce/target/
-ra_dw_ecommerce/dbt_modules/
-ra_dw_ecommerce/logs/
-CLAUDE.md
-logs/dbt.log
 
-# Claude Code artifacts
+# dbt artifacts
+target/
+dbt_modules/
+dbt_packages/
+logs/
+.user.yml
+profiles.yml
+
+# Claude Code artifacts  
 .claude/
 *.claude
 claude_*.md
 claude_*.txt
 .claude_*
+CLAUDE.md
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Temporary files
+*.tmp
+*.temp
+*.log

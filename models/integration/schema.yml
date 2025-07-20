@@ -1,0 +1,678 @@
+version: 2
+
+models:
+  - name: int_customers
+    description: "Integration layer for customer data with calculated metrics, segmentation, and business rules applied"
+    columns:
+      - name: customer_id
+        description: "Unique identifier for customers from Shopify"
+        tests:
+          - unique
+          - not_null
+      - name: customer_email
+        description: "Customer email address"
+        tests:
+          - not_null
+      - name: customer_first_name
+        description: "Customer first name"
+      - name: customer_last_name
+        description: "Customer last name"
+      - name: customer_full_name
+        description: "Concatenated full name"
+      - name: customer_created_at
+        description: "Timestamp when customer was created"
+        tests:
+          - not_null
+      - name: calculated_lifetime_value
+        description: "Calculated customer lifetime value based on actual orders"
+        tests:
+          - not_null
+      - name: calculated_order_count
+        description: "Count of orders for this customer"
+        tests:
+          - not_null
+      - name: calculated_avg_order_value
+        description: "Average order value for this customer"
+      - name: days_since_first_order
+        description: "Days since customer's first order"
+      - name: days_since_last_order
+        description: "Days since customer's last order"
+      - name: customer_segment
+        description: "Customer segmentation based on order behavior and value"
+        tests:
+          - accepted_values:
+              values: ['High Value', 'Repeat Customer', 'One-time Customer', 'No Orders']
+      - name: customer_value_tier
+        description: "Value tier based on lifetime spend"
+        tests:
+          - accepted_values:
+              values: ['VIP', 'High Value', 'Medium Value', 'Low Value', 'Minimal Value']
+      - name: is_active_customer
+        description: "Boolean indicating if customer is currently active"
+        tests:
+          - accepted_values:
+              values: [true, false]
+
+  - name: int_orders
+    description: "Integration layer for order data with line item aggregations, business metrics, and enhanced attributes"
+    columns:
+      - name: order_id
+        description: "Unique identifier for orders from Shopify"
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: "Customer who placed the order"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('int_customers')
+              field: customer_id
+      - name: order_number
+        description: "Human-readable order number"
+        tests:
+          - not_null
+      - name: order_date
+        description: "Date when order was placed"
+        tests:
+          - not_null
+      - name: order_created_at
+        description: "Timestamp when order was created"
+        tests:
+          - not_null
+      - name: financial_status
+        description: "Financial status of order"
+        tests:
+          - accepted_values:
+              values: ['paid', 'pending', 'authorized', 'partially_paid', 'refunded', 'voided', 'partially_refunded']
+      - name: fulfillment_status
+        description: "Fulfillment status of order"
+      - name: order_total_price
+        description: "Total price of the order including taxes and shipping"
+        tests:
+          - not_null
+      - name: order_subtotal_price
+        description: "Subtotal before taxes and shipping"
+      - name: order_tax_amount
+        description: "Total tax amount"
+      - name: order_discount_amount
+        description: "Total discount amount"
+      - name: order_shipping_cost
+        description: "Shipping cost"
+      - name: line_item_count
+        description: "Number of line items in the order"
+        tests:
+          - not_null
+      - name: total_quantity
+        description: "Total quantity of items ordered"
+        tests:
+          - not_null
+      - name: unique_products_count
+        description: "Number of unique products in order"
+        tests:
+          - not_null
+      - name: order_type
+        description: "Classification of order type based on characteristics"
+        tests:
+          - accepted_values:
+              values: ['Single Item', 'Multiple Items', 'Bulk Order', 'High Value']
+      - name: is_first_order
+        description: "Boolean indicating if this is customer's first order"
+        tests:
+          - accepted_values:
+              values: [true, false]
+      - name: order_sequence_number
+        description: "Sequential order number for this customer"
+        tests:
+          - not_null
+
+  - name: int_products
+    description: "Integration layer for product data with performance metrics, inventory status, and business classifications"
+    columns:
+      - name: product_id
+        description: "Unique identifier for products from Shopify"
+        tests:
+          - unique
+          - not_null
+      - name: product_title
+        description: "Product title"
+        tests:
+          - not_null
+      - name: product_handle
+        description: "URL handle for product"
+      - name: product_type
+        description: "Product type/category"
+      - name: vendor
+        description: "Product vendor"
+      - name: product_status
+        description: "Current product status"
+        tests:
+          - accepted_values:
+              values: ['active', 'draft', 'archived']
+      - name: total_revenue
+        description: "Total revenue generated by this product"
+        tests:
+          - not_null
+      - name: total_orders
+        description: "Total number of orders containing this product"
+        tests:
+          - not_null
+      - name: total_quantity_sold
+        description: "Total quantity sold"
+        tests:
+          - not_null
+      - name: avg_order_value
+        description: "Average order value for orders containing this product"
+      - name: product_performance_category
+        description: "Performance categorization based on sales volume and revenue"
+        tests:
+          - accepted_values:
+              values: ['Best Seller', 'Popular', 'Moderate', 'Low Selling', 'No Sales']
+      - name: revenue_tier
+        description: "Revenue tier based on total revenue generated"
+        tests:
+          - accepted_values:
+              values: ['Top Revenue Generator', 'High Revenue', 'Medium Revenue', 'Low Revenue', 'No Revenue']
+      - name: days_since_last_sale
+        description: "Days since product was last sold"
+      - name: is_active_seller
+        description: "Boolean indicating if product has sold recently"
+        tests:
+          - accepted_values:
+              values: [true, false]
+
+  - name: int_sessions
+    description: "Integration layer for website sessions with engagement metrics, conversion indicators, and user journey context"
+    columns:
+      - name: session_id
+        description: "Unique identifier for website sessions"
+        tests:
+          - unique
+          - not_null
+      - name: user_pseudo_id
+        description: "User pseudo ID from website analytics"
+        tests:
+          - not_null
+      - name: session_date
+        description: "Date of the session"
+        tests:
+          - not_null
+      - name: session_start_time
+        description: "Timestamp when session started"
+        tests:
+          - not_null
+      - name: session_end_time
+        description: "Timestamp when session ended"
+      - name: session_duration_minutes
+        description: "Duration of session in minutes"
+      - name: page_views
+        description: "Number of page views in the session"
+        tests:
+          - not_null
+      - name: unique_pages_viewed
+        description: "Number of unique pages viewed"
+      - name: traffic_source
+        description: "Traffic source for the session"
+      - name: traffic_medium
+        description: "Traffic medium for the session"
+      - name: traffic_campaign
+        description: "Campaign that drove the session"
+      - name: device_category
+        description: "Device category used for session"
+        tests:
+          - accepted_values:
+              values: ['desktop', 'mobile', 'tablet']
+      - name: geo_country
+        description: "Country of user"
+      - name: has_purchase
+        description: "Boolean indicating if session resulted in purchase"
+        tests:
+          - accepted_values:
+              values: [true, false]
+      - name: has_add_to_cart
+        description: "Boolean indicating if session had add to cart events"
+        tests:
+          - accepted_values:
+              values: [true, false]
+      - name: has_checkout
+        description: "Boolean indicating if session had checkout events"
+        tests:
+          - accepted_values:
+              values: [true, false]
+      - name: session_type
+        description: "Classification of session based on user behavior"
+        tests:
+          - accepted_values:
+              values: ['Converting', 'Checkout Started', 'Added to Cart', 'Product Browsing', 'General Browsing']
+      - name: is_bounce
+        description: "Boolean indicating if session was a bounce"
+        tests:
+          - accepted_values:
+              values: [true, false]
+      - name: engagement_score
+        description: "Calculated engagement score based on session activity"
+
+  - name: int_events
+    description: "Integration layer for website events with standardized structure and business context"
+    columns:
+      - name: event_key
+        description: "Unique identifier for event"
+        tests:
+          - unique
+          - not_null
+      - name: event_date
+        description: "Date of the event"
+        tests:
+          - not_null
+      - name: event_timestamp
+        description: "Timestamp of the event"
+        tests:
+          - not_null
+      - name: user_pseudo_id
+        description: "User pseudo ID"
+        tests:
+          - not_null
+      - name: session_id
+        description: "Session identifier"
+        tests:
+          - not_null
+      - name: event_name
+        description: "Name of the event"
+        tests:
+          - not_null
+      - name: event_category
+        description: "Category of event (engagement, ecommerce, etc.)"
+        tests:
+          - accepted_values:
+              values: ['engagement', 'ecommerce', 'navigation', 'social', 'video']
+      - name: page_location
+        description: "URL where event occurred"
+      - name: page_title
+        description: "Title of page where event occurred"
+      - name: ecommerce_value
+        description: "Monetary value associated with ecommerce events"
+      - name: transaction_id
+        description: "Transaction identifier for purchase events"
+      - name: item_count
+        description: "Number of items for ecommerce events"
+
+  - name: int_customer_journey
+    description: "Integration layer linking website sessions to ecommerce conversions for comprehensive customer journey analysis"
+    columns:
+      - name: journey_key
+        description: "Unique identifier for journey record"
+        tests:
+          - unique
+          - not_null
+      - name: shopify_customer_id
+        description: "Ecommerce customer ID for the conversion"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('int_customers')
+              field: customer_id
+      - name: shopify_order_id
+        description: "Ecommerce order ID for the conversion"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('int_orders')
+              field: order_id
+      - name: session_id
+        description: "Website session ID"
+        tests:
+          - not_null
+      - name: converting_user_pseudo_id
+        description: "User pseudo ID for the converting user"
+        tests:
+          - not_null
+      - name: order_date
+        description: "Date of the order"
+        tests:
+          - not_null
+      - name: session_date
+        description: "Date of the session"
+        tests:
+          - not_null
+      - name: days_from_session_to_order
+        description: "Number of days between session and order"
+        tests:
+          - not_null
+      - name: order_value
+        description: "Value of the order"
+        tests:
+          - not_null
+      - name: session_duration_minutes
+        description: "Duration of the session in minutes"
+      - name: session_page_views
+        description: "Number of page views in the session"
+      - name: traffic_source
+        description: "Traffic source for the session"
+      - name: traffic_medium
+        description: "Traffic medium for the session"
+      - name: device_category
+        description: "Device category used"
+      - name: journey_complexity
+        description: "Classification of customer journey complexity based on touchpoints"
+        tests:
+          - accepted_values:
+              values: ['Single Session', 'Short Journey', 'Medium Journey', 'Long Journey']
+      - name: conversion_timeline
+        description: "Timeline from first touch to conversion"
+        tests:
+          - accepted_values:
+              values: ['Same Day', 'Within 3 Days', 'Within 1 Week', 'Within 1 Month', 'Long Consideration']
+      - name: is_converting_session
+        description: "Boolean indicating if this session resulted in conversion"
+        tests:
+          - accepted_values:
+              values: [true, false]
+      - name: attribution_weight
+        description: "Calculated attribution weight for this touchpoint"
+        tests:
+          - not_null
+      - name: normalized_attribution_weight
+        description: "Normalized attribution weight (sums to 1.0 per order)"
+        tests:
+          - not_null
+
+  - name: int_campaigns
+    description: "Integration layer for advertising campaigns from multiple platforms with unified metrics and performance indicators"
+    columns:
+      - name: campaign_key
+        description: "Unique surrogate key for campaign across platforms"
+        tests:
+          - unique
+          - not_null
+      - name: campaign_id
+        description: "Campaign identifier from source platform"
+        tests:
+          - not_null
+      - name: platform
+        description: "Advertising platform (google_ads, facebook_ads, pinterest_ads)"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['google_ads', 'facebook_ads', 'pinterest_ads']
+      - name: campaign_name
+        description: "Campaign name"
+        tests:
+          - not_null
+      - name: status
+        description: "Campaign status"
+        tests:
+          - not_null
+      - name: start_date
+        description: "Campaign start date"
+      - name: end_date
+        description: "Campaign end date"
+      - name: budget_amount
+        description: "Campaign budget amount"
+      - name: cost_usd
+        description: "Total cost in USD"
+        tests:
+          - not_null
+      - name: impressions
+        description: "Total impressions"
+        tests:
+          - not_null
+      - name: clicks
+        description: "Total clicks"
+        tests:
+          - not_null
+      - name: conversions
+        description: "Total conversions"
+        tests:
+          - not_null
+      - name: conversion_value
+        description: "Total conversion value"
+      - name: ctr
+        description: "Click-through rate"
+      - name: cpc_usd
+        description: "Cost per click in USD"
+      - name: conversion_rate
+        description: "Conversion rate (conversions/clicks)"
+      - name: value_per_conversion
+        description: "Average value per conversion"
+      - name: ctr_performance
+        description: "CTR performance tier"
+        tests:
+          - accepted_values:
+              values: ['high_ctr', 'medium_ctr', 'low_ctr', 'no_clicks']
+      - name: conversion_performance
+        description: "Conversion performance tier"
+        tests:
+          - accepted_values:
+              values: ['high_converting', 'medium_converting', 'low_converting', 'no_conversions']
+      - name: campaign_type
+        description: "Categorized campaign type based on name"
+        tests:
+          - accepted_values:
+              values: ['brand', 'search', 'display', 'shopping', 'video', 'remarketing', 'other']
+      - name: efficiency_score
+        description: "Overall efficiency score (0-100)"
+
+  - name: int_email_events
+    description: "Integration layer for email marketing events with unified structure and customer context"
+    columns:
+      - name: email_event_key
+        description: "Unique surrogate key for email event"
+        tests:
+          - unique
+          - not_null
+      - name: event_id
+        description: "Event identifier from Klaviyo"
+        tests:
+          - not_null
+      - name: person_id
+        description: "Person identifier"
+        tests:
+          - not_null
+      - name: email
+        description: "Email address"
+        tests:
+          - not_null
+      - name: occurred_at
+        description: "Timestamp when event occurred"
+        tests:
+          - not_null
+      - name: event_date
+        description: "Date when event occurred"
+        tests:
+          - not_null
+      - name: event_name
+        description: "Name of the email event"
+        tests:
+          - not_null
+      - name: event_category
+        description: "Category of email event"
+        tests:
+          - accepted_values:
+              values: ['delivery', 'engagement', 'negative', 'conversion', 'other']
+      - name: campaign_id
+        description: "Campaign identifier"
+      - name: campaign_name
+        description: "Campaign name"
+      - name: utm_source
+        description: "UTM source for attribution"
+      - name: utm_medium
+        description: "UTM medium for attribution"
+      - name: utm_campaign
+        description: "UTM campaign for attribution"
+      - name: emails_delivered
+        description: "Count of emails delivered (0 or 1)"
+      - name: emails_opened
+        description: "Count of emails opened (0 or 1)"
+      - name: emails_clicked
+        description: "Count of emails clicked (0 or 1)"
+      - name: emails_marked_spam
+        description: "Count of emails marked as spam (0 or 1)"
+      - name: unsubscribes
+        description: "Count of unsubscribes (0 or 1)"
+      - name: orders
+        description: "Count of orders attributed to email (0 or 1)"
+      - name: revenue
+        description: "Revenue attributed to email event"
+
+  - name: int_email_campaign_performance
+    description: "Integration layer for email campaign performance with aggregated metrics and effectiveness indicators"
+    columns:
+      - name: campaign_key
+        description: "Unique surrogate key for campaign"
+        tests:
+          - unique
+          - not_null
+      - name: campaign_id
+        description: "Campaign identifier from Klaviyo"
+        tests:
+          - not_null
+      - name: campaign_name
+        description: "Campaign name"
+        tests:
+          - not_null
+      - name: campaign_subject
+        description: "Email subject line"
+      - name: campaign_type
+        description: "Type of campaign"
+      - name: sent_at
+        description: "Timestamp when campaign was sent"
+      - name: total_emails_delivered
+        description: "Total emails delivered"
+        tests:
+          - not_null
+      - name: total_emails_opened
+        description: "Total emails opened"
+        tests:
+          - not_null
+      - name: total_emails_clicked
+        description: "Total emails clicked"
+        tests:
+          - not_null
+      - name: total_orders
+        description: "Total orders attributed to campaign"
+        tests:
+          - not_null
+      - name: total_revenue
+        description: "Total revenue attributed to campaign"
+        tests:
+          - not_null
+      - name: open_rate
+        description: "Email open rate"
+      - name: click_rate
+        description: "Email click rate"
+      - name: conversion_rate
+        description: "Email conversion rate"
+      - name: revenue_per_email
+        description: "Revenue per email delivered"
+      - name: unique_recipients
+        description: "Number of unique recipients"
+      - name: unique_openers
+        description: "Number of unique openers"
+      - name: unique_clickers
+        description: "Number of unique clickers"
+      - name: unique_converters
+        description: "Number of unique converters"
+      - name: performance_tier
+        description: "Performance tier based on open rate"
+        tests:
+          - accepted_values:
+              values: ['high_performing', 'medium_performing', 'low_performing', 'no_engagement']
+
+  - name: int_data_pipeline_metadata
+    description: "Integration layer for data pipeline health monitoring with flow metrics and completeness indicators"
+    columns:
+      - name: pipeline_metadata_key
+        description: "Unique surrogate key for pipeline metadata"
+        tests:
+          - unique
+          - not_null
+      - name: data_source
+        description: "Data source name"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Shopify', 'Google Analytics 4', 'Google Ads', 'Facebook Ads', 'Pinterest Ads', 'Instagram Business', 'Klaviyo', 'Multi-Source']
+      - name: source_rows
+        description: "Number of rows in source tables"
+        tests:
+          - not_null
+      - name: staging_rows
+        description: "Number of rows in staging tables"
+        tests:
+          - not_null
+      - name: integration_rows
+        description: "Number of rows in integration tables"
+        tests:
+          - not_null
+      - name: warehouse_rows
+        description: "Number of rows in warehouse tables"
+        tests:
+          - not_null
+      - name: staging_flow_pct
+        description: "Percentage flow from source to staging"
+        tests:
+          - not_null
+      - name: integration_flow_pct
+        description: "Percentage flow from source to integration"
+        tests:
+          - not_null
+      - name: warehouse_flow_pct
+        description: "Percentage flow from source to warehouse"
+        tests:
+          - not_null
+      - name: source_table_count
+        description: "Number of source tables"
+        tests:
+          - not_null
+      - name: staging_table_count
+        description: "Number of staging tables"
+        tests:
+          - not_null
+      - name: integration_table_count
+        description: "Number of integration tables"
+        tests:
+          - not_null
+      - name: warehouse_table_count
+        description: "Number of warehouse tables"
+        tests:
+          - not_null
+
+tests:
+  - name: test_customer_journey_order_mapping
+    description: "Ensures customer journey records have valid order references"
+    sql: |
+      select shopify_order_id
+      from {{ ref('int_customer_journey') }}
+      where shopify_order_id not in (
+        select order_id from {{ ref('int_orders') }}
+      )
+
+  - name: test_customer_journey_conversion_logic
+    description: "Validates that converting sessions have appropriate event patterns"
+    sql: |
+      select session_id
+      from {{ ref('int_customer_journey') }}
+      where is_converting_session = true
+        and attribution_weight <= 0
+
+  - name: test_campaigns_platform_consistency
+    description: "Validates campaign platform values are consistent"
+    sql: |
+      select campaign_key
+      from {{ ref('int_campaigns') }}
+      where platform not in ('google_ads', 'facebook_ads', 'pinterest_ads')
+
+  - name: test_email_campaign_metrics_consistency
+    description: "Validates email campaign metrics are logically consistent"
+    sql: |
+      select campaign_id
+      from {{ ref('int_email_campaign_performance') }}
+      where total_emails_opened > total_emails_delivered
+         or total_emails_clicked > total_emails_opened
+
+  - name: test_product_performance_calculations
+    description: "Validates product performance metrics are calculated correctly"
+    sql: |
+      select product_id
+      from {{ ref('int_products') }}
+      where total_revenue > 0 and total_orders = 0
