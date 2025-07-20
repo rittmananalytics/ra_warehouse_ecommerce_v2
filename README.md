@@ -534,7 +534,9 @@ export DBT_SOURCE_FRESHNESS_ERROR_AFTER="24 hours"
 - **Performance**: Use `dbt run --threads <n>` to adjust parallelism
 - **Debugging**: Use `dbt --log-level debug` for detailed logging
 
-## 📄 License
+## 📄 License & Copyright
+
+**Copyright © 2025 Rittman Analytics. All rights reserved.**
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 

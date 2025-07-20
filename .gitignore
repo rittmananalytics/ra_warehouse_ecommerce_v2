@@ -16,6 +16,9 @@ claude_*.md
 claude_*.txt
 .claude_*
 CLAUDE.md
+claude-*
+*claude*session*
+.claude-*
 
 # OS generated files
 .DS_Store
