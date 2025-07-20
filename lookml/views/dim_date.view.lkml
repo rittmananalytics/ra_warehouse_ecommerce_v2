@@ -1,5 +1,5 @@
-view: wh_dim_date {
-  sql_table_name: `@{PROJECT_ID}.@{ECOMMERCE_DATASET}.wh_dim_date` ;;
+view: dim_date {
+  sql_table_name: `@{PROJECT_ID}.@{ECOMMERCE_DATASET}.dim_date` ;;
   
   # Primary Key
   dimension: date_key {

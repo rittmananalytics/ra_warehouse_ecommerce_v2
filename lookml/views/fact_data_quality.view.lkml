@@ -1,5 +1,5 @@
-view: wh_fact_data_quality {
-  sql_table_name: `@{PROJECT_ID}.@{ECOMMERCE_DATASET}.wh_fact_data_quality` ;;
+view: fact_data_quality {
+  sql_table_name: `@{PROJECT_ID}.@{ECOMMERCE_DATASET}.fact_data_quality` ;;
   
   # Primary Key
   dimension: data_quality_sk {

@@ -1,5 +1,5 @@
-view: wh_fact_marketing_performance {
-  sql_table_name: `@{PROJECT_ID}.@{ECOMMERCE_DATASET}.wh_fact_marketing_performance` ;;
+view: fact_marketing_performance {
+  sql_table_name: `@{PROJECT_ID}.@{ECOMMERCE_DATASET}.fact_marketing_performance` ;;
   
   # Primary Key
   dimension: marketing_performance_sk {

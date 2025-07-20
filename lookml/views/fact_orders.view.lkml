@@ -1,5 +1,5 @@
-view: wh_fact_orders {
-  sql_table_name: `@{PROJECT_ID}.@{ECOMMERCE_DATASET}.wh_fact_orders` ;;
+view: fact_orders {
+  sql_table_name: `@{PROJECT_ID}.@{ECOMMERCE_DATASET}.fact_orders` ;;
   
   # Primary Key
   dimension: order_line_sk {

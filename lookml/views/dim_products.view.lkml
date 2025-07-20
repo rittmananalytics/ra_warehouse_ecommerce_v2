@@ -1,5 +1,5 @@
-view: wh_dim_products {
-  sql_table_name: `@{PROJECT_ID}.@{ECOMMERCE_DATASET}.wh_dim_products` ;;
+view: dim_products {
+  sql_table_name: `@{PROJECT_ID}.@{ECOMMERCE_DATASET}.dim_products` ;;
   
   # Primary Key
   dimension: product_sk {

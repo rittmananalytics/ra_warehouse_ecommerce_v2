@@ -1,5 +1,5 @@
-view: wh_dim_channels_enhanced {
-  sql_table_name: `@{PROJECT_ID}.@{ECOMMERCE_DATASET}.wh_dim_channels_enhanced` ;;
+view: dim_channels {
+  sql_table_name: `@{PROJECT_ID}.@{ECOMMERCE_DATASET}.dim_channels` ;;
   
   # Primary Key
   dimension: channel_sk {

@@ -1,5 +1,5 @@
-view: wh_fact_ga4_sessions {
-  sql_table_name: `@{PROJECT_ID}.@{ECOMMERCE_DATASET}.wh_fact_ga4_sessions` ;;
+view: fact_sessions {
+  sql_table_name: `@{PROJECT_ID}.@{ECOMMERCE_DATASET}.fact_sessions` ;;
   
   # Primary Key
   dimension: session_sk {
