@@ -1,0 +1,5 @@
+id,updated_at,ad_network_type,advertising_channel_type,advertising_channel_subtype,start_date,end_date,serving_status,status,tracking_url_template,device,name,customer_id,_fivetran_active,_fivetran_synced
+100001,2024-01-01 00:00:00,SEARCH,SEARCH,,2024-01-01,2024-12-31,SERVING,ENABLED,{lpurl}?utm_source=google&utm_medium=cpc&utm_campaign=beauty_search,DESKTOP,Beauty Keywords - Brand,1234567890,true,2024-12-01 00:00:00
+100002,2024-01-01 00:00:00,SEARCH,SEARCH,,2024-01-01,2024-12-31,SERVING,ENABLED,{lpurl}?utm_source=google&utm_medium=cpc&utm_campaign=beauty_search,MOBILE,Beauty Keywords - Generic,1234567890,true,2024-12-01 00:00:00
+100003,2024-01-01 00:00:00,DISPLAY,DISPLAY,,2024-02-01,2024-12-31,SERVING,ENABLED,{lpurl}?utm_source=google&utm_medium=display&utm_campaign=beauty_display,DESKTOP,Beauty Display - Retargeting,1234567890,true,2024-12-01 00:00:00
+100004,2024-01-01 00:00:00,SEARCH,SEARCH,,2024-03-01,2024-12-31,SERVING,ENABLED,{lpurl}?utm_source=google&utm_medium=cpc&utm_campaign=competitor,DESKTOP,Competitor Keywords,1234567890,true,2024-12-01 00:00:00

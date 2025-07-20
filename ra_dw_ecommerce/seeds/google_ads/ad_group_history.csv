@@ -1,0 +1,7 @@
+id,updated_at,type,campaign_id,campaign_name,name,status,_fivetran_active,_fivetran_synced
+200001,2024-01-01 00:00:00,STANDARD,100001,Beauty Keywords - Brand,Brand Terms,ENABLED,true,2024-12-01 00:00:00
+200002,2024-01-01 00:00:00,STANDARD,100001,Beauty Keywords - Brand,Product Names,ENABLED,true,2024-12-01 00:00:00
+200003,2024-01-01 00:00:00,STANDARD,100002,Beauty Keywords - Generic,Skincare,ENABLED,true,2024-12-01 00:00:00
+200004,2024-01-01 00:00:00,STANDARD,100002,Beauty Keywords - Generic,Makeup,ENABLED,true,2024-12-01 00:00:00
+200005,2024-01-01 00:00:00,STANDARD,100003,Beauty Display - Retargeting,Previous Visitors,ENABLED,true,2024-12-01 00:00:00
+200006,2024-01-01 00:00:00,STANDARD,100004,Competitor Keywords,Competitor Brands,ENABLED,true,2024-12-01 00:00:00

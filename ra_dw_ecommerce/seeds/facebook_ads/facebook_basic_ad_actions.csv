@@ -1,0 +1,11 @@
+ad_id,date,action_type,value,_1_d_view,_7_d_click,_28_d_click,inline,index,_fivetran_id,_fivetran_synced
+50001,2022-08-04,offsite_conversion.fb_pixel_purchase,1,0,1,1,0,1,action_001,2024-12-01 00:00:00
+50001,2022-08-11,offsite_conversion.fb_pixel_custom,2,1,2,2,1,1,action_002,2024-12-01 00:00:00
+50001,2022-08-19,offsite_conversion.fb_pixel_purchase,1,0,1,1,0,2,action_003,2024-12-01 00:00:00
+50001,2022-09-14,offsite_conversion.fb_pixel_purchase,1,0,1,1,0,3,action_004,2024-12-01 00:00:00
+50003,2022-08-04,offsite_conversion.fb_pixel_purchase,1,0,1,1,0,1,action_005,2024-12-01 00:00:00
+50003,2022-08-17,offsite_conversion.fb_pixel_custom,1,1,1,1,1,2,action_006,2024-12-01 00:00:00
+50003,2022-09-11,offsite_conversion.fb_pixel_purchase,1,0,1,1,0,3,action_007,2024-12-01 00:00:00
+50005,2022-08-04,offsite_conversion.fb_pixel_purchase,1,0,1,1,0,1,action_008,2024-12-01 00:00:00
+50005,2022-08-19,offsite_conversion.fb_pixel_custom,1,1,1,1,1,2,action_009,2024-12-01 00:00:00
+50005,2022-09-12,offsite_conversion.fb_pixel_purchase,1,0,1,1,0,3,action_010,2024-12-01 00:00:00

@@ -1,0 +1,8 @@
+ad_group_id,id,updated_at,display_url,type,status,final_urls,_fivetran_active,_fivetran_synced
+200001,300001,2024-01-01 00:00:00,beautyglow.com,RESPONSIVE_SEARCH_AD,ENABLED,[https://beautyglow.com/],true,2024-12-01 00:00:00
+200001,300002,2024-01-01 00:00:00,beautyglow.com,RESPONSIVE_SEARCH_AD,ENABLED,[https://beautyglow.com/skincare],true,2024-12-01 00:00:00
+200002,300003,2024-01-01 00:00:00,beautyglow.com,RESPONSIVE_SEARCH_AD,ENABLED,[https://beautyglow.com/products],true,2024-12-01 00:00:00
+200003,300004,2024-01-01 00:00:00,beautyglow.com,RESPONSIVE_SEARCH_AD,ENABLED,[https://beautyglow.com/skincare],true,2024-12-01 00:00:00
+200004,300005,2024-01-01 00:00:00,beautyglow.com,RESPONSIVE_SEARCH_AD,ENABLED,[https://beautyglow.com/makeup],true,2024-12-01 00:00:00
+200005,300006,2024-01-01 00:00:00,beautyglow.com,RESPONSIVE_DISPLAY_AD,ENABLED,[https://beautyglow.com/],true,2024-12-01 00:00:00
+200006,300007,2024-01-01 00:00:00,beautyglow.com,RESPONSIVE_SEARCH_AD,ENABLED,[https://beautyglow.com/],true,2024-12-01 00:00:00

@@ -1,0 +1,7 @@
+id,account_id,ad_set_id,campaign_id,creative_id,name,conversion_domain,_fivetran_synced,updated_time
+50001,1001002003004,30001,20001,40001,Beauty Brand Video Ad,belleandglow.co.uk,2024-12-01 00:00:00,2024-12-01 00:00:00
+50002,1001002003004,30002,20001,40001,Beauty Brand Video Ad US,belleandglow.co.uk,2024-12-01 00:00:00,2024-12-01 00:00:00
+50003,1001002003004,30003,20002,40002,Product Carousel UK,belleandglow.co.uk,2024-12-01 00:00:00,2024-12-01 00:00:00
+50004,1001002003004,30004,20002,40004,Mobile Video Product Ad,belleandglow.co.uk,2024-12-01 00:00:00,2024-12-01 00:00:00
+50005,1001002003004,30005,20003,40003,Website Retargeting Ad,belleandglow.co.uk,2024-12-01 00:00:00,2024-12-01 00:00:00
+50006,1001002003004,30006,20003,40003,Cart Abandonment Ad,belleandglow.co.uk,2024-12-01 00:00:00,2024-12-01 00:00:00

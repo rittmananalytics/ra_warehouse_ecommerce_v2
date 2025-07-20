@@ -1,0 +1,8 @@
+id,ad_account_id,ad_group_id,created_time,destination_url,name,pin_id,status,creative_type,_fivetran_synced
+687158000001,549764000000,2680547000001,2022-01-15 14:00:00,https://belleandglow.co.uk/?utm_source=pinterest&utm_medium=social&utm_campaign=beauty_showcase,Skincare Routine Guide,1234567890123,ACTIVE,REGULAR,2024-12-01 00:00:00
+687158000002,549764000000,2680547000001,2022-01-15 14:00:00,https://belleandglow.co.uk/products/clay-mask?utm_source=pinterest&utm_medium=social&utm_campaign=beauty_showcase,Clay Face Mask Pin,1234567890124,ACTIVE,REGULAR,2024-12-01 00:00:00
+687158000003,549764000000,2680547000002,2022-01-15 14:00:00,https://belleandglow.co.uk/blog/skincare-tips?utm_source=pinterest&utm_medium=social&utm_campaign=beauty_showcase,Skincare Tips Blog,1234567890125,ACTIVE,REGULAR,2024-12-01 00:00:00
+687158000004,549764000000,2680547000003,2022-02-01 14:00:00,https://belleandglow.co.uk/products?utm_source=pinterest&utm_medium=social&utm_campaign=product_discovery,Beauty Product Collection,1234567890126,ACTIVE,SHOPPING,2024-12-01 00:00:00
+687158000005,549764000000,2680547000004,2022-02-01 14:00:00,https://belleandglow.co.uk/search?utm_source=pinterest&utm_medium=social&utm_campaign=product_discovery,Search Beauty Products,1234567890127,ACTIVE,REGULAR,2024-12-01 00:00:00
+687158000006,549764000000,2680547000005,2022-03-10 18:00:00,https://belleandglow.co.uk/shop?utm_source=pinterest&utm_medium=social&utm_campaign=shopping_conversions,Shop Now Pin,1234567890128,ACTIVE,COMMERCE,2024-12-01 00:00:00
+687158000007,549764000000,2680547000006,2022-03-10 18:00:00,https://belleandglow.co.uk/cart?utm_source=pinterest&utm_medium=social&utm_campaign=shopping_conversions,Complete Purchase Pin,1234567890129,ACTIVE,COMMERCE,2024-12-01 00:00:00

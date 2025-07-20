@@ -105,77 +105,42 @@ seeds:
           event_params: STRING
           items: STRING
           ecommerce: STRING
-      customer:
-        +column_types:
-          id: INTEGER
-          orders_count: INTEGER
-          total_spent: NUMERIC
-          accepts_marketing: BOOLEAN
-      location:
-        +column_types:
-          id: INTEGER
-          active: BOOLEAN
-      product:
-        +column_types:
-          id: INTEGER
-      product_variant:
-        +column_types:
-          id: INTEGER
-          product_id: INTEGER
-          inventory_item_id: INTEGER
-          price: NUMERIC
-          compare_at_price: NUMERIC
-          inventory_quantity: INTEGER
-          available_for_sale: BOOLEAN
-          taxable: BOOLEAN
-      inventory_item:
-        +column_types:
-          id: INTEGER
-          requires_shipping: BOOLEAN
-          tracked: BOOLEAN
-      inventory_level:
-        +column_types:
-          inventory_item_id: INTEGER
-          location_id: INTEGER
-          available: INTEGER
-      order:
-        +column_types:
-          id: INTEGER
-          customer_id: INTEGER
-          total_price: NUMERIC
-          subtotal_price: NUMERIC
-          total_tax: NUMERIC
-          location_id: INTEGER
-      order_line:
-        +column_types:
-          id: INTEGER
-          order_id: INTEGER
-          product_id: INTEGER
-          variant_id: INTEGER
-          price: NUMERIC
-          quantity: INTEGER
-          total_discount: NUMERIC
-      transaction:
-        +column_types:
-          id: INTEGER
-          order_id: INTEGER
-          amount: NUMERIC
-      fulfillment:
-        +column_types:
-          id: INTEGER
-          order_id: INTEGER
-          location_id: INTEGER
-      collection:
-        +column_types:
-          id: INTEGER
-      refund:
-        +column_types:
-          id: INTEGER
-          order_id: INTEGER
-          restock: BOOLEAN
-      shop:
-        +column_types:
-          id: INTEGER
+    google_ads:
+      +schema: google_ads
+    facebook_ads:
+      +schema: facebook_ads
+      facebook_account_history:
+        +alias: account_history
+      facebook_campaign_history:
+        +alias: campaign_history
+      facebook_ad_set_history:
+        +alias: ad_set_history
+      facebook_ad_history:
+        +alias: ad_history
+      facebook_creative_history:
+        +alias: creative_history
+      facebook_basic_ad:
+        +alias: basic_ad
+      facebook_basic_ad_actions:
+        +alias: basic_ad_actions
+      facebook_basic_ad_action_values:
+        +alias: basic_ad_action_values
+    pinterest_ads:
+      +schema: pinterest_ads
+      pinterest_advertiser_history:
+        +alias: advertiser_history
+      pinterest_campaign_history:
+        +alias: campaign_history
+      pinterest_ad_group_history:
+        +alias: ad_group_history
+      pinterest_pin_promotion_history:
+        +alias: pin_promotion_history
+      pinterest_ad_group_report:
+        +alias: ad_group_report
+      pinterest_pin_promotion_report:
+        +alias: pin_promotion_report
+    instagram_business:
+      +schema: instagram_business
 
 vars:
     shopify_using_fulfillment_event: false # false by default. 
@@ -185,3 +150,54 @@ vars:
     shopify_using_abandoned_checkout: false # true by default. Setting to false will disable `abandoned_checkout`, `abandoned_checkout_discount_code`, and `abandoned_checkout_shipping_line`.
     shopify_database: ra-development
     shopify_schema: analytics_ecommerce_fivetran_shopify_demo
+    
+    # Google Ads configuration
+    google_ads_database: ra-development
+    google_ads_schema: analytics_ecommerce_google_ads
+    google_auto_tagging_enabled: true
+    
+    # Facebook Ads configuration
+    facebook_ads_database: ra-development
+    facebook_ads_schema: analytics_ecommerce_facebook_ads
+    
+    # Instagram Business configuration
+    instagram_business_database: ra-development
+    instagram_business_schema: analytics_ecommerce_instagram_business
+    instagram_business_user_history_identifier: user_history
+    instagram_business_media_history_identifier: media_history
+    instagram_business_media_insights_identifier: media_insights
+    
+    # Pinterest Ads configuration
+    pinterest_ads_database: ra-development
+    pinterest_ads_schema: analytics_ecommerce_pinterest_ads
+    pinterest_schema: analytics_ecommerce_pinterest_ads
+    pinterest_database: ra-development
+    
+    # Pinterest table identifiers (pointing to our aliased tables)
+    pinterest_ads_advertiser_history_identifier: advertiser_history
+    pinterest_ads_campaign_history_identifier: campaign_history
+    pinterest_ads_ad_group_history_identifier: ad_group_history
+    pinterest_ads_pin_promotion_history_identifier: pin_promotion_history
+    pinterest_ads_ad_group_report_identifier: ad_group_report
+    pinterest_ads_pin_promotion_report_identifier: pin_promotion_report
+    # Tables we don't have - use non-existent names to keep them empty
+    pinterest_ads_advertiser_report_identifier: advertiser_report_missing
+    pinterest_ads_campaign_report_identifier: campaign_report_missing
+    pinterest_ads_keyword_history_identifier: keyword_history_missing
+    pinterest_ads_keyword_report_identifier: keyword_report_missing
+    pinterest_ads_pin_promotion_targeting_report_identifier: pin_promotion_targeting_report_missing
+    pinterest_ads_targeting_geo_identifier: targeting_geo_missing
+    pinterest_ads_targeting_geo_region_identifier: targeting_geo_region_missing
+    
+    # Ad Reporting configuration - enable only the platforms we have
+    ad_reporting__google_ads_enabled: true
+    ad_reporting__facebook_ads_enabled: true
+    ad_reporting__amazon_ads_enabled: false
+    ad_reporting__apple_search_ads_enabled: false
+    ad_reporting__linkedin_ads_enabled: false
+    ad_reporting__microsoft_ads_enabled: false
+    ad_reporting__pinterest_ads_enabled: true
+    ad_reporting__reddit_ads_enabled: false
+    ad_reporting__snapchat_ads_enabled: false
+    ad_reporting__tiktok_ads_enabled: false
+    ad_reporting__twitter_ads_enabled: false
