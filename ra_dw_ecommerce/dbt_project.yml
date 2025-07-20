@@ -1,0 +1,187 @@
+
+# Name your project! Project names should contain only lowercase characters
+# and underscores. A good package name should reflect your organization's
+# name or the intended use of these models
+name: 'ra_dw_ecommerce'
+version: '1.0.0'
+
+# This setting configures which "profile" dbt uses for this project.
+profile: 'ra_dw_ecommerce'
+
+# These configurations specify where dbt should look for different types of files.
+# The `model-paths` config, for example, states that models in this project can be
+# found in the "models/" directory. You probably won't need to change these!
+model-paths: ["models"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+
+clean-targets:         # directories to be removed by `dbt clean`
+  - "target"
+  - "dbt_packages"
+
+
+# Configuring models
+# Full documentation: https://docs.getdbt.com/docs/configuring-models
+
+# In this example config, we tell dbt to build all models in the example/
+# directory as views. These settings can be overridden in the individual model
+# files using the `{{ config(...) }}` macro.
+models:
+  ra_dw_ecommerce:
+    # Config indicated by + and applies to all files under models/example/
+    example:
+      +materialized: view
+    staging:
+      stg_shopify_ecommerce:
+        +materialized: table
+        +schema: staging
+      stg_ga4_events:
+        +materialized: table
+        +schema: staging
+    integration:
+      +materialized: table
+      +schema: integration
+    warehouse:
+      +materialized: table
+      +schema: ecommerce # This will create analytics_ecommerce dataset
+      wh_dim_date:
+        +alias: dim_date
+      wh_dim_customers:
+        +alias: dim_customers
+      wh_dim_products:
+        +alias: dim_products
+      wh_dim_categories:
+        +alias: dim_categories
+      wh_dim_customer_metrics:
+        +alias: dim_customer_metrics
+      wh_fact_orders:
+        +alias: fact_orders
+      wh_fact_ga4_sessions:
+        +alias: fact_sessions
+      wh_fact_customer_journey:
+        +alias: fact_customer_journey
+      wh_fact_events:
+        +alias: fact_events
+      wh_fact_inventory:
+        +alias: fact_inventory
+      wh_dim_channels_enhanced:
+        +alias: dim_channels
+  shopify:
+    +schema: raw # leave blank for just the target_schema
+  shopify_source:
+    +schema: raw # leave blank for just the target_schema
+
+
+seeds:
+  ra_dw_ecommerce:
+    shopify:
+      +schema: fivetran_shopify_demo
+    ga4:
+      +schema: fivetran_ga4_demo
+      events_sample:
+        +column_types:
+          event_date: STRING
+          event_timestamp: INTEGER
+          event_name: STRING
+          event_previous_timestamp: INTEGER
+          event_value_in_usd: FLOAT64
+          event_bundle_sequence_id: INTEGER
+          event_server_timestamp_offset: INTEGER
+          user_id: STRING
+          user_pseudo_id: STRING
+          privacy_info: STRING
+          user_properties: STRING
+          user_first_touch_timestamp: INTEGER
+          user_ltv: STRING
+          device: STRING
+          geo: STRING
+          app_info: STRING
+          traffic_source: STRING
+          stream_id: STRING
+          platform: STRING
+          event_params: STRING
+          items: STRING
+          ecommerce: STRING
+      customer:
+        +column_types:
+          id: INTEGER
+          orders_count: INTEGER
+          total_spent: NUMERIC
+          accepts_marketing: BOOLEAN
+      location:
+        +column_types:
+          id: INTEGER
+          active: BOOLEAN
+      product:
+        +column_types:
+          id: INTEGER
+      product_variant:
+        +column_types:
+          id: INTEGER
+          product_id: INTEGER
+          inventory_item_id: INTEGER
+          price: NUMERIC
+          compare_at_price: NUMERIC
+          inventory_quantity: INTEGER
+          available_for_sale: BOOLEAN
+          taxable: BOOLEAN
+      inventory_item:
+        +column_types:
+          id: INTEGER
+          requires_shipping: BOOLEAN
+          tracked: BOOLEAN
+      inventory_level:
+        +column_types:
+          inventory_item_id: INTEGER
+          location_id: INTEGER
+          available: INTEGER
+      order:
+        +column_types:
+          id: INTEGER
+          customer_id: INTEGER
+          total_price: NUMERIC
+          subtotal_price: NUMERIC
+          total_tax: NUMERIC
+          location_id: INTEGER
+      order_line:
+        +column_types:
+          id: INTEGER
+          order_id: INTEGER
+          product_id: INTEGER
+          variant_id: INTEGER
+          price: NUMERIC
+          quantity: INTEGER
+          total_discount: NUMERIC
+      transaction:
+        +column_types:
+          id: INTEGER
+          order_id: INTEGER
+          amount: NUMERIC
+      fulfillment:
+        +column_types:
+          id: INTEGER
+          order_id: INTEGER
+          location_id: INTEGER
+      collection:
+        +column_types:
+          id: INTEGER
+      refund:
+        +column_types:
+          id: INTEGER
+          order_id: INTEGER
+          restock: BOOLEAN
+      shop:
+        +column_types:
+          id: INTEGER
+
+vars:
+    shopify_using_fulfillment_event: false # false by default. 
+    shopify_using_metafield: false  #true by default.
+    shopify_using_discount_code_app: false #false by default.
+    shopify_using_product_variant_media: false #false by default.
+    shopify_using_abandoned_checkout: false # true by default. Setting to false will disable `abandoned_checkout`, `abandoned_checkout_discount_code`, and `abandoned_checkout_shipping_line`.
+    shopify_database: ra-development
+    shopify_schema: analytics_ecommerce_fivetran_shopify_demo

@@ -1,0 +1,25 @@
+version: 2
+
+sources:
+  - name: fivetran_ga4_demo
+    description: "GA4 events data from Fivetran"
+    database: ra-development
+    schema: analytics_ecommerce_fivetran_ga4_demo
+    tables:
+      - name: events_sample
+        description: "Sample GA4 events data for Belle & Glow Cosmetics"
+        columns:
+          - name: event_date
+            description: "Date of the event"
+          - name: event_timestamp
+            description: "Timestamp of the event (microseconds)"
+          - name: event_name
+            description: "Name of the event (page_view, add_to_cart, etc.)"
+          - name: user_pseudo_id
+            description: "GA4 pseudo user identifier"
+          - name: event_params
+            description: "JSON array of event parameters"
+          - name: items
+            description: "JSON array of ecommerce items"
+          - name: ecommerce
+            description: "JSON object with ecommerce data"

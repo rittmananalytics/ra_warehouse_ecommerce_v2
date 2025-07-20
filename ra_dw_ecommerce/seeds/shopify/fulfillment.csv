@@ -1,0 +1,11 @@
+id,order_id,location_id,status,tracking_number,tracking_company,created_at,shipment_status,_fivetran_synced
+1,2,4,success,BG123456789GB,Royal Mail,2022-07-19 14:30:07,delivered,2025-07-19 10:00:00
+2,3,4,success,BG123456790GB,Royal Mail,2022-07-19 11:45:00,delivered,2025-07-19 10:00:00
+3,4,4,success,BG123456791GB,DPD,2022-07-20 13:15:23,delivered,2025-07-19 10:00:00
+4,5,4,success,BG123456792GB,Royal Mail,2022-07-20 12:30:13,delivered,2025-07-19 10:00:00
+5,6,4,success,BG123456793GB,Royal Mail,2022-07-20 21:00:20,delivered,2025-07-19 10:00:00
+6,7,4,success,BG123456794GB,DPD,2022-07-21 16:45:54,delivered,2025-07-19 10:00:00
+7,8,4,partial,BG123456795GB,Royal Mail,2022-07-21 13:15:08,in_transit,2025-07-19 10:00:00
+8,9,4,success,BG123456796GB,DPD,2022-07-21 22:30:13,delivered,2025-07-19 10:00:00
+9,10,4,success,BG123456797GB,Royal Mail,2022-07-22 18:00:31,delivered,2025-07-19 10:00:00
+10,11,4,success,BG123456798GB,DPD,2022-07-22 20:15:42,delivered,2025-07-19 10:00:00

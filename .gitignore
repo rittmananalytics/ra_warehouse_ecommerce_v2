@@ -1,0 +1,13 @@
+dbt-ecomm-env/
+ra_dw_ecommerce/target/
+ra_dw_ecommerce/dbt_modules/
+ra_dw_ecommerce/logs/
+CLAUDE.md
+logs/dbt.log
+
+# Claude Code artifacts
+.claude/
+*.claude
+claude_*.md
+claude_*.txt
+.claude_*

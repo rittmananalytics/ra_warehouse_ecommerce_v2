@@ -1,0 +1,31 @@
+id,title,handle,product_type,vendor,status,created_at,updated_at,published_at,published_scope,_fivetran_synced
+1,Radiant Glow Foundation,radiant-glow-foundation,Makeup,Belle & Glow,active,2022-07-19 08:00:00,2024-12-15 14:30:00,2022-07-19 08:00:00,web,2025-07-19 10:00:00
+2,Hydrating Face Serum,hydrating-face-serum,Skincare,Belle & Glow,active,2022-07-19 08:00:00,2024-11-20 16:45:00,2022-07-19 08:00:00,web,2025-07-19 10:00:00
+3,Velvet Matte Lipstick,velvet-matte-lipstick,Makeup,Belle & Glow,active,2022-07-19 08:00:00,2025-01-10 11:20:00,2022-07-19 08:00:00,web,2025-07-19 10:00:00
+4,Anti-Aging Night Cream,anti-aging-night-cream,Skincare,Belle & Glow,active,2022-07-19 08:00:00,2024-10-05 13:15:00,2022-07-19 08:00:00,web,2025-07-19 10:00:00
+5,Waterproof Mascara,waterproof-mascara,Makeup,Belle & Glow,active,2022-07-19 08:00:00,2025-02-28 09:30:00,2022-07-19 08:00:00,web,2025-07-19 10:00:00
+6,Vitamin C Cleanser,vitamin-c-cleanser,Skincare,Belle & Glow,active,2022-07-19 08:00:00,2024-09-12 15:50:00,2022-07-19 08:00:00,web,2025-07-19 10:00:00
+7,Eyeshadow Palette Sunset,eyeshadow-palette-sunset,Makeup,Belle & Glow,active,2022-08-01 10:00:00,2025-03-15 12:40:00,2022-08-01 10:00:00,web,2025-07-19 10:00:00
+8,Gentle Exfoliating Scrub,gentle-exfoliating-scrub,Skincare,Belle & Glow,active,2022-08-01 10:00:00,2024-12-08 14:25:00,2022-08-01 10:00:00,web,2025-07-19 10:00:00
+9,Contouring Kit,contouring-kit,Makeup,Belle & Glow,active,2022-08-15 12:00:00,2025-01-22 10:15:00,2022-08-15 12:00:00,web,2025-07-19 10:00:00
+10,Retinol Night Treatment,retinol-night-treatment,Skincare,Belle & Glow,active,2022-08-15 12:00:00,2024-11-30 16:35:00,2022-08-15 12:00:00,web,2025-07-19 10:00:00
+11,Blush Compact Rose,blush-compact-rose,Makeup,Belle & Glow,active,2022-09-01 09:00:00,2025-02-10 13:55:00,2022-09-01 09:00:00,web,2025-07-19 10:00:00
+12,Hyaluronic Acid Toner,hyaluronic-acid-toner,Skincare,Belle & Glow,active,2022-09-01 09:00:00,2024-10-18 11:10:00,2022-09-01 09:00:00,web,2025-07-19 10:00:00
+13,Liquid Eyeliner Black,liquid-eyeliner-black,Makeup,Belle & Glow,active,2022-09-15 14:00:00,2025-04-03 15:20:00,2022-09-15 14:00:00,web,2025-07-19 10:00:00
+14,SPF 50 Daily Moisturizer,spf-50-daily-moisturizer,Skincare,Belle & Glow,active,2022-09-15 14:00:00,2024-08-25 12:45:00,2022-09-15 14:00:00,web,2025-07-19 10:00:00
+15,Highlighting Powder,highlighting-powder,Makeup,Belle & Glow,active,2022-10-01 11:00:00,2025-01-05 14:30:00,2022-10-01 11:00:00,web,2025-07-19 10:00:00
+16,Niacinamide Serum,niacinamide-serum,Skincare,Belle & Glow,active,2022-10-01 11:00:00,2024-12-20 10:25:00,2022-10-01 11:00:00,web,2025-07-19 10:00:00
+17,Brow Pencil Duo,brow-pencil-duo,Makeup,Belle & Glow,active,2022-10-15 13:00:00,2025-03-08 16:40:00,2022-10-15 13:00:00,web,2025-07-19 10:00:00
+18,Micellar Water Cleanser,micellar-water-cleanser,Skincare,Belle & Glow,active,2022-10-15 13:00:00,2024-09-30 13:15:00,2022-10-15 13:00:00,web,2025-07-19 10:00:00
+19,Setting Spray Matte,setting-spray-matte,Makeup,Belle & Glow,active,2022-11-01 15:00:00,2025-02-18 11:50:00,2022-11-01 15:00:00,web,2025-07-19 10:00:00
+20,Peptide Eye Cream,peptide-eye-cream,Skincare,Belle & Glow,active,2022-11-01 15:00:00,2024-11-12 15:05:00,2022-11-01 15:00:00,web,2025-07-19 10:00:00
+21,Lip Gloss Shimmer,lip-gloss-shimmer,Makeup,Belle & Glow,active,2022-11-15 10:00:00,2025-04-12 12:30:00,2022-11-15 10:00:00,web,2025-07-19 10:00:00
+22,Clay Face Mask,clay-face-mask,Skincare,Belle & Glow,active,2022-11-15 10:00:00,2024-10-08 14:45:00,2022-11-15 10:00:00,web,2025-07-19 10:00:00
+23,Primer Smoothing,primer-smoothing,Makeup,Belle & Glow,active,2022-12-01 12:00:00,2025-01-28 09:55:00,2022-12-01 12:00:00,web,2025-07-19 10:00:00
+24,Rose Hip Oil Serum,rose-hip-oil-serum,Skincare,Belle & Glow,active,2022-12-01 12:00:00,2024-12-03 16:20:00,2022-12-01 12:00:00,web,2025-07-19 10:00:00
+25,Makeup Brush Set,makeup-brush-set,Tools,Belle & Glow,active,2023-01-01 09:00:00,2025-03-25 13:10:00,2023-01-01 09:00:00,web,2025-07-19 10:00:00
+26,Jade Roller Face Tool,jade-roller-face-tool,Tools,Belle & Glow,active,2023-01-01 09:00:00,2024-11-18 11:35:00,2023-01-01 09:00:00,web,2025-07-19 10:00:00
+27,Signature Fragrance Bloom,signature-fragrance-bloom,Fragrance,Belle & Glow,active,2023-02-01 14:00:00,2025-02-14 15:25:00,2023-02-01 14:00:00,web,2025-07-19 10:00:00
+28,Body Lotion Silk Touch,body-lotion-silk-touch,Body Care,Belle & Glow,active,2023-02-01 14:00:00,2024-09-15 12:50:00,2023-02-01 14:00:00,web,2025-07-19 10:00:00
+29,Lash Curler Professional,lash-curler-professional,Tools,Belle & Glow,active,2023-03-01 11:00:00,2025-04-20 10:15:00,2023-03-01 11:00:00,web,2025-07-19 10:00:00
+30,Hand Cream Luxury,hand-cream-luxury,Body Care,Belle & Glow,active,2023-03-01 11:00:00,2024-10-25 14:40:00,2023-03-01 11:00:00,web,2025-07-19 10:00:00

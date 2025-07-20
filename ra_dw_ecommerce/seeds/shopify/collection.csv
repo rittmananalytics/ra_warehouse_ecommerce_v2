@@ -1,0 +1,11 @@
+id,title,handle,published_at,sort_order,_fivetran_synced
+1,New Arrivals,new-arrivals,2022-07-19 08:00:00,created,2025-07-19 10:00:00
+2,Best Sellers,best-sellers,2022-07-19 08:00:00,best-selling,2025-07-19 10:00:00
+3,Skincare Essentials,skincare-essentials,2022-07-19 08:00:00,manual,2025-07-19 10:00:00
+4,Makeup Must-Haves,makeup-must-haves,2022-07-19 08:00:00,manual,2025-07-19 10:00:00
+5,Summer Collection,summer-collection,2022-06-01 10:00:00,created,2025-07-19 10:00:00
+6,Winter Glow,winter-glow,2022-11-01 12:00:00,created,2025-07-19 10:00:00
+7,Valentine's Day Special,valentines-day-special,2023-01-15 09:00:00,created,2025-07-19 10:00:00
+8,Mother's Day Gifts,mothers-day-gifts,2023-03-15 11:00:00,created,2025-07-19 10:00:00
+9,Professional Tools,professional-tools,2023-01-01 09:00:00,price-descending,2025-07-19 10:00:00
+10,Luxury Fragrances,luxury-fragrances,2023-02-01 14:00:00,price-descending,2025-07-19 10:00:00

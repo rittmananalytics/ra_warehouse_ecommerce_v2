@@ -1,0 +1,11 @@
+id,order_id,created_at,note,restock,_fivetran_synced
+1,156,2022-08-15 14:30:00,Product arrived damaged,TRUE,2025-07-19 10:00:00
+2,342,2022-10-22 11:45:00,Wrong shade ordered,TRUE,2025-07-19 10:00:00
+3,578,2022-12-08 16:20:00,Customer changed mind,FALSE,2025-07-19 10:00:00
+4,823,2023-02-14 09:15:00,Allergic reaction to product,TRUE,2025-07-19 10:00:00
+5,1245,2023-05-18 13:40:00,Product expired on arrival,TRUE,2025-07-19 10:00:00
+6,1687,2023-08-03 15:25:00,Duplicate order,FALSE,2025-07-19 10:00:00
+7,2156,2023-11-25 10:50:00,Package lost in transit,TRUE,2025-07-19 10:00:00
+8,2789,2024-01-12 12:30:00,Product not as described,TRUE,2025-07-19 10:00:00
+9,3234,2024-03-28 14:15:00,Customer dissatisfied with color,TRUE,2025-07-19 10:00:00
+10,3987,2024-06-15 11:20:00,Quality issues with brush set,TRUE,2025-07-19 10:00:00

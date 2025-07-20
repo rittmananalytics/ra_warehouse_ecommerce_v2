@@ -1,0 +1,98 @@
+packages:
+  - name: shopify
+    package: fivetran/shopify
+    version: 0.19.0
+  - name: klaviyo
+    package: fivetran/klaviyo
+    version: 0.9.0
+  - name: google_ads
+    package: fivetran/google_ads
+    version: 0.14.0
+  - name: facebook_ads
+    package: fivetran/facebook_ads
+    version: 0.10.0
+  - name: instagram_business
+    package: fivetran/instagram_business
+    version: 0.3.0
+  - name: pinterest
+    package: fivetran/pinterest
+    version: 0.13.0
+  - name: ad_reporting
+    package: fivetran/ad_reporting
+    version: 1.16.0
+  - name: shopify_source
+    package: fivetran/shopify_source
+    version: 0.18.1
+  - name: klaviyo_source
+    package: fivetran/klaviyo_source
+    version: 0.8.0
+  - name: google_ads_source
+    package: fivetran/google_ads_source
+    version: 0.14.0
+  - name: facebook_ads_source
+    package: fivetran/facebook_ads_source
+    version: 0.10.0
+  - name: instagram_business_source
+    package: fivetran/instagram_business_source
+    version: 0.3.0
+  - name: pinterest_source
+    package: fivetran/pinterest_source
+    version: 0.13.0
+  - name: amazon_ads
+    package: fivetran/amazon_ads
+    version: 0.5.0
+  - name: apple_search_ads
+    package: fivetran/apple_search_ads
+    version: 0.6.0
+  - name: linkedin
+    package: fivetran/linkedin
+    version: 0.12.0
+  - name: microsoft_ads
+    package: fivetran/microsoft_ads
+    version: 0.12.0
+  - name: reddit_ads
+    package: fivetran/reddit_ads
+    version: 0.6.0
+  - name: snapchat_ads
+    package: fivetran/snapchat_ads
+    version: 0.10.0
+  - name: tiktok_ads
+    package: fivetran/tiktok_ads
+    version: 0.9.0
+  - name: twitter_ads
+    package: fivetran/twitter_ads
+    version: 0.10.0
+  - name: fivetran_utils
+    package: fivetran/fivetran_utils
+    version: 0.4.10
+  - name: spark_utils
+    package: dbt-labs/spark_utils
+    version: 0.3.0
+  - name: amazon_ads_source
+    package: fivetran/amazon_ads_source
+    version: 0.5.0
+  - name: apple_search_ads_source
+    package: fivetran/apple_search_ads_source
+    version: 0.6.0
+  - name: linkedin_source
+    package: fivetran/linkedin_source
+    version: 0.12.0
+  - name: microsoft_ads_source
+    package: fivetran/microsoft_ads_source
+    version: 0.13.0
+  - name: reddit_ads_source
+    package: fivetran/reddit_ads_source
+    version: 0.6.1
+  - name: snapchat_ads_source
+    package: fivetran/snapchat_ads_source
+    version: 0.9.0
+  - name: tiktok_ads_source
+    package: fivetran/tiktok_ads_source
+    version: 0.9.0
+  - name: twitter_ads_source
+    package: fivetran/twitter_ads_source
+    version: 0.10.0
+  - name: dbt_utils
+    package: dbt-labs/dbt_utils
+    version: 1.3.0
+sha1_hash: f78b68212da98cc7111f75ce246b05b79c8972b1
