@@ -1,13 +1,14 @@
 // Ra Ecommerce Data Warehouse v2 - Data Model
-// Generated for staging, integration, and warehouse layers
+// Generated from actual BigQuery schemas in analytics_ecommerce datasets
 
 Project ra_ecommerce_dw {
   database_type: 'BigQuery'
-  Note: 'Ra Ecommerce Data Warehouse v2 - Multi-source ecommerce analytics platform'
+  Note: 'Ra Ecommerce Data Warehouse v2 - Multi-source ecommerce analytics platform with actual BigQuery table schemas'
 }
 
 //==============================================================================
 // STAGING LAYER - Data cleaning and standardization
+// Dataset: analytics_ecommerce_staging
 //==============================================================================
 
 TableGroup staging_shopify {
@@ -15,10 +16,15 @@ TableGroup staging_shopify {
   stg_shopify_ecommerce__orders  
   stg_shopify_ecommerce__order_lines
   stg_shopify_ecommerce__products
+  stg_shopify_ecommerce__transactions
+  stg_shopify_ecommerce__discounts
+  stg_shopify_ecommerce__inventory_levels
+  stg_shopify_ecommerce__customer_cohorts
+  stg_shopify_ecommerce__daily_shop
 }
 
 Table stg_shopify_ecommerce__customers {
-  customer_id bigint [pk, not null, note: 'Unique identifier for customer from Shopify']
+  customer_id integer [pk, not null, note: 'Unique identifier for customer from Shopify']
   customer_email string [not null, note: 'Customer email address']
   customer_first_name string [note: 'Customer first name']
   customer_last_name string [note: 'Customer last name']
@@ -34,22 +40,39 @@ Table stg_shopify_ecommerce__customers {
 }
 
 Table stg_shopify_ecommerce__orders {
-  order_id bigint [pk, not null, note: 'Unique identifier for order from Shopify']
-  customer_id bigint [ref: > stg_shopify_ecommerce__customers.customer_id, not null, note: 'Foreign key to customer who placed order']
-  order_number string [not null, note: 'Human-readable order number']
+  order_id integer [pk, not null, note: 'Unique identifier for order from Shopify']
+  order_name string [not null, note: 'Human-readable order name/number']
+  customer_id integer [ref: > stg_shopify_ecommerce__customers.customer_id, not null, note: 'Foreign key to customer who placed order']
+  customer_email string [note: 'Customer email address']
   order_created_at timestamp [not null, note: 'Timestamp when order was created']
   order_updated_at timestamp [note: 'Timestamp when order was last updated']
-  order_processed_at timestamp [note: 'Timestamp when order was processed']
+  processed_at timestamp [note: 'Timestamp when order was processed']
   financial_status string [not null, note: 'Financial status of order (paid, pending, etc.)']
   fulfillment_status string [note: 'Fulfillment status of order']
-  total_price decimal [not null, note: 'Total price of order including taxes and shipping']
-  subtotal_price decimal [note: 'Subtotal price before taxes and shipping']
-  total_tax decimal [note: 'Total tax amount']
-  total_discounts decimal [note: 'Total discount amount']
-  shipping_cost decimal [note: 'Shipping cost']
-  currency string [not null, note: 'Currency code for order']
+  order_total_price float [not null, note: 'Total price of order including taxes and shipping']
+  order_subtotal_price float [note: 'Subtotal price before taxes and shipping']
+  order_total_tax float [note: 'Total tax amount']
+  order_total_discount float [note: 'Total discount amount']
+  total_line_items_price float [note: 'Total price of all line items']
+  shipping_cost float [note: 'Shipping cost']
+  order_adjustment_amount float [note: 'Order adjustment amount']
+  order_total_weight numeric [note: 'Total weight of order']
+  currency_code string [not null, note: 'Currency code for order']
+  order_tags string [note: 'Tags associated with order']
+  cancelled_at timestamp [note: 'Timestamp when order was cancelled']
+  cancel_reason string [note: 'Reason for cancellation']
+  refund_amount numeric [note: 'Total refund amount']
+  customer_order_sequence_number integer [note: 'Order sequence number for customer']
+  new_vs_repeat string [note: 'New vs repeat customer indicator']
+  order_line_count integer [note: 'Number of line items in order']
+  source_name string [note: 'Order source']
+  referring_site string [note: 'Referring website']
+  landing_site_base_url string [note: 'Landing page base URL']
+  utm_source string [note: 'UTM source parameter']
+  utm_medium string [note: 'UTM medium parameter']
+  utm_campaign string [note: 'UTM campaign parameter']
   
-  Note: 'Cleaned and standardized order data from Shopify with calculated metrics'
+  Note: 'Cleaned and standardized order data from Shopify with calculated metrics and attribution data'
 }
 
 Table stg_shopify_ecommerce__order_lines {
@@ -83,6 +106,12 @@ TableGroup staging_ga4 {
   stg_ga4_events__page_view
   stg_ga4_events__purchase
   stg_ga4_events__add_to_cart
+  stg_ga4_events__add_to_cart_items
+  stg_ga4_events__add_payment_info
+  stg_ga4_events__add_shipping_info
+  stg_ga4_events__begin_checkout
+  stg_ga4_events__session_start
+  stg_ga4_events__view_item
 }
 
 Table stg_ga4_events__page_view {
@@ -121,119 +150,9 @@ Table stg_ga4_events__purchase {
   Note: 'Purchase events from Google Analytics 4 with ecommerce data'
 }
 
-Table stg_ga4_events__add_to_cart {
-  event_key string [pk, not null, note: 'Unique key for event record']
-  event_date date [not null, note: 'Date of the event']
-  event_timestamp timestamp [not null, note: 'Timestamp of the event']
-  user_pseudo_id string [not null, note: 'User pseudo ID from GA4']
-  session_id string [not null, note: 'Session identifier']
-  value decimal [note: 'Value of items added to cart']
-  currency string [note: 'Currency code']
-  
-  Note: 'Add to cart events from Google Analytics 4'
-}
-
-TableGroup staging_ad_platforms {
-  stg_google_ads__campaigns
-  stg_facebook_ads__campaigns
-  stg_pinterest_ads__campaigns
-}
-
-Table stg_google_ads__campaigns {
-  campaign_id bigint [pk, not null, note: 'Unique identifier for Google Ads campaign']
-  campaign_name string [not null, note: 'Campaign name']
-  campaign_status string [not null, note: 'Campaign status (enabled, paused, removed)']
-  start_date date [note: 'Campaign start date']
-  end_date date [note: 'Campaign end date']
-  total_cost decimal [not null, note: 'Total cost in micros']
-  total_clicks integer [not null, note: 'Total clicks']
-  total_impressions integer [not null, note: 'Total impressions']
-  total_conversions decimal [not null, note: 'Total conversions']
-  ctr decimal [note: 'Click-through rate']
-  cpc decimal [note: 'Cost per click']
-  cpm decimal [note: 'Cost per thousand impressions']
-  
-  Note: 'Google Ads campaign performance data with standardized metrics'
-}
-
-Table stg_facebook_ads__campaigns {
-  campaign_id bigint [pk, not null, note: 'Unique identifier for Facebook Ads campaign']
-  campaign_name string [not null, note: 'Campaign name']
-  campaign_status string [not null, note: 'Campaign status']
-  start_time timestamp [note: 'Campaign start time']
-  stop_time timestamp [note: 'Campaign stop time']
-  daily_budget decimal [note: 'Daily budget']
-  total_spend decimal [not null, note: 'Total spend']
-  total_clicks integer [not null, note: 'Total clicks']
-  total_impressions integer [not null, note: 'Total impressions']
-  
-  Note: 'Facebook Ads campaign performance data with standardized metrics'
-}
-
-Table stg_pinterest_ads__campaigns {
-  campaign_id bigint [pk, not null, note: 'Unique identifier for Pinterest Ads campaign']
-  campaign_name string [not null, note: 'Campaign name']
-  campaign_status string [not null, note: 'Campaign status']
-  start_time timestamp [note: 'Campaign start time']
-  end_time timestamp [note: 'Campaign end time']
-  daily_spend_cap decimal [note: 'Daily spend cap']
-  total_spend decimal [not null, note: 'Total spend']
-  total_clicks integer [not null, note: 'Total clicks']
-  total_impressions integer [not null, note: 'Total impressions']
-  
-  Note: 'Pinterest Ads campaign performance data with standardized metrics'
-}
-
-TableGroup staging_klaviyo {
-  stg_klaviyo__campaign
-  stg_klaviyo__event
-  stg_klaviyo__person
-}
-
-Table stg_klaviyo__campaign {
-  campaign_id string [pk, not null, note: 'Unique identifier for Klaviyo campaign']
-  campaign_name string [not null, note: 'Campaign name']
-  campaign_subject string [note: 'Email subject line']
-  from_email string [note: 'Sender email address']
-  from_name string [note: 'Sender name']
-  campaign_type string [note: 'Type of campaign']
-  campaign_category string [not null, note: 'Categorized campaign type (welcome, promotional, etc.)']
-  sent_at timestamp [note: 'Timestamp when campaign was sent']
-  has_emoji boolean [note: 'Boolean indicating if subject has emoji']
-  has_personalization boolean [note: 'Boolean indicating if subject has personalization']
-  
-  Note: 'Klaviyo email campaign data with performance metrics and categorization'
-}
-
-Table stg_klaviyo__event {
-  event_id string [pk, not null, note: 'Unique identifier for email event']
-  person_id string [ref: > stg_klaviyo__person.person_id, not null, note: 'Person/customer identifier']
-  campaign_id string [ref: > stg_klaviyo__campaign.campaign_id, note: 'Campaign identifier']
-  event_timestamp timestamp [not null, note: 'Timestamp of event']
-  event_date date [not null, note: 'Date of event']
-  event_category string [not null, note: 'Event category (campaign_event, flow_event, other_event)']
-  customer_tier_at_event string [note: 'Customer tier at time of event']
-  
-  Note: 'Klaviyo email events (opens, clicks, conversions) with customer context'
-}
-
-Table stg_klaviyo__person {
-  person_id string [pk, not null, note: 'Unique identifier for person']
-  email string [not null, note: 'Email address']
-  first_name string [note: 'First name']
-  last_name string [note: 'Last name']
-  phone_number string [note: 'Phone number']
-  accepts_marketing boolean [note: 'Boolean indicating if person accepts marketing']
-  customer_status string [note: 'Customer status (active, inactive, etc.)']
-  total_spent decimal [note: 'Total amount spent by customer']
-  created_at timestamp [not null, note: 'Timestamp when person was created']
-  updated_at timestamp [note: 'Timestamp when person was last updated']
-  
-  Note: 'Klaviyo person/customer profiles with engagement preferences and status'
-}
-
 //==============================================================================
 // INTEGRATION LAYER - Business logic and cross-source joins
+// Dataset: analytics_ecommerce_integration
 //==============================================================================
 
 TableGroup integration_core {
@@ -242,6 +161,12 @@ TableGroup integration_core {
   int_products
   int_sessions
   int_events
+  int_ga4_sessions
+  int_channels_enhanced
+  int_channels_working
+  int_categories_simple
+  int_inventory_simple
+  int_customer_metrics_simple
 }
 
 Table int_customers {
@@ -305,52 +230,14 @@ Table int_products {
   Note: 'Integration layer for product data with performance metrics, inventory status, and business classifications'
 }
 
-Table int_sessions {
-  session_id string [pk, not null, note: 'Unique identifier for website sessions']
-  user_pseudo_id string [not null, note: 'User pseudo ID from website analytics']
-  session_date date [not null, note: 'Date of the session']
-  session_start_time timestamp [not null, note: 'Timestamp when session started']
-  session_end_time timestamp [note: 'Timestamp when session ended']
-  session_duration_minutes decimal [note: 'Duration of session in minutes']
-  page_views integer [not null, note: 'Number of page views in the session']
-  unique_pages_viewed integer [note: 'Number of unique pages viewed']
-  traffic_source string [note: 'Traffic source for the session']
-  traffic_medium string [note: 'Traffic medium for the session']
-  traffic_campaign string [note: 'Campaign that drove the session']
-  device_category string [note: 'Device category used for session']
-  geo_country string [note: 'Country of user']
-  has_purchase boolean [note: 'Boolean indicating if session resulted in purchase']
-  has_add_to_cart boolean [note: 'Boolean indicating if session had add to cart events']
-  has_checkout boolean [note: 'Boolean indicating if session had checkout events']
-  session_type string [note: 'Classification of session based on user behavior']
-  is_bounce boolean [note: 'Boolean indicating if session was a bounce']
-  engagement_score decimal [note: 'Calculated engagement score based on session activity']
-  
-  Note: 'Integration layer for website sessions with engagement metrics, conversion indicators, and user journey context'
-}
-
-Table int_events {
-  event_key string [pk, not null, note: 'Unique identifier for event']
-  event_date date [not null, note: 'Date of the event']
-  event_timestamp timestamp [not null, note: 'Timestamp of the event']
-  user_pseudo_id string [not null, note: 'User pseudo ID']
-  session_id string [ref: > int_sessions.session_id, not null, note: 'Session identifier']
-  event_name string [not null, note: 'Name of the event']
-  event_category string [note: 'Category of event (engagement, ecommerce, etc.)']
-  page_location string [note: 'URL where event occurred']
-  page_title string [note: 'Title of page where event occurred']
-  ecommerce_value decimal [note: 'Monetary value associated with ecommerce events']
-  transaction_id string [note: 'Transaction identifier for purchase events']
-  item_count integer [note: 'Number of items for ecommerce events']
-  
-  Note: 'Integration layer for website events with standardized structure and business context'
-}
-
 TableGroup integration_marketing {
   int_campaigns
   int_customer_journey
   int_email_events
   int_email_campaign_performance
+  int_klaviyo_email_events
+  int_klaviyo_campaign_performance
+  int_data_pipeline_metadata
 }
 
 Table int_campaigns {
@@ -403,113 +290,57 @@ Table int_customer_journey {
   Note: 'Integration layer linking website sessions to ecommerce conversions for comprehensive customer journey analysis'
 }
 
-Table int_email_events {
-  email_event_key string [pk, not null, note: 'Unique surrogate key for email event']
-  event_id string [not null, note: 'Event identifier from Klaviyo']
-  person_id string [not null, note: 'Person identifier']
-  email string [not null, note: 'Email address']
-  occurred_at timestamp [not null, note: 'Timestamp when event occurred']
-  event_date date [not null, note: 'Date when event occurred']
-  event_name string [not null, note: 'Name of the email event']
-  event_category string [note: 'Category of email event']
-  campaign_id string [note: 'Campaign identifier']
-  campaign_name string [note: 'Campaign name']
-  utm_source string [note: 'UTM source for attribution']
-  utm_medium string [note: 'UTM medium for attribution']
-  utm_campaign string [note: 'UTM campaign for attribution']
-  emails_delivered integer [note: 'Count of emails delivered (0 or 1)']
-  emails_opened integer [note: 'Count of emails opened (0 or 1)']
-  emails_clicked integer [note: 'Count of emails clicked (0 or 1)']
-  emails_marked_spam integer [note: 'Count of emails marked as spam (0 or 1)']
-  unsubscribes integer [note: 'Count of unsubscribes (0 or 1)']
-  orders integer [note: 'Count of orders attributed to email (0 or 1)']
-  revenue decimal [note: 'Revenue attributed to email event']
-  
-  Note: 'Integration layer for email marketing events with unified structure and customer context'
-}
-
-Table int_email_campaign_performance {
-  campaign_key string [pk, not null, note: 'Unique surrogate key for campaign']
-  campaign_id string [not null, note: 'Campaign identifier from Klaviyo']
-  campaign_name string [not null, note: 'Campaign name']
-  campaign_subject string [note: 'Email subject line']
-  campaign_type string [note: 'Type of campaign']
-  sent_at timestamp [note: 'Timestamp when campaign was sent']
-  total_emails_delivered integer [not null, note: 'Total emails delivered']
-  total_emails_opened integer [not null, note: 'Total emails opened']
-  total_emails_clicked integer [not null, note: 'Total emails clicked']
-  total_orders integer [not null, note: 'Total orders attributed to campaign']
-  total_revenue decimal [not null, note: 'Total revenue attributed to campaign']
-  open_rate decimal [note: 'Email open rate']
-  click_rate decimal [note: 'Email click rate']
-  conversion_rate decimal [note: 'Email conversion rate']
-  revenue_per_email decimal [note: 'Revenue per email delivered']
-  unique_recipients integer [note: 'Number of unique recipients']
-  unique_openers integer [note: 'Number of unique openers']
-  unique_clickers integer [note: 'Number of unique clickers']
-  unique_converters integer [note: 'Number of unique converters']
-  performance_tier string [note: 'Performance tier based on open rate']
-  
-  Note: 'Integration layer for email campaign performance with aggregated metrics and effectiveness indicators'
-}
-
-Table int_data_pipeline_metadata {
-  pipeline_metadata_key string [pk, not null, note: 'Unique surrogate key for pipeline metadata']
-  data_source string [not null, note: 'Data source name']
-  source_rows integer [not null, note: 'Number of rows in source tables']
-  staging_rows integer [not null, note: 'Number of rows in staging tables']
-  integration_rows integer [not null, note: 'Number of rows in integration tables']
-  warehouse_rows integer [not null, note: 'Number of rows in warehouse tables']
-  staging_flow_pct decimal [not null, note: 'Percentage flow from source to staging']
-  integration_flow_pct decimal [not null, note: 'Percentage flow from source to integration']
-  warehouse_flow_pct decimal [not null, note: 'Percentage flow from source to warehouse']
-  source_table_count integer [not null, note: 'Number of source tables']
-  staging_table_count integer [not null, note: 'Number of staging tables']
-  integration_table_count integer [not null, note: 'Number of integration tables']
-  warehouse_table_count integer [not null, note: 'Number of warehouse tables']
-  
-  Note: 'Integration layer for data pipeline health monitoring with flow metrics and completeness indicators'
-}
-
 //==============================================================================
 // WAREHOUSE LAYER - Dimensional model optimized for analytics
+// Dataset: analytics_ecommerce_ecommerce
 //==============================================================================
 
 TableGroup warehouse_dimensions {
   dim_customers
   dim_products
   dim_date
-  dim_channels_enhanced
-  dim_email_campaigns
+  dim_channels
+  dim_customer_metrics
+  dim_categories
+  dim_social_content
 }
 
 Table dim_customers {
-  customer_key string [pk, not null, note: 'Surrogate key for customer dimension']
-  customer_id bigint [not null, note: 'Business key from Shopify']
+  customer_key integer [pk, not null, note: 'Surrogate key for customer dimension']
+  customer_id integer [not null, note: 'Business key from Shopify']
   customer_email string [not null, note: 'Customer email address']
-  customer_first_name string [note: 'Customer first name']
-  customer_last_name string [note: 'Customer last name']
-  customer_full_name string [note: 'Full customer name']
+  first_name string [note: 'Customer first name']
+  last_name string [note: 'Customer last name']
+  full_name string [note: 'Full customer name']
+  phone integer [note: 'Customer phone number']
   customer_created_at timestamp [not null, note: 'Customer creation timestamp']
-  total_spent_usd decimal [not null, note: 'Historical total spent in USD']
-  order_count integer [not null, note: 'Total number of orders']
-  avg_order_value_usd decimal [note: 'Average order value in USD']
+  customer_updated_at timestamp [note: 'Customer last update timestamp']
+  accepts_marketing string [note: 'Marketing acceptance status']
+  shopify_lifetime_value numeric [note: 'Lifetime value from Shopify']
+  shopify_order_count integer [note: 'Order count from Shopify']
+  calculated_lifetime_value float [not null, note: 'Calculated lifetime value']
+  calculated_order_count integer [not null, note: 'Calculated number of orders']
+  avg_order_value float [note: 'Average order value']
+  first_order_date timestamp [note: 'Date of first order']
+  last_order_date timestamp [note: 'Date of last order']
   days_since_first_order integer [note: 'Days since first order']
   days_since_last_order integer [note: 'Days since last order']
   customer_segment string [note: 'RFM-based customer segment']
+  customer_lifecycle_stage string [note: 'Customer lifecycle stage']
   customer_value_tier string [note: 'Value tier classification']
-  is_active_customer boolean [note: 'Active customer indicator']
-  churn_risk_score decimal [note: 'Churn risk score (0-100)']
-  engagement_score decimal [note: 'Engagement score (0-100)']
-  predicted_ltv_usd decimal [note: 'Predicted lifetime value in USD']
-  acquisition_channel string [note: 'Customer acquisition channel']
-  first_order_date date [note: 'Date of first order']
-  last_order_date date [note: 'Date of last order']
-  valid_from timestamp [not null, note: 'SCD Type 2: Valid from timestamp']
-  valid_to timestamp [note: 'SCD Type 2: Valid to timestamp']
+  recency_segment string [note: 'Recency-based segment']
+  aov_segment string [note: 'Average order value segment']
+  region string [note: 'Customer region']
+  has_email boolean [note: 'Has email indicator']
+  has_phone boolean [note: 'Has phone indicator']
+  has_address boolean [note: 'Has address indicator']
+  has_full_name boolean [note: 'Has full name indicator']
+  effective_from timestamp [not null, note: 'SCD Type 2: Valid from timestamp']
+  effective_to timestamp [note: 'SCD Type 2: Valid to timestamp']
   is_current boolean [not null, note: 'SCD Type 2: Current record indicator']
+  warehouse_updated_at timestamp [note: 'Warehouse update timestamp']
   
-  Note: 'SCD Type 2 customer dimension with comprehensive metrics, segmentation, and predictive analytics'
+  Note: 'SCD Type 2 customer dimension with comprehensive metrics, segmentation, and data quality indicators'
 }
 
 Table dim_products {
@@ -568,86 +399,169 @@ Table dim_date {
   Note: 'Complete date dimension with calendar and fiscal attributes for time-based analysis'
 }
 
-Table dim_channels_enhanced {
-  channel_key string [pk, not null, note: 'Surrogate key for channel dimension']
-  utm_source string [note: 'UTM source parameter']
-  utm_medium string [note: 'UTM medium parameter']
-  utm_campaign string [note: 'UTM campaign parameter']
-  channel_name string [not null, note: 'Friendly channel name']
-  channel_category string [not null, note: 'Channel category (paid, organic, direct, etc.)']
-  channel_type string [note: 'Channel type (search, social, email, etc.)']
+Table dim_channels {
+  channel_key integer [pk, not null, note: 'Surrogate key for channel dimension']
+  channel_source_medium string [not null, note: 'Source/medium combination']
+  channel_category string [not null, note: 'Channel category']
+  channel_name string [not null, note: 'Channel name']
   is_paid_channel boolean [not null, note: 'Paid channel indicator']
-  attribution_model string [note: 'Attribution model for this channel']
-  cost_tracking_enabled boolean [note: 'Cost tracking enabled indicator']
-  conversion_tracking_enabled boolean [note: 'Conversion tracking enabled indicator']
-  channel_description string [note: 'Channel description']
+  warehouse_updated_at timestamp [note: 'Warehouse update timestamp']
   
-  Note: 'Enhanced channel dimension for marketing attribution and channel performance analysis'
+  Note: 'Channel dimension for marketing attribution analysis'
 }
 
-Table dim_email_campaigns {
-  campaign_key string [pk, not null, note: 'Surrogate key for email campaign dimension']
-  campaign_id string [not null, note: 'Business key from Klaviyo']
-  campaign_name string [not null, note: 'Campaign name']
-  campaign_subject string [note: 'Email subject line']
-  from_email string [note: 'Sender email address']
-  from_name string [note: 'Sender name']
-  campaign_type string [note: 'Campaign type']
-  campaign_category string [note: 'Campaign category (welcome, promotional, etc.)']
-  email_program_type string [note: 'Email program type (campaign vs flow)']
-  audience_segment string [note: 'Target audience segment']
-  send_strategy string [note: 'Send strategy (batch, triggered, etc.)']
-  has_emoji boolean [note: 'Subject line contains emoji']
-  has_personalization boolean [note: 'Subject line has personalization']
-  automation_trigger string [note: 'Automation trigger if applicable']
-  expected_send_volume integer [note: 'Expected send volume']
-  campaign_goals string [note: 'Campaign goals and objectives']
+Table dim_customer_metrics {
+  customer_metrics_key integer [pk, not null, note: 'Surrogate key for customer metrics dimension']
+  customer_id integer [not null, note: 'Business key from Shopify']
+  customer_email string [not null, note: 'Customer email address']
+  customer_name string [note: 'Customer full name']
+  orders_count integer [not null, note: 'Total number of orders']
+  total_spent float [not null, note: 'Total amount spent']
+  avg_order_value float [note: 'Average order value']
+  first_order_date timestamp [note: 'First order date']
+  last_order_date timestamp [note: 'Last order date']
+  days_since_first_order integer [note: 'Days since first order']
+  days_since_last_order integer [note: 'Days since last order']
+  frequency_tier string [note: 'Order frequency tier']
+  monetary_tier string [note: 'Monetary value tier']
+  recency_tier string [note: 'Recency tier']
+  customer_segment string [note: 'Combined RFM segment']
+  customer_value_tier string [note: 'Value tier classification']
+  recency_days integer [note: 'Days since last order']
+  avg_days_between_orders float [note: 'Average days between orders']
+  churn_probability float [note: 'Churn probability score']
+  clv_predicted float [note: 'Predicted customer lifetime value']
+  days_until_next_order_prediction integer [note: 'Predicted days until next order']
+  warehouse_updated_at timestamp [note: 'Warehouse update timestamp']
   
-  Note: 'Email campaign dimension with categorization and strategy attributes for campaign analysis'
+  Note: 'Customer metrics dimension with RFM segmentation and predictive analytics'
+}
+
+Table dim_categories {
+  category_key integer [pk, not null, note: 'Surrogate key for category dimension']
+  category_name string [not null, note: 'Category name']
+  parent_category string [note: 'Parent category']
+  category_level integer [note: 'Category hierarchy level']
+  category_path string [note: 'Full category path']
+  is_active boolean [note: 'Active category indicator']
+  warehouse_updated_at timestamp [note: 'Warehouse update timestamp']
+  
+  Note: 'Product category dimension for hierarchical analysis'
+}
+
+Table dim_social_content {
+  content_key integer [pk, not null, note: 'Surrogate key for social content dimension']
+  content_id string [not null, note: 'Content identifier']
+  platform string [not null, note: 'Social media platform']
+  content_type string [note: 'Type of content']
+  content_category string [note: 'Content category']
+  content_theme string [note: 'Content theme']
+  has_hashtags boolean [note: 'Contains hashtags indicator']
+  has_mentions boolean [note: 'Contains mentions indicator']
+  has_links boolean [note: 'Contains links indicator']
+  is_video boolean [note: 'Video content indicator']
+  is_image boolean [note: 'Image content indicator']
+  warehouse_updated_at timestamp [note: 'Warehouse update timestamp']
+  
+  Note: 'Social media content dimension for content performance analysis'
 }
 
 TableGroup warehouse_facts {
   fact_orders
+  fact_order_items
   fact_sessions
   fact_events
   fact_customer_journey
   fact_marketing_performance
   fact_email_marketing
   fact_social_posts
+  fact_inventory
+  fact_ad_spend
+  fact_ad_attribution
   fact_data_quality
 }
 
 Table fact_orders {
-  order_key string [pk, not null, note: 'Surrogate key for order fact']
-  order_id bigint [not null, note: 'Business key from Shopify']
-  customer_key string [ref: > dim_customers.customer_key, not null, note: 'Foreign key to customer dimension']
-  product_key string [ref: > dim_products.product_key, not null, note: 'Foreign key to product dimension']
-  order_date_key string [ref: > dim_date.date_key, not null, note: 'Foreign key to order date']
-  order_number string [not null, note: 'Human-readable order number']
-  line_item_id bigint [note: 'Line item identifier']
+  order_key integer [pk, not null, note: 'Surrogate key for order fact']
+  customer_key integer [ref: > dim_customers.customer_key, not null, note: 'Foreign key to customer dimension']
+  channel_key integer [ref: > dim_channels.channel_key, not null, note: 'Foreign key to channel dimension']
+  order_date_key integer [ref: > dim_date.date_key, not null, note: 'Foreign key to order date']
+  processed_date_key integer [ref: > dim_date.date_key, note: 'Foreign key to processed date']
+  cancelled_date_key integer [ref: > dim_date.date_key, note: 'Foreign key to cancelled date']
+  order_id integer [not null, note: 'Business key from Shopify']
+  order_name string [not null, note: 'Human-readable order name']
+  customer_id integer [not null, note: 'Customer ID from Shopify']
+  customer_email string [note: 'Customer email']
+  order_created_at timestamp [not null, note: 'Order creation timestamp']
+  order_updated_at timestamp [note: 'Order update timestamp']
+  order_processed_at timestamp [note: 'Order processed timestamp']
+  order_cancelled_at timestamp [note: 'Order cancelled timestamp']
   financial_status string [note: 'Order financial status']
   fulfillment_status string [note: 'Order fulfillment status']
-  utm_source string [note: 'UTM source for attribution']
-  utm_medium string [note: 'UTM medium for attribution']
-  utm_campaign string [note: 'UTM campaign for attribution']
-  traffic_source string [note: 'Traffic source']
-  device_category string [note: 'Device category']
-  geo_country string [note: 'Customer country']
-  line_item_quantity integer [not null, note: 'Quantity for this line item']
-  unit_price_usd decimal [not null, note: 'Unit price in USD']
-  line_item_total_usd decimal [not null, note: 'Line item total in USD']
-  line_item_discount_usd decimal [note: 'Line item discount in USD']
-  total_price_usd decimal [not null, note: 'Total order price in USD']
-  total_tax_usd decimal [note: 'Total tax in USD']
-  total_discounts_usd decimal [note: 'Total discounts in USD']
-  shipping_cost_usd decimal [note: 'Shipping cost in USD']
-  gross_margin_usd decimal [note: 'Gross margin in USD']
-  is_first_order boolean [note: 'First order for customer indicator']
-  order_sequence_number integer [note: 'Order sequence for customer']
-  days_since_previous_order integer [note: 'Days since previous order']
-  order_type string [note: 'Order type classification']
+  order_total_price float [not null, note: 'Total order price']
+  subtotal_price float [note: 'Subtotal price']
+  total_tax float [note: 'Total tax']
+  total_discounts float [note: 'Total discounts']
+  shipping_cost float [note: 'Shipping cost']
+  order_adjustment_amount float [note: 'Order adjustment amount']
+  refund_subtotal numeric [note: 'Refund subtotal']
+  refund_tax integer [note: 'Refund tax']
+  calculated_order_total float [note: 'Calculated order total']
+  total_line_discounts float [note: 'Total line item discounts']
+  total_discount_amount float [note: 'Total discount amount']
+  line_item_count integer [note: 'Number of line items']
+  unique_product_count integer [note: 'Number of unique products']
+  total_quantity integer [note: 'Total quantity of items']
+  avg_line_price float [note: 'Average line item price']
+  max_line_price float [note: 'Maximum line item price']
+  min_line_price float [note: 'Minimum line item price']
+  discount_count integer [note: 'Number of discounts applied']
+  order_value_category string [note: 'Order value category']
+  source_name string [note: 'Order source']
+  referring_site string [note: 'Referring website']
+  landing_site_base_url string [note: 'Landing page base URL']
+  channel_source_medium string [note: 'Channel source/medium']
+  is_cancelled boolean [note: 'Order cancelled indicator']
+  has_refund boolean [note: 'Has refund indicator']
+  is_multi_product_order boolean [note: 'Multiple products indicator']
+  has_discount boolean [note: 'Has discount indicator']
+  discount_rate float [note: 'Discount rate percentage']
+  tax_rate float [note: 'Tax rate percentage']
+  shipping_rate float [note: 'Shipping rate percentage']
+  net_order_value float [note: 'Net order value']
+  net_subtotal float [note: 'Net subtotal']
+  net_tax float [note: 'Net tax']
+  hours_to_process integer [note: 'Hours to process order']
+  hours_to_cancellation integer [note: 'Hours to cancellation']
+  order_time_of_day string [note: 'Time of day classification']
+  order_day_type string [note: 'Day type classification']
+  warehouse_updated_at timestamp [note: 'Warehouse update timestamp']
   
-  Note: 'Order fact table with line item grain including comprehensive metrics and dimensional context'
+  Note: 'Order fact table at order level with comprehensive metrics, refunds, and operational indicators'
+}
+
+Table fact_order_items {
+  order_item_key string [pk, not null, note: 'Surrogate key for order item fact']
+  order_key integer [ref: > fact_orders.order_key, not null, note: 'Foreign key to order fact']
+  product_key integer [ref: > dim_products.product_key, not null, note: 'Foreign key to product dimension']
+  customer_key integer [ref: > dim_customers.customer_key, not null, note: 'Foreign key to customer dimension']
+  order_date_key integer [ref: > dim_date.date_key, not null, note: 'Foreign key to order date']
+  order_id integer [not null, note: 'Order ID from Shopify']
+  line_item_id bigint [not null, note: 'Line item identifier']
+  product_id bigint [not null, note: 'Product ID from Shopify']
+  variant_id bigint [note: 'Product variant identifier']
+  sku string [note: 'Product SKU']
+  quantity integer [not null, note: 'Quantity ordered']
+  unit_price float [not null, note: 'Unit price']
+  line_discount float [note: 'Line item discount']
+  line_total float [not null, note: 'Line item total']
+  tax_amount float [note: 'Tax amount for line item']
+  fulfillment_status string [note: 'Line item fulfillment status']
+  gift_card boolean [note: 'Gift card indicator']
+  requires_shipping boolean [note: 'Requires shipping indicator']
+  is_taxable boolean [note: 'Taxable item indicator']
+  
+  Note: 'Order items fact table at line item grain for detailed product analysis'
 }
 
 Table fact_sessions {
@@ -655,7 +569,7 @@ Table fact_sessions {
   session_id string [not null, note: 'Business key from GA4']
   user_pseudo_id string [not null, note: 'User pseudo ID']
   session_date_key string [ref: > dim_date.date_key, not null, note: 'Foreign key to session date']
-  channel_key string [ref: > dim_channels_enhanced.channel_key, note: 'Foreign key to channel dimension']
+  channel_key integer [ref: > dim_channels.channel_key, note: 'Foreign key to channel dimension']
   session_start_time timestamp [not null, note: 'Session start timestamp']
   session_end_time timestamp [note: 'Session end timestamp']
   session_duration_minutes decimal [note: 'Session duration in minutes']
@@ -710,10 +624,10 @@ Table fact_events {
 
 Table fact_customer_journey {
   journey_key string [pk, not null, note: 'Surrogate key for journey fact']
-  customer_key string [ref: > dim_customers.customer_key, not null, note: 'Foreign key to customer dimension']
+  customer_key integer [ref: > dim_customers.customer_key, not null, note: 'Foreign key to customer dimension']
   order_key string [ref: > fact_orders.order_key, not null, note: 'Foreign key to order fact']
   session_key string [ref: > fact_sessions.session_key, not null, note: 'Foreign key to session fact']
-  channel_key string [ref: > dim_channels_enhanced.channel_key, note: 'Foreign key to channel dimension']
+  channel_key integer [ref: > dim_channels.channel_key, note: 'Foreign key to channel dimension']
   touchpoint_date_key string [ref: > dim_date.date_key, not null, note: 'Foreign key to touchpoint date']
   conversion_date_key string [ref: > dim_date.date_key, not null, note: 'Foreign key to conversion date']
   touchpoint_sequence integer [not null, note: 'Touchpoint sequence number in journey']
@@ -739,8 +653,7 @@ Table fact_customer_journey {
 
 Table fact_marketing_performance {
   marketing_key string [pk, not null, note: 'Surrogate key for marketing fact']
-  campaign_key string [note: 'Foreign key to campaign dimension']
-  channel_key string [ref: > dim_channels_enhanced.channel_key, note: 'Foreign key to channel dimension']
+  channel_key integer [ref: > dim_channels.channel_key, note: 'Foreign key to channel dimension']
   report_date_key string [ref: > dim_date.date_key, not null, note: 'Foreign key to report date']
   platform string [not null, note: 'Marketing platform (google_ads, facebook_ads, etc.)']
   campaign_id string [note: 'Campaign identifier']
@@ -771,65 +684,125 @@ Table fact_marketing_performance {
 }
 
 Table fact_email_marketing {
-  email_marketing_key string [pk, not null, note: 'Surrogate key for email marketing fact']
-  campaign_key string [ref: > dim_email_campaigns.campaign_key, not null, note: 'Foreign key to email campaign dimension']
+  email_event_key string [pk, not null, note: 'Surrogate key for email event fact']
+  campaign_id string [note: 'Campaign identifier']
+  person_id string [note: 'Person identifier']
   event_date_key string [ref: > dim_date.date_key, not null, note: 'Foreign key to event date']
-  person_id string [note: 'Person identifier from Klaviyo']
+  event_type string [not null, note: 'Email event type']
+  event_timestamp timestamp [not null, note: 'Event timestamp']
   email_address string [note: 'Email address']
-  event_type string [note: 'Email event type (delivered, opened, clicked, etc.)']
-  campaign_send_time timestamp [note: 'Campaign send timestamp']
-  event_timestamp timestamp [note: 'Event timestamp']
-  emails_delivered integer [note: 'Count of emails delivered']
-  emails_opened integer [note: 'Count of emails opened']
-  emails_clicked integer [note: 'Count of emails clicked']
-  emails_bounced integer [note: 'Count of emails bounced']
-  emails_marked_spam integer [note: 'Count of emails marked as spam']
-  unsubscribes integer [note: 'Count of unsubscribes']
-  orders integer [note: 'Count of orders attributed']
-  revenue decimal [note: 'Revenue attributed to email']
-  open_rate decimal [note: 'Open rate for this event']
-  click_rate decimal [note: 'Click rate for this event']
-  conversion_rate decimal [note: 'Conversion rate for this event']
-  engagement_score decimal [note: 'Email engagement score']
-  customer_tier string [note: 'Customer tier at time of event']
+  campaign_name string [note: 'Campaign name']
+  campaign_subject string [note: 'Email subject line']
+  campaign_type string [note: 'Campaign type']
+  flow_id string [note: 'Flow identifier for automated emails']
+  flow_name string [note: 'Flow name']
+  is_delivered boolean [note: 'Email delivered indicator']
+  is_opened boolean [note: 'Email opened indicator']
+  is_clicked boolean [note: 'Email clicked indicator']
+  is_bounced boolean [note: 'Email bounced indicator']
+  is_marked_spam boolean [note: 'Email marked as spam indicator']
+  is_unsubscribed boolean [note: 'Unsubscribed indicator']
+  attributed_revenue decimal [note: 'Revenue attributed to email']
+  attributed_order_id string [note: 'Order ID attributed to email']
+  device_type string [note: 'Device type used to open email']
   email_client string [note: 'Email client used']
-  device_category string [note: 'Device category']
-  geo_country string [note: 'Customer country']
+  geo_country string [note: 'Country of recipient']
+  engagement_score decimal [note: 'Email engagement score']
   
-  Note: 'Email marketing fact table with comprehensive engagement metrics and attribution'
+  Note: 'Email marketing fact table at event grain with comprehensive engagement tracking'
+}
+
+Table fact_ad_spend {
+  ad_spend_key string [pk, not null, note: 'Surrogate key for ad spend fact']
+  channel_key integer [ref: > dim_channels.channel_key, note: 'Foreign key to channel dimension']
+  date_key string [ref: > dim_date.date_key, not null, note: 'Foreign key to date dimension']
+  platform string [not null, note: 'Advertising platform']
+  account_id string [note: 'Ad account identifier']
+  campaign_id string [note: 'Campaign identifier']
+  campaign_name string [note: 'Campaign name']
+  ad_group_id string [note: 'Ad group identifier']
+  ad_group_name string [note: 'Ad group name']
+  spend_usd decimal [not null, note: 'Spend amount in USD']
+  impressions integer [not null, note: 'Number of impressions']
+  clicks integer [not null, note: 'Number of clicks']
+  conversions decimal [note: 'Number of conversions']
+  conversion_value_usd decimal [note: 'Conversion value in USD']
+  budget_usd decimal [note: 'Budget amount in USD']
+  budget_utilization_pct decimal [note: 'Budget utilization percentage']
+  
+  Note: 'Ad spend fact table for daily advertising costs and performance metrics'
+}
+
+Table fact_ad_attribution {
+  attribution_key string [pk, not null, note: 'Surrogate key for attribution fact']
+  order_key integer [ref: > fact_orders.order_key, not null, note: 'Foreign key to order fact']
+  channel_key integer [ref: > dim_channels.channel_key, not null, note: 'Foreign key to channel dimension']
+  customer_key integer [ref: > dim_customers.customer_key, not null, note: 'Foreign key to customer dimension']
+  attribution_date_key string [ref: > dim_date.date_key, not null, note: 'Foreign key to attribution date']
+  platform string [not null, note: 'Attribution platform']
+  campaign_id string [note: 'Campaign identifier']
+  campaign_name string [note: 'Campaign name']
+  ad_id string [note: 'Ad identifier']
+  click_id string [note: 'Click identifier']
+  attribution_model string [not null, note: 'Attribution model used']
+  attribution_weight decimal [not null, note: 'Attribution weight (0-1)']
+  attributed_revenue_usd decimal [not null, note: 'Attributed revenue in USD']
+  attributed_units integer [not null, note: 'Attributed units sold']
+  days_to_conversion integer [note: 'Days from click to conversion']
+  is_view_through boolean [note: 'View-through conversion indicator']
+  is_click_through boolean [note: 'Click-through conversion indicator']
+  
+  Note: 'Ad attribution fact table linking advertising touchpoints to conversions'
+}
+
+Table fact_inventory {
+  inventory_key string [pk, not null, note: 'Surrogate key for inventory fact']
+  product_key integer [ref: > dim_products.product_key, not null, note: 'Foreign key to product dimension']
+  date_key string [ref: > dim_date.date_key, not null, note: 'Foreign key to date dimension']
+  location_id string [note: 'Inventory location identifier']
+  location_name string [note: 'Inventory location name']
+  inventory_item_id bigint [note: 'Inventory item identifier']
+  available_quantity integer [not null, note: 'Available quantity']
+  committed_quantity integer [note: 'Committed quantity']
+  incoming_quantity integer [note: 'Incoming quantity']
+  on_hand_quantity integer [not null, note: 'On hand quantity']
+  reorder_point integer [note: 'Reorder point']
+  reorder_quantity integer [note: 'Reorder quantity']
+  days_of_supply integer [note: 'Days of supply remaining']
+  stockout_risk_score decimal [note: 'Stockout risk score (0-100)']
+  inventory_value_usd decimal [note: 'Inventory value in USD']
+  carrying_cost_usd decimal [note: 'Carrying cost in USD']
+  
+  Note: 'Inventory fact table for stock levels and inventory management metrics'
 }
 
 Table fact_social_posts {
   social_post_key string [pk, not null, note: 'Surrogate key for social post fact']
+  content_key integer [ref: > dim_social_content.content_key, not null, note: 'Foreign key to content dimension']
   post_date_key string [ref: > dim_date.date_key, not null, note: 'Foreign key to post date']
   platform string [not null, note: 'Social media platform']
   post_id string [not null, note: 'Post identifier']
   account_id string [note: 'Account identifier']
   post_type string [note: 'Post type (photo, video, story, etc.)']
-  content_type string [note: 'Content type classification']
-  post_created_date timestamp [not null, note: 'Post creation timestamp']
-  caption_text string [note: 'Post caption text']
-  hashtag_count integer [note: 'Number of hashtags used']
-  mention_count integer [note: 'Number of mentions/tags']
+  post_created_at timestamp [not null, note: 'Post creation timestamp']
   impressions integer [note: 'Post impressions']
   reach integer [note: 'Post reach']
   likes integer [note: 'Number of likes']
   comments integer [note: 'Number of comments']
   shares integer [note: 'Number of shares']
   saves integer [note: 'Number of saves']
-  total_engagements integer [note: 'Total engagements']
-  engagement_rate decimal [note: 'Engagement rate']
+  clicks integer [note: 'Number of clicks']
   video_views integer [note: 'Video views (for video posts)']
   video_completion_rate decimal [note: 'Video completion rate']
-  story_taps_forward integer [note: 'Story forward taps']
-  story_taps_back integer [note: 'Story back taps']
-  story_exits integer [note: 'Story exits']
-  engagement_score decimal [note: 'Calculated engagement score']
-  performance_tier string [note: 'Performance tier classification']
+  engagement_rate decimal [note: 'Engagement rate']
+  virality_score decimal [note: 'Virality score']
+  sentiment_score decimal [note: 'Sentiment analysis score']
   is_promoted boolean [note: 'Promoted post indicator']
   promotion_spend_usd decimal [note: 'Promotion spend in USD']
+  attributed_conversions integer [note: 'Conversions attributed to post']
+  attributed_revenue_usd decimal [note: 'Revenue attributed to post']
   
-  Note: 'Social media post fact table with comprehensive engagement metrics and performance indicators'
+  Note: 'Social media post fact table with engagement metrics and attribution'
 }
 
 Table fact_data_quality {

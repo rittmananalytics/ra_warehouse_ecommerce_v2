@@ -82,9 +82,8 @@ FROM `analytics_ecommerce_ecommerce.fact_orders` o
 LEFT JOIN `analytics_ecommerce_ecommerce.fact_sessions` s
   ON o.customer_email = s.user_pseudo_id
   AND DATE(PARSE_DATE('%Y%m%d', CAST(o.order_date_key AS STRING))) = DATE(PARSE_DATE('%Y%m%d', CAST(s.session_date_key AS STRING)))
-LEFT JOIN `analytics_ecommerce_ecommerce.dim_channels` c
-  ON CONCAT(c.channel_source, '/', c.channel_medium) = 
-     CONCAT(IFNULL(o.source_name, 'direct'), '/', IFNULL(o.referring_site, 'none'))
+LEFT JOIN `analytics_ecommerce_ecommerce.dim_channels_enhanced` c
+  ON c.channel_id = o.channel_source_medium
 WHERE DATE(PARSE_DATE('%Y%m%d', CAST(o.order_date_key AS STRING))) >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)
 GROUP BY channel_name
 ORDER BY total_revenue DESC
