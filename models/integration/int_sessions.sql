@@ -1,6 +1,12 @@
 with session_starts as (
 
-    select * from {{ ref('stg_ga4_events__session_start') }}
+    select 
+        *,
+        -- Extract traffic source fields
+        json_extract_scalar(traffic_source, '$.source') as traffic_source_name,
+        json_extract_scalar(traffic_source, '$.medium') as traffic_medium,
+        json_extract_scalar(traffic_source, '$.campaign') as traffic_campaign
+    from {{ ref('stg_ga4_events__session_start') }}
 
 ),
 
@@ -43,6 +49,11 @@ session_aggregates as (
         min(event_timestamp) as session_start_timestamp,
         max(event_timestamp) as session_end_timestamp,
         
+        -- Traffic source (from session_start event)
+        max(traffic_source_name) as traffic_source,
+        max(traffic_medium) as traffic_medium,
+        max(traffic_campaign) as traffic_campaign,
+        
         -- Page view metrics
         count(case when event_name = 'page_view' then 1 end) as page_views,
         count(distinct case when event_name = 'page_view' then page_title end) as unique_pages_viewed,
@@ -66,15 +77,17 @@ session_aggregates as (
         (max(event_timestamp) - min(event_timestamp)) / 1000000 as session_duration_seconds
 
     from (
-        select event_timestamp, user_pseudo_id, event_name, page_title, page_location, null as item_id, null as value from page_views
+        select event_timestamp, user_pseudo_id, event_name, null as page_title, null as page_location, null as item_id, null as value, traffic_source_name, traffic_medium, traffic_campaign from session_starts
         union all
-        select event_timestamp, user_pseudo_id, event_name, null as page_title, null as page_location, item_id, null as value from view_items
+        select event_timestamp, user_pseudo_id, event_name, page_title, page_location, null as item_id, null as value, null as traffic_source_name, null as traffic_medium, null as traffic_campaign from page_views
         union all
-        select event_timestamp, user_pseudo_id, event_name, null as page_title, null as page_location, item_id, value from add_to_carts
+        select event_timestamp, user_pseudo_id, event_name, null as page_title, null as page_location, item_id, null as value, null as traffic_source_name, null as traffic_medium, null as traffic_campaign from view_items
         union all
-        select event_timestamp, user_pseudo_id, event_name, null as page_title, null as page_location, null as item_id, value from begin_checkouts
+        select event_timestamp, user_pseudo_id, event_name, null as page_title, null as page_location, item_id, value, null as traffic_source_name, null as traffic_medium, null as traffic_campaign from add_to_carts
         union all
-        select event_timestamp, user_pseudo_id, event_name, null as page_title, null as page_location, null as item_id, value from purchases
+        select event_timestamp, user_pseudo_id, event_name, null as page_title, null as page_location, null as item_id, value, null as traffic_source_name, null as traffic_medium, null as traffic_campaign from begin_checkouts
+        union all
+        select event_timestamp, user_pseudo_id, event_name, null as page_title, null as page_location, null as item_id, value, null as traffic_source_name, null as traffic_medium, null as traffic_campaign from purchases
     )
     group by user_pseudo_id, date(timestamp_micros(event_timestamp))
 
@@ -109,6 +122,11 @@ final as (
         session_start_timestamp,
         session_end_timestamp,
         session_sequence_number,
+        
+        -- Traffic source fields
+        traffic_source,
+        traffic_medium,
+        traffic_campaign,
         
         -- Time calculations
         case 

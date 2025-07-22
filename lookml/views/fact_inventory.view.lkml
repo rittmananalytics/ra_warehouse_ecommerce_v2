@@ -1,11 +1,11 @@
 view: fact_inventory {
-  sql_table_name: `@{PROJECT_ID}.@{ECOMMERCE_DATASET}.fact_inventory` ;;
+  sql_table_name: `ra-development.analytics_ecommerce_ecommerce.fact_inventory` ;;
   
   # Primary Key
-  dimension: inventory_sk {
+  dimension: inventory_key {
     primary_key: yes
-    type: string
-    sql: ${TABLE}.inventory_sk ;;
+    type: number
+    sql: ${TABLE}.inventory_key ;;
     description: "Inventory surrogate key"
   }
 
@@ -16,9 +16,9 @@ view: fact_inventory {
     description: "Product business key"
   }
 
-  dimension: product_sk {
-    type: string
-    sql: ${TABLE}.product_sk ;;
+  dimension: product_key {
+    type: number
+    sql: ${TABLE}.product_key ;;
     description: "Product surrogate key"
     hidden: yes
   }

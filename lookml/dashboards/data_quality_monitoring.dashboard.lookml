@@ -16,7 +16,7 @@
     ui_config:
       type: relative_timeframes
       display: inline
-    model: ra_ecommerce_analytics
+    model: ecommerce_demo
     explore: data_quality
     field: quality_date.calendar_date
     
@@ -29,7 +29,7 @@
     ui_config:
       type: checkboxes
       display: popover
-    model: ra_ecommerce_analytics
+    model: ecommerce_demo
     explore: data_quality
     field: data_quality.data_source
     
@@ -42,7 +42,7 @@
     ui_config:
       type: checkboxes
       display: popover
-    model: ra_ecommerce_analytics
+    model: ecommerce_demo
     explore: data_quality
     field: data_quality.data_layer
     
@@ -51,7 +51,7 @@
   # Data Quality KPIs
   - title: Overall Test Pass Rate
     name: overall_test_pass_rate
-    model: ra_ecommerce_analytics
+    model: ecommerce_demo
     explore: data_quality
     type: single_value
     fields: [data_quality.overall_test_pass_rate]
@@ -81,7 +81,7 @@
     
   - title: Average Pipeline Health
     name: average_pipeline_health
-    model: ra_ecommerce_analytics
+    model: ecommerce_demo
     explore: data_quality
     type: single_value
     fields: [data_quality.average_pipeline_health]
@@ -111,7 +111,7 @@
     
   - title: Total Data Volume
     name: total_data_volume
-    model: ra_ecommerce_analytics
+    model: ecommerce_demo
     explore: data_quality
     type: single_value
     fields: [data_quality.total_data_volume]
@@ -131,7 +131,7 @@
     
   - title: Sources with Issues
     name: sources_with_issues
-    model: ra_ecommerce_analytics
+    model: ecommerce_demo
     explore: data_quality
     type: single_value
     fields: [data_quality.sources_with_issues]
@@ -158,7 +158,7 @@
     
   - title: Average Flow Efficiency
     name: average_flow_efficiency
-    model: ra_ecommerce_analytics
+    model: ecommerce_demo
     explore: data_quality
     type: single_value
     fields: [data_quality.average_flow_efficiency]
@@ -188,7 +188,7 @@
     
   - title: Data Quality Score
     name: data_quality_score
-    model: ra_ecommerce_analytics
+    model: ecommerce_demo
     explore: data_quality
     type: single_value
     fields: [data_quality.data_quality_score]
@@ -219,7 +219,7 @@
   # Pipeline Health Trend
   - title: Pipeline Health Trend
     name: pipeline_health_trend
-    model: ra_ecommerce_analytics
+    model: ecommerce_demo
     explore: data_quality
     type: looker_line
     fields: [quality_date.calendar_date, data_quality.average_pipeline_health, 
@@ -273,7 +273,7 @@
   # Data Source Health Status
   - title: Data Source Health Status
     name: data_source_health_status
-    model: ra_ecommerce_analytics
+    model: ecommerce_demo
     explore: data_quality
     type: looker_bar
     fields: [data_quality.data_source, data_quality.average_pipeline_health, 
@@ -328,7 +328,7 @@
   # Data Flow Efficiency by Layer
   - title: Data Flow Efficiency by Layer
     name: data_flow_efficiency_layer
-    model: ra_ecommerce_analytics
+    model: ecommerce_demo
     explore: data_quality
     type: looker_column
     fields: [data_quality.data_layer, data_quality.source_to_staging_flow_pct, 
@@ -376,7 +376,7 @@
   # Data Volume by Source
   - title: Data Volume by Source
     name: data_volume_by_source
-    model: ra_ecommerce_analytics
+    model: ecommerce_demo
     explore: data_quality
     type: looker_pie
     fields: [data_quality.data_source, data_quality.total_data_volume]
@@ -403,7 +403,7 @@
   # Error and Warning Summary
   - title: Error and Warning Summary
     name: error_warning_summary
-    model: ra_ecommerce_analytics
+    model: ecommerce_demo
     explore: data_quality
     type: looker_bar
     fields: [data_quality.data_source, data_quality.total_errors, data_quality.total_warnings]

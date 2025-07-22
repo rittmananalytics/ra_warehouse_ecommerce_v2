@@ -1,153 +1,106 @@
 view: fact_orders {
-  sql_table_name: `@{PROJECT_ID}.@{ECOMMERCE_DATASET}.fact_orders` ;;
+  sql_table_name: `ra-development.analytics_ecommerce_ecommerce.fact_orders` ;;
   
   # Primary Key
-  dimension: order_line_sk {
+  dimension: order_key {
     primary_key: yes
-    type: string
-    sql: ${TABLE}.order_line_sk ;;
-    description: "Order line surrogate key"
+    type: number
+    sql: ${TABLE}.order_key ;;
+    description: "Order surrogate key"
   }
 
   # Foreign Keys
+  dimension: customer_key {
+    type: number
+    sql: ${TABLE}.customer_key ;;
+    description: "Customer surrogate key"
+    hidden: yes
+  }
+
+  dimension: channel_key {
+    type: number
+    sql: ${TABLE}.channel_key ;;
+    description: "Channel surrogate key"
+    hidden: yes
+  }
+
+  dimension: order_date_key {
+    type: number
+    sql: ${TABLE}.order_date_key ;;
+    description: "Order date key"
+    hidden: yes
+  }
+
+  dimension: processed_date_key {
+    type: number
+    sql: ${TABLE}.processed_date_key ;;
+    description: "Processed date key"
+    hidden: yes
+  }
+
+  dimension: cancelled_date_key {
+    type: number
+    sql: ${TABLE}.cancelled_date_key ;;
+    description: "Cancelled date key"
+    hidden: yes
+  }
+
+  # Natural Key
   dimension: order_id {
     type: string
     sql: ${TABLE}.order_id ;;
     description: "Order business key"
   }
 
-  dimension: customer_sk {
+  # Order Identifiers
+  dimension: order_name {
     type: string
-    sql: ${TABLE}.customer_sk ;;
-    description: "Customer surrogate key"
-    hidden: yes
+    sql: ${TABLE}.order_name ;;
+    description: "Order name/number"
   }
 
-  dimension: product_sk {
+  dimension: customer_id {
     type: string
-    sql: ${TABLE}.product_sk ;;
-    description: "Product surrogate key"
-    hidden: yes
+    sql: ${TABLE}.customer_id ;;
+    description: "Customer ID"
   }
 
-  dimension: order_date_key {
+  dimension: customer_email {
     type: string
-    sql: ${TABLE}.order_date_key ;;
-    description: "Order date key (YYYYMMDD)"
-    hidden: yes
+    sql: ${TABLE}.customer_email ;;
+    description: "Customer email"
   }
 
-  # Order Details
-  dimension: order_number {
-    type: number
-    sql: ${TABLE}.order_number ;;
-    description: "Order number"
+  # Dates and Timestamps
+  dimension_group: order_created {
+    type: time
+    timeframes: [raw, time, date, week, month, quarter, year]
+    sql: ${TABLE}.order_created_at ;;
+    description: "Order creation timestamp"
   }
 
-  dimension: line_item_id {
-    type: string
-    sql: ${TABLE}.line_item_id ;;
-    description: "Line item ID"
+  dimension_group: order_updated {
+    type: time
+    timeframes: [raw, time, date, week, month, quarter, year]
+    sql: ${TABLE}.order_updated_at ;;
+    description: "Order update timestamp"
   }
 
-  dimension: variant_id {
-    type: string
-    sql: ${TABLE}.variant_id ;;
-    description: "Product variant ID"
+  dimension_group: order_processed {
+    type: time
+    timeframes: [raw, time, date, week, month, quarter, year]
+    sql: ${TABLE}.order_processed_at ;;
+    description: "Order processed timestamp"
   }
 
-  dimension: variant_title {
-    type: string
-    sql: ${TABLE}.variant_title ;;
-    description: "Product variant title"
+  dimension_group: order_cancelled {
+    type: time
+    timeframes: [raw, time, date, week, month, quarter, year]
+    sql: ${TABLE}.order_cancelled_at ;;
+    description: "Order cancelled timestamp"
   }
 
-  # Financial Metrics
-  dimension: quantity {
-    type: number
-    sql: ${TABLE}.quantity ;;
-    description: "Quantity ordered"
-  }
-
-  dimension: price {
-    type: number
-    sql: ${TABLE}.price ;;
-    description: "Unit price"
-    value_format_name: usd
-  }
-
-  dimension: total_discount {
-    type: number
-    sql: ${TABLE}.total_discount ;;
-    description: "Total discount amount"
-    value_format_name: usd
-  }
-
-  dimension: line_item_total {
-    type: number
-    sql: ${TABLE}.line_item_total ;;
-    description: "Line item total (price * quantity - discount)"
-    value_format_name: usd
-  }
-
-  dimension: product_cost {
-    type: number
-    sql: ${TABLE}.product_cost ;;
-    description: "Product cost per unit"
-    value_format_name: usd
-  }
-
-  dimension: gross_margin {
-    type: number
-    sql: ${TABLE}.gross_margin ;;
-    description: "Gross margin (revenue - cost)"
-    value_format_name: usd
-  }
-
-  dimension: gross_margin_pct {
-    type: number
-    sql: ${TABLE}.gross_margin_pct ;;
-    description: "Gross margin percentage"
-    value_format_name: percent_1
-  }
-
-  # Order-level Financial Data
-  dimension: order_subtotal {
-    type: number
-    sql: ${TABLE}.order_subtotal ;;
-    description: "Order subtotal"
-    value_format_name: usd
-  }
-
-  dimension: order_total_tax {
-    type: number
-    sql: ${TABLE}.order_total_tax ;;
-    description: "Order total tax"
-    value_format_name: usd
-  }
-
-  dimension: order_total_shipping {
-    type: number
-    sql: ${TABLE}.order_total_shipping ;;
-    description: "Order total shipping"
-    value_format_name: usd
-  }
-
-  dimension: order_total_discounts {
-    type: number
-    sql: ${TABLE}.order_total_discounts ;;
-    description: "Order total discounts"
-    value_format_name: usd
-  }
-
-  dimension: order_total_price {
-    type: number
-    sql: ${TABLE}.order_total_price ;;
-    description: "Order total price"
-    value_format_name: usd
-  }
-
-  # Order Status and Fulfillment
+  # Status Fields
   dimension: financial_status {
     type: string
     sql: ${TABLE}.financial_status ;;
@@ -157,224 +110,269 @@ view: fact_orders {
   dimension: fulfillment_status {
     type: string
     sql: ${TABLE}.fulfillment_status ;;
-    description: "Fulfillment status (fulfilled, partial, unfulfilled)"
+    description: "Fulfillment status"
   }
 
-  dimension: cancelled_at {
-    type: date_time
-    sql: ${TABLE}.cancelled_at ;;
-    description: "Order cancellation timestamp"
-  }
-
-  dimension: is_cancelled {
-    type: yesno
-    sql: ${cancelled_at} IS NOT NULL ;;
-    description: "Order is cancelled"
-  }
-
-  # Product Information
-  dimension: product_title {
-    type: string
-    sql: ${TABLE}.product_title ;;
-    description: "Product title"
-  }
-
-  dimension: product_vendor {
-    type: string
-    sql: ${TABLE}.product_vendor ;;
-    description: "Product vendor"
-  }
-
-  dimension: product_type {
-    type: string
-    sql: ${TABLE}.product_type ;;
-    description: "Product type"
-  }
-
-  # Customer Information
-  dimension: customer_email {
-    type: string
-    sql: ${TABLE}.customer_email ;;
-    description: "Customer email"
-  }
-
-  # Geographic Information
-  dimension: shipping_country {
-    type: string
-    sql: ${TABLE}.shipping_country ;;
-    description: "Shipping country"
-    map_layer_name: countries
-  }
-
-  dimension: shipping_province {
-    type: string
-    sql: ${TABLE}.shipping_province ;;
-    description: "Shipping province/state"
-  }
-
-  dimension: shipping_city {
-    type: string
-    sql: ${TABLE}.shipping_city ;;
-    description: "Shipping city"
-  }
-
-  dimension: billing_country {
-    type: string
-    sql: ${TABLE}.billing_country ;;
-    description: "Billing country"
-    map_layer_name: countries
-  }
-
-  dimension: billing_province {
-    type: string
-    sql: ${TABLE}.billing_province ;;
-    description: "Billing province/state"
-  }
-
-  # Time Dimensions
-  dimension_group: order {
-    type: time
-    timeframes: [raw, date, week, month, quarter, year, day_of_week, hour_of_day]
-    sql: ${TABLE}.order_created_at ;;
-    description: "Order creation time"
-  }
-
-  dimension_group: processed {
-    type: time
-    timeframes: [raw, date, week, month, quarter, year]
-    sql: ${TABLE}.processed_at ;;
-    description: "Order processed time"
-  }
-
-  dimension_group: updated {
-    type: time
-    timeframes: [raw, date, week, month, quarter, year]
-    sql: ${TABLE}.updated_at ;;
-    description: "Order last update time"
-  }
-
-  # Calculated Dimensions
-  dimension: days_to_fulfill {
+  # Financial Metrics
+  dimension: order_total_price {
     type: number
-    sql: DATE_DIFF(${processed_date}, ${order_date}, DAY) ;;
-    description: "Days from order to fulfillment"
+    sql: ${TABLE}.order_total_price ;;
+    description: "Total order price"
+    value_format_name: usd
   }
 
-  dimension: is_high_value_order {
+  dimension: subtotal_price {
+    type: number
+    sql: ${TABLE}.subtotal_price ;;
+    description: "Subtotal price"
+    value_format_name: usd
+  }
+
+  dimension: total_tax {
+    type: number
+    sql: ${TABLE}.total_tax ;;
+    description: "Total tax amount"
+    value_format_name: usd
+  }
+
+  dimension: total_discounts {
+    type: number
+    sql: ${TABLE}.total_discounts ;;
+    description: "Total discounts"
+    value_format_name: usd
+  }
+
+  dimension: shipping_cost {
+    type: number
+    sql: ${TABLE}.shipping_cost ;;
+    description: "Shipping cost"
+    value_format_name: usd
+  }
+
+  dimension: order_adjustment_amount {
+    type: number
+    sql: ${TABLE}.order_adjustment_amount ;;
+    description: "Order adjustment amount"
+    value_format_name: usd
+  }
+
+  dimension: refund_subtotal {
+    type: number
+    sql: ${TABLE}.refund_subtotal ;;
+    description: "Refund subtotal"
+    value_format_name: usd
+  }
+
+  dimension: refund_tax {
+    type: number
+    sql: ${TABLE}.refund_tax ;;
+    description: "Refund tax"
+    value_format_name: usd
+  }
+
+  # Calculated Metrics
+  dimension: calculated_order_total {
+    type: number
+    sql: ${TABLE}.calculated_order_total ;;
+    description: "Calculated order total"
+    value_format_name: usd
+  }
+
+  dimension: total_line_discounts {
+    type: number
+    sql: ${TABLE}.total_line_discounts ;;
+    description: "Total line item discounts"
+    value_format_name: usd
+  }
+
+  dimension: total_discount_amount {
+    type: number
+    sql: ${TABLE}.total_discount_amount ;;
+    description: "Total discount amount"
+    value_format_name: usd
+  }
+
+  # Order Composition
+  dimension: line_item_count {
+    type: number
+    sql: ${TABLE}.line_item_count ;;
+    description: "Number of line items"
+  }
+
+  dimension: unique_product_count {
+    type: number
+    sql: ${TABLE}.unique_product_count ;;
+    description: "Number of unique products"
+  }
+
+  dimension: total_quantity {
+    type: number
+    sql: ${TABLE}.total_quantity ;;
+    description: "Total quantity ordered"
+  }
+
+  dimension: avg_line_price {
+    type: number
+    sql: ${TABLE}.avg_line_price ;;
+    description: "Average line item price"
+    value_format_name: usd
+  }
+
+  dimension: max_line_price {
+    type: number
+    sql: ${TABLE}.max_line_price ;;
+    description: "Maximum line item price"
+    value_format_name: usd
+  }
+
+  dimension: min_line_price {
+    type: number
+    sql: ${TABLE}.min_line_price ;;
+    description: "Minimum line item price"
+    value_format_name: usd
+  }
+
+  # Order Source Information
+  dimension: source_name {
+    type: string
+    sql: ${TABLE}.source_name ;;
+    description: "Order source name"
+  }
+
+  dimension: referring_site {
+    type: string
+    sql: ${TABLE}.referring_site ;;
+    description: "Referring site"
+  }
+
+  dimension: landing_page {
+    type: string
+    sql: ${TABLE}.landing_page ;;
+    description: "Landing page URL"
+  }
+
+  # Classification Fields
+  dimension: has_discount {
     type: yesno
-    sql: ${order_total_price} >= 200 ;;
-    description: "High value order (>= $200)"
+    sql: ${TABLE}.has_discount ;;
+    description: "Order has discount"
+  }
+
+  dimension: has_refund {
+    type: yesno
+    sql: ${TABLE}.has_refund ;;
+    description: "Order has refund"
+  }
+
+  dimension: order_type {
+    type: string
+    sql: ${TABLE}.order_type ;;
+    description: "Order type classification"
+  }
+
+  dimension: discount_category {
+    type: string
+    sql: ${TABLE}.discount_category ;;
+    description: "Discount category"
   }
 
   dimension: order_size_category {
     type: string
-    sql: CASE 
-      WHEN ${order_total_price} < 50 THEN 'Small'
-      WHEN ${order_total_price} < 150 THEN 'Medium'
-      WHEN ${order_total_price} < 300 THEN 'Large'
-      ELSE 'Enterprise'
-    END ;;
+    sql: ${TABLE}.order_size_category ;;
     description: "Order size category"
   }
 
-  dimension: margin_category {
-    type: string
-    sql: CASE 
-      WHEN ${gross_margin_pct} < 20 THEN 'Low Margin'
-      WHEN ${gross_margin_pct} < 40 THEN 'Medium Margin'
-      ELSE 'High Margin'
-    END ;;
-    description: "Margin category"
+  # NOTE: is_first_order and days_since_previous_order fields don't exist in BigQuery table
+  # These would need to be calculated in the dbt model or as derived dimensions here
+
+  dimension: is_cancelled {
+    type: yesno
+    sql: ${TABLE}.is_cancelled ;;
+    description: "Order is cancelled"
   }
 
   # Measures
   measure: count {
     type: count
-    description: "Number of order line items"
-    drill_fields: [order_id, product_title, quantity, line_item_total]
-  }
-
-  measure: count_orders {
-    type: count_distinct
-    sql: ${order_id} ;;
-    description: "Number of unique orders"
-    drill_fields: [order_id, order_date, customer_email, order_total_price]
+    description: "Number of orders"
+    drill_fields: [order_detail*]
   }
 
   measure: total_revenue {
     type: sum
-    sql: ${line_item_total} ;;
+    sql: ${calculated_order_total} ;;
     description: "Total revenue"
-    value_format_name: usd
-    drill_fields: [order_date, product_title, line_item_total]
-  }
-
-  measure: total_quantity_sold {
-    type: sum
-    sql: ${quantity} ;;
-    description: "Total quantity sold"
-  }
-
-  measure: total_gross_margin {
-    type: sum
-    sql: ${gross_margin} ;;
-    description: "Total gross margin"
     value_format_name: usd
   }
 
   measure: average_order_value {
-    type: number
-    sql: ${total_revenue} / NULLIF(${count_orders}, 0) ;;
+    type: average
+    sql: ${calculated_order_total} ;;
     description: "Average order value"
     value_format_name: usd
   }
 
-  measure: average_gross_margin_pct {
-    type: average
-    sql: ${gross_margin_pct} ;;
-    description: "Average gross margin percentage"
-    value_format_name: percent_1
+  measure: total_items_ordered {
+    type: sum
+    sql: ${total_quantity} ;;
+    description: "Total items ordered"
   }
 
-  measure: total_discounts {
+  measure: average_items_per_order {
+    type: average
+    sql: ${total_quantity} ;;
+    description: "Average items per order"
+    value_format_name: decimal_1
+  }
+
+  measure: total_discount_given {
     type: sum
-    sql: ${total_discount} ;;
+    sql: ${total_discount_amount} ;;
     description: "Total discounts given"
     value_format_name: usd
   }
 
   measure: discount_rate {
     type: number
-    sql: ${total_discounts} / (${total_revenue} + ${total_discounts}) ;;
-    description: "Discount rate (discounts / gross revenue)"
-    value_format_name: percent_1
+    sql: ${total_discount_given} / NULLIF(${total_revenue} + ${total_discount_given}, 0) ;;
+    description: "Discount rate"
+    value_format_name: percent_2
   }
 
-  measure: units_per_order {
+  measure: cancellation_rate {
     type: number
-    sql: ${total_quantity_sold} / NULLIF(${count_orders}, 0) ;;
-    description: "Average units per order"
-    value_format_name: decimal_1
+    sql: COUNT(CASE WHEN ${is_cancelled} THEN 1 END) / NULLIF(${count}, 0) ;;
+    description: "Order cancellation rate"
+    value_format_name: percent_2
   }
 
-  measure: return_rate {
+  measure: refund_rate {
     type: number
-    sql: COUNT(CASE WHEN ${financial_status} = 'refunded' THEN 1 END) / NULLIF(${count}, 0) ;;
-    description: "Return/refund rate"
-    value_format_name: percent_1
+    sql: COUNT(CASE WHEN ${has_refund} THEN 1 END) / NULLIF(${count}, 0) ;;
+    description: "Order refund rate"
+    value_format_name: percent_2
   }
 
-  measure: total_tax {
-    type: sum
-    sql: ${order_total_tax} / ${quantity} ;;
-    description: "Total tax collected (prorated by line item)"
-    value_format_name: usd
+  measure: orders_with_discount {
+    type: count
+    filters: [has_discount: "yes"]
+    description: "Number of orders with discounts"
   }
 
-  measure: total_shipping {
-    type: sum
-    sql: ${order_total_shipping} / ${quantity} ;;
-    description: "Total shipping charges (prorated by line item)"
-    value_format_name: usd
+  # NOTE: first_time_orders measures removed because is_first_order field doesn't exist in BigQuery
+  # These would need the is_first_order field to be calculated in the dbt model first
+
+  # Drill fields
+  set: order_detail {
+    fields: [
+      order_id,
+      order_name,
+      customer_email,
+      order_created_date,
+      calculated_order_total,
+      total_quantity,
+      financial_status,
+      fulfillment_status
+    ]
   }
 }

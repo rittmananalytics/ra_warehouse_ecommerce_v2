@@ -16,7 +16,7 @@
     ui_config:
       type: relative_timeframes
       display: inline
-    model: ra_ecommerce_analytics
+    model: ecommerce_demo
     explore: marketing_performance
     field: performance_date.calendar_date
     
@@ -29,7 +29,7 @@
     ui_config:
       type: checkboxes
       display: popover
-    model: ra_ecommerce_analytics
+    model: ecommerce_demo
     explore: marketing_performance
     field: marketing_performance.platform
     
@@ -42,7 +42,7 @@
     ui_config:
       type: checkboxes
       display: popover
-    model: ra_ecommerce_analytics
+    model: ecommerce_demo
     explore: marketing_performance
     field: marketing_performance.campaign_status
     
@@ -51,7 +51,7 @@
   # Marketing KPIs
   - title: Total Ad Spend
     name: total_ad_spend
-    model: ra_ecommerce_analytics
+    model: ecommerce_demo
     explore: marketing_performance
     type: single_value
     fields: [marketing_performance.total_spend]
@@ -71,7 +71,7 @@
     
   - title: Total Conversions
     name: total_conversions
-    model: ra_ecommerce_analytics
+    model: ecommerce_demo
     explore: marketing_performance
     type: single_value
     fields: [marketing_performance.total_conversions]
@@ -91,7 +91,7 @@
     
   - title: Overall ROAS
     name: overall_roas
-    model: ra_ecommerce_analytics
+    model: ecommerce_demo
     explore: marketing_performance
     type: single_value
     fields: [marketing_performance.overall_roas]
@@ -121,7 +121,7 @@
     
   - title: Overall CPA
     name: overall_cpa
-    model: ra_ecommerce_analytics
+    model: ecommerce_demo
     explore: marketing_performance
     type: single_value
     fields: [marketing_performance.overall_cpa]
@@ -141,7 +141,7 @@
     
   - title: Overall CTR
     name: overall_ctr
-    model: ra_ecommerce_analytics
+    model: ecommerce_demo
     explore: marketing_performance
     type: single_value
     fields: [marketing_performance.overall_ctr]
@@ -161,7 +161,7 @@
     
   - title: Conversion Rate
     name: conversion_rate
-    model: ra_ecommerce_analytics
+    model: ecommerce_demo
     explore: marketing_performance
     type: single_value
     fields: [marketing_performance.overall_conversion_rate]
@@ -182,7 +182,7 @@
   # Daily Marketing Performance
   - title: Daily Marketing Performance
     name: daily_marketing_performance
-    model: ra_ecommerce_analytics
+    model: ecommerce_demo
     explore: marketing_performance
     type: looker_line
     fields: [performance_date.calendar_date, marketing_performance.total_spend, 
@@ -233,7 +233,7 @@
   # Platform Performance Comparison
   - title: Platform Performance Comparison
     name: platform_performance
-    model: ra_ecommerce_analytics
+    model: ecommerce_demo
     explore: marketing_performance
     type: looker_bar
     fields: [marketing_performance.platform, marketing_performance.total_spend, 
@@ -286,7 +286,7 @@
   # Campaign Performance Scatter
   - title: Campaign Performance Matrix (Spend vs ROAS)
     name: campaign_performance_matrix
-    model: ra_ecommerce_analytics
+    model: ecommerce_demo
     explore: marketing_performance
     type: looker_scatter
     fields: [marketing_performance.campaign_name, marketing_performance.total_spend, 
@@ -335,7 +335,7 @@
   # Channel Attribution Analysis
   - title: Channel Attribution Mix
     name: channel_attribution_mix
-    model: ra_ecommerce_analytics
+    model: ecommerce_demo
     explore: attribution_analysis
     type: looker_pie
     fields: [touchpoint_channels.channel_name, attribution_analysis.total_revenue]
@@ -360,7 +360,7 @@
   # Top Performing Campaigns
   - title: Top Performing Campaigns by ROAS
     name: top_campaigns_roas
-    model: ra_ecommerce_analytics
+    model: ecommerce_demo
     explore: marketing_performance
     type: looker_bar
     fields: [marketing_performance.campaign_name, marketing_performance.platform,

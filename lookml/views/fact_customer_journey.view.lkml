@@ -1,33 +1,47 @@
 view: fact_customer_journey {
-  sql_table_name: `@{PROJECT_ID}.@{ECOMMERCE_DATASET}.fact_customer_journey` ;;
+  sql_table_name: `ra-development.analytics_ecommerce_ecommerce.fact_customer_journey` ;;
   
   # Primary Key
-  dimension: journey_sk {
+  dimension: journey_key {
     primary_key: yes
-    type: string
-    sql: ${TABLE}.journey_sk ;;
+    type: number
+    sql: ${TABLE}.journey_key ;;
     description: "Customer journey surrogate key"
   }
 
   # Foreign Keys
-  dimension: customer_sk {
-    type: string
-    sql: ${TABLE}.customer_sk ;;
+  dimension: customer_key {
+    type: number
+    sql: ${TABLE}.customer_key ;;
     description: "Customer surrogate key"
     hidden: yes
   }
 
-  dimension: channel_sk {
-    type: string
-    sql: ${TABLE}.channel_sk ;;
-    description: "Channel surrogate key"
+  dimension: order_key {
+    type: number
+    sql: ${TABLE}.order_key ;;
+    description: "Order surrogate key"
     hidden: yes
   }
 
-  dimension: event_date_key {
+  dimension: session_key {
     type: number
-    sql: ${TABLE}.event_date_key ;;
-    description: "Event date key (YYYYMMDD)"
+    sql: ${TABLE}.session_key ;;
+    description: "Session surrogate key"
+    hidden: yes
+  }
+
+  dimension: session_date_key {
+    type: number
+    sql: ${TABLE}.session_date_key ;;
+    description: "Session date key"
+    hidden: yes
+  }
+
+  dimension: order_date_key {
+    type: number
+    sql: ${TABLE}.order_date_key ;;
+    description: "Order date key"
     hidden: yes
   }
 

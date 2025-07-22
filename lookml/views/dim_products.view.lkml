@@ -1,11 +1,11 @@
 view: dim_products {
-  sql_table_name: `@{PROJECT_ID}.@{ECOMMERCE_DATASET}.dim_products` ;;
+  sql_table_name: `ra-development.analytics_ecommerce_ecommerce.dim_products` ;;
   
   # Primary Key
-  dimension: product_sk {
+  dimension: product_key {
     primary_key: yes
-    type: string
-    sql: ${TABLE}.product_sk ;;
+    type: number
+    sql: ${TABLE}.product_key ;;
     description: "Product surrogate key"
   }
 

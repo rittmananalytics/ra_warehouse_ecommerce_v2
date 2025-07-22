@@ -1,0 +1,174 @@
+{{ config(
+    materialized='table',
+    unique_key='order_key'
+) }}
+
+with orders as (
+
+    select * from {{ ref('int_orders') }}
+
+),
+
+customers as (
+
+    select * from {{ ref('wh_dim_customers') }}
+
+),
+
+channels as (
+
+    select * from {{ ref('wh_dim_channels_enhanced') }}
+
+),
+
+date_dim as (
+
+    select * from {{ ref('wh_dim_date') }}
+
+),
+
+-- Map order traffic source to channel
+order_channels as (
+    select
+        o.*,
+        -- Create channel mapping based on source and referring site
+        case
+            when o.source_name = 'web' and o.referring_site like '%google%' and o.landing_site_base_url like '%utm_medium=organic%' then 'google / organic'
+            when o.source_name = 'web' and o.referring_site like '%google%' and o.landing_site_base_url like '%utm_medium=cpc%' then 'google / cpc'
+            when o.source_name = 'web' and o.referring_site like '%google%' then 'google / organic'
+            when o.source_name = 'web' and o.referring_site like '%facebook%' then 'facebook / social'
+            when o.source_name = 'web' and o.referring_site like '%instagram%' then 'instagram / social'
+            when o.source_name = 'web' and o.referring_site like '%pinterest%' then 'pinterest / social'
+            when o.source_name = 'web' and o.referring_site like '%tiktok%' then 'tiktok / social'
+            when o.source_name = 'web' and o.referring_site like '%twitter%' then 'twitter / social'
+            when o.source_name = 'web' and o.referring_site like '%linkedin%' then 'linkedin / social'
+            when o.source_name = 'web' and o.referring_site like '%youtube%' then 'youtube / social'
+            when o.source_name = 'email' and o.referring_site like '%klaviyo%' then 'email / email'
+            when o.source_name = 'email' and o.referring_site like '%mailchimp%' then 'email / email'
+            when o.source_name = 'email' then 'email / email'
+            when o.source_name = 'pos' then 'pos / offline'
+            when o.source_name = 'web' and (o.referring_site is null or o.referring_site = '') then '(direct) / (none)'
+            when o.source_name is null then '(direct) / (none)'
+            else coalesce(o.source_name || ' / ' || coalesce(o.referring_site, 'unknown'), '(direct) / (none)')
+        end as channel_source_medium
+    from orders o
+),
+
+final as (
+
+    select
+        -- Surrogate keys
+        row_number() over (order by o.order_id) as order_key,
+        coalesce(c.customer_key, -1) as customer_key,
+        coalesce(ch.channel_key, -1) as channel_key,
+        coalesce(d_created.date_key, -1) as order_date_key,
+        coalesce(d_processed.date_key, -1) as processed_date_key,
+        coalesce(d_cancelled.date_key, -1) as cancelled_date_key,
+        
+        -- Natural key
+        o.order_id,
+        
+        -- Order identifiers
+        o.order_name,
+        o.customer_id,
+        o.customer_email,
+        
+        -- Dates and timestamps
+        o.order_created_at,
+        o.order_updated_at,
+        o.order_processed_at,
+        o.order_cancelled_at,
+        
+        -- Status fields
+        o.financial_status,
+        o.fulfillment_status,
+        
+        -- Financial metrics
+        o.order_total_price,
+        o.subtotal_price,
+        o.total_tax,
+        o.total_discounts,
+        o.shipping_cost,
+        o.order_adjustment_amount,
+        o.refund_subtotal,
+        o.refund_tax,
+        
+        -- Calculated metrics
+        o.calculated_order_total,
+        o.total_line_discounts,
+        o.total_discount_amount,
+        
+        -- Order composition
+        o.line_item_count,
+        o.unique_product_count,
+        o.total_quantity,
+        o.avg_line_price,
+        o.max_line_price,
+        o.min_line_price,
+        o.discount_count,
+        
+        -- Order characteristics
+        o.order_value_category,
+        o.source_name,
+        o.processing_method,
+        o.referring_site,
+        o.landing_site_base_url,
+        o.channel_source_medium,
+        o.order_note,
+        o.shipping_company,
+        o.tracking_company,
+        o.tracking_number,
+        
+        -- Shipping address
+        o.shipping_address_first_name,
+        o.shipping_address_last_name,
+        o.shipping_address_company,
+        o.shipping_address_phone,
+        o.shipping_address_address_1,
+        o.shipping_address_address_2,
+        o.shipping_address_city,
+        o.shipping_address_province,
+        o.shipping_address_province_code,
+        o.shipping_address_country,
+        o.shipping_address_country_code,
+        o.shipping_address_zip,
+        
+        -- Flags
+        o.is_cancelled,
+        o.has_refund,
+        o.is_multi_product_order,
+        o.has_discount,
+        
+        -- Calculated rates
+        o.discount_rate,
+        o.tax_rate,
+        o.shipping_rate,
+        
+        -- Net amounts
+        o.net_order_value,
+        o.net_subtotal,
+        o.net_tax,
+        
+        -- Time calculations
+        o.hours_to_process,
+        o.hours_to_cancellation,
+        
+        -- Order timing characteristics
+        o.order_time_of_day,
+        o.order_day_type,
+        
+        -- Metadata
+        current_timestamp() as warehouse_updated_at
+
+    from order_channels o
+    left join customers c on o.customer_id = c.customer_id
+        and c.is_current = true
+    left join channels ch on o.channel_source_medium = ch.channel_id
+        and ch.is_current = true
+    left join date_dim d_created on date(o.order_created_at) = d_created.date_actual
+    left join date_dim d_processed on date(o.order_processed_at) = d_processed.date_actual
+    left join date_dim d_cancelled on date(o.order_cancelled_at) = d_cancelled.date_actual
+
+)
+
+select * from final

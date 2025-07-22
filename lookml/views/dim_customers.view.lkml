@@ -1,11 +1,11 @@
 view: dim_customers {
-  sql_table_name: `@{PROJECT_ID}.@{ECOMMERCE_DATASET}.dim_customers` ;;
+  sql_table_name: `ra-development.analytics_ecommerce_ecommerce.dim_customers` ;;
   
   # Primary Key
-  dimension: customer_sk {
+  dimension: customer_key {
     primary_key: yes
-    type: string
-    sql: ${TABLE}.customer_sk ;;
+    type: number
+    sql: ${TABLE}.customer_key ;;
     description: "Customer surrogate key"
   }
 
@@ -17,9 +17,9 @@ view: dim_customers {
   }
 
   # Customer Attributes
-  dimension: email {
+  dimension: customer_email {
     type: string
-    sql: ${TABLE}.email ;;
+    sql: ${TABLE}.customer_email ;;
     description: "Customer email address"
   }
 
@@ -37,7 +37,7 @@ view: dim_customers {
 
   dimension: full_name {
     type: string
-    sql: CONCAT(${first_name}, ' ', ${last_name}) ;;
+    sql: ${TABLE}.full_name ;;
     description: "Customer full name"
   }
 
@@ -48,28 +48,22 @@ view: dim_customers {
   }
 
   # Address Information
-  dimension: address1 {
-    type: string
-    sql: ${TABLE}.address1 ;;
-    description: "Primary address line"
-  }
-
-  dimension: address2 {
-    type: string
-    sql: ${TABLE}.address2 ;;
-    description: "Secondary address line"
-  }
-
   dimension: city {
     type: string
     sql: ${TABLE}.city ;;
     description: "City"
   }
 
-  dimension: province {
+  dimension: state_province {
     type: string
-    sql: ${TABLE}.province ;;
-    description: "Province or state"
+    sql: ${TABLE}.state_province ;;
+    description: "State or province"
+  }
+
+  dimension: state_province_code {
+    type: string
+    sql: ${TABLE}.state_province_code ;;
+    description: "State or province code"
   }
 
   dimension: country {
@@ -78,16 +72,28 @@ view: dim_customers {
     description: "Country"
   }
 
-  dimension: zip {
+  dimension: country_code {
     type: string
-    sql: ${TABLE}.zip ;;
+    sql: ${TABLE}.country_code ;;
+    description: "Country code"
+  }
+
+  dimension: postal_code {
+    type: string
+    sql: ${TABLE}.postal_code ;;
     description: "Postal/ZIP code"
   }
 
-  # Customer Status
-  dimension: state {
+  dimension: region {
     type: string
-    sql: ${TABLE}.state ;;
+    sql: ${TABLE}.region ;;
+    description: "Geographic region"
+  }
+
+  # Customer Status
+  dimension: customer_state {
+    type: string
+    sql: ${TABLE}.customer_state ;;
     description: "Customer account state"
   }
 
@@ -97,66 +103,140 @@ view: dim_customers {
     description: "Customer accepts marketing communications"
   }
 
-  dimension: tax_exempt {
-    type: yesno
-    sql: ${TABLE}.tax_exempt ;;
-    description: "Customer is tax exempt"
-  }
-
-  dimension: verified_email {
-    type: yesno
-    sql: ${TABLE}.verified_email ;;
-    description: "Customer email is verified"
-  }
-
   # Customer Lifetime Metrics
-  dimension: total_spent {
+  dimension: shopify_lifetime_value {
     type: number
-    sql: ${TABLE}.total_spent ;;
-    description: "Total amount spent by customer"
+    sql: ${TABLE}.shopify_lifetime_value ;;
+    description: "Lifetime value from Shopify"
     value_format_name: usd
   }
 
-  dimension: orders_count {
+  dimension: shopify_order_count {
     type: number
-    sql: ${TABLE}.orders_count ;;
-    description: "Total number of orders placed"
+    sql: ${TABLE}.shopify_order_count ;;
+    description: "Order count from Shopify"
+  }
+
+  dimension: calculated_lifetime_value {
+    type: number
+    sql: ${TABLE}.calculated_lifetime_value ;;
+    description: "Calculated lifetime value"
+    value_format_name: usd
+  }
+
+  dimension: calculated_order_count {
+    type: number
+    sql: ${TABLE}.calculated_order_count ;;
+    description: "Calculated order count"
+  }
+
+  dimension: avg_order_value {
+    type: number
+    sql: ${TABLE}.avg_order_value ;;
+    description: "Average order value"
+    value_format_name: usd
+  }
+
+  # Customer Date Dimensions
+  dimension_group: first_order {
+    type: time
+    timeframes: [raw, date, week, month, quarter, year]
+    sql: ${TABLE}.first_order_date ;;
+    description: "Date of first order"
+  }
+
+  dimension_group: last_order {
+    type: time
+    timeframes: [raw, date, week, month, quarter, year]
+    sql: ${TABLE}.last_order_date ;;
+    description: "Date of last order"
+  }
+
+  dimension: days_since_first_order {
+    type: number
+    sql: ${TABLE}.days_since_first_order ;;
+    description: "Days since first order"
+  }
+
+  dimension: days_since_last_order {
+    type: number
+    sql: ${TABLE}.days_since_last_order ;;
+    description: "Days since last order"
   }
 
   # Customer Segmentation
-  dimension: customer_lifetime_value_tier {
-    type: tier
-    tiers: [0, 100, 500, 1000, 2500, 5000]
-    style: relational
-    sql: ${total_spent} ;;
-    description: "Customer LTV tier based on total spent"
+  dimension: customer_segment {
+    type: string
+    sql: ${TABLE}.customer_segment ;;
+    description: "Customer segment"
   }
 
-  dimension: order_frequency_tier {
-    type: tier
-    tiers: [0, 1, 3, 5, 10, 20]
-    style: relational
-    sql: ${orders_count} ;;
-    description: "Order frequency tier"
+  dimension: customer_lifecycle_stage {
+    type: string
+    sql: ${TABLE}.customer_lifecycle_stage ;;
+    description: "Customer lifecycle stage"
+  }
+
+  dimension: customer_value_tier {
+    type: string
+    sql: ${TABLE}.customer_value_tier ;;
+    description: "Customer value tier based on LTV"
+  }
+
+  dimension: recency_segment {
+    type: string
+    sql: ${TABLE}.recency_segment ;;
+    description: "Customer recency segment"
+  }
+
+  dimension: aov_segment {
+    type: string
+    sql: ${TABLE}.aov_segment ;;
+    description: "Average order value segment"
+  }
+
+  # Data Quality Flags
+  dimension: has_email {
+    type: yesno
+    sql: ${TABLE}.has_email ;;
+    description: "Customer has email address"
+  }
+
+  dimension: has_phone {
+    type: yesno
+    sql: ${TABLE}.has_phone ;;
+    description: "Customer has phone number"
+  }
+
+  dimension: has_address {
+    type: yesno
+    sql: ${TABLE}.has_address ;;
+    description: "Customer has address"
+  }
+
+  dimension: has_full_name {
+    type: yesno
+    sql: ${TABLE}.has_full_name ;;
+    description: "Customer has full name"
   }
 
   # SCD Type 2 Fields
-  dimension_group: valid_from {
+  dimension_group: effective_from {
     type: time
     timeframes: [raw, date, week, month, quarter, year]
     convert_tz: no
     datatype: timestamp
-    sql: ${TABLE}.valid_from ;;
-    description: "Valid from date for SCD Type 2"
+    sql: ${TABLE}.effective_from ;;
+    description: "Effective from date for SCD Type 2"
   }
 
-  dimension_group: valid_to {
+  dimension_group: effective_to {
     type: time
     timeframes: [raw, date, week, month, quarter, year]
     convert_tz: no
     datatype: timestamp
-    sql: ${TABLE}.valid_to ;;
-    description: "Valid to date for SCD Type 2"
+    sql: ${TABLE}.effective_to ;;
+    description: "Effective to date for SCD Type 2"
   }
 
   dimension: is_current {
@@ -165,22 +245,31 @@ view: dim_customers {
     description: "Current version indicator"
   }
 
-  dimension_group: created {
+  dimension_group: customer_created {
     type: time
     timeframes: [raw, date, week, month, quarter, year]
     convert_tz: no
     datatype: timestamp
-    sql: ${TABLE}.created_at ;;
+    sql: ${TABLE}.customer_created_at ;;
     description: "Customer creation date"
   }
 
-  dimension_group: updated {
+  dimension_group: customer_updated {
     type: time
     timeframes: [raw, date, week, month, quarter, year]
     convert_tz: no
     datatype: timestamp
-    sql: ${TABLE}.updated_at ;;
+    sql: ${TABLE}.customer_updated_at ;;
     description: "Customer last update date"
+  }
+
+  dimension_group: warehouse_updated {
+    type: time
+    timeframes: [raw, date, week, month, quarter, year]
+    convert_tz: no
+    datatype: timestamp
+    sql: ${TABLE}.warehouse_updated_at ;;
+    description: "Warehouse update timestamp"
   }
 
   # Measures
@@ -201,24 +290,38 @@ view: dim_customers {
     description: "Count of customers accepting marketing"
   }
 
-  measure: average_total_spent {
+  measure: average_lifetime_value {
     type: average
-    sql: ${total_spent} ;;
+    sql: ${calculated_lifetime_value} ;;
     value_format_name: usd
     description: "Average customer lifetime value"
   }
 
-  measure: total_customer_value {
+  measure: total_lifetime_value {
     type: sum
-    sql: ${total_spent} ;;
+    sql: ${calculated_lifetime_value} ;;
     value_format_name: usd
-    description: "Total customer value"
+    description: "Total customer lifetime value"
   }
 
   measure: average_orders_per_customer {
     type: average
-    sql: ${orders_count} ;;
+    sql: ${calculated_order_count} ;;
     value_format_name: decimal_1
     description: "Average orders per customer"
+  }
+
+  measure: average_aov {
+    type: average
+    sql: ${avg_order_value} ;;
+    value_format_name: usd
+    description: "Average AOV across customers"
+  }
+
+  measure: marketing_opt_in_rate {
+    type: number
+    sql: COUNT(CASE WHEN ${accepts_marketing} AND ${is_current} THEN 1 END) / NULLIF(${count_current}, 0) ;;
+    value_format_name: percent_1
+    description: "Percentage of customers accepting marketing"
   }
 }

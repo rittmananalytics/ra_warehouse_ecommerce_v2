@@ -1,11 +1,11 @@
 view: fact_events {
-  sql_table_name: `@{PROJECT_ID}.@{ECOMMERCE_DATASET}.fact_events` ;;
+  sql_table_name: `ra-development.analytics_ecommerce_ecommerce.fact_events` ;;
   
   # Primary Key
-  dimension: event_sk {
+  dimension: event_key {
     primary_key: yes
-    type: string
-    sql: ${TABLE}.event_sk ;;
+    type: number
+    sql: ${TABLE}.event_key ;;
     description: "Event surrogate key"
   }
 

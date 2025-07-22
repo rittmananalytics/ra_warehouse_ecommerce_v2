@@ -521,6 +521,155 @@ models:
         tests:
           - not_null
 
+  - name: wh_fact_order_items
+    description: "Order line item fact table with product-level detail for analyzing individual items within orders"
+    columns:
+      - name: order_item_key
+        description: "Surrogate key for order line item fact"
+        tests:
+          - unique
+          - not_null
+      - name: order_line_id
+        description: "Natural key for order line item"
+        tests:
+          - not_null
+      - name: order_id
+        description: "Order identifier"
+        tests:
+          - not_null
+      - name: product_key
+        description: "Foreign key to product dimension"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('wh_dim_products')
+              field: product_key
+      - name: customer_key
+        description: "Foreign key to customer dimension"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('wh_dim_customers')
+              field: customer_key
+      - name: channel_key
+        description: "Foreign key to channel dimension"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('wh_dim_channels_enhanced')
+              field: channel_key
+      - name: order_date_key
+        description: "Foreign key to date dimension for order date"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('wh_dim_date')
+              field: date_key
+      - name: processed_date_key
+        description: "Foreign key to date dimension for processed date"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('wh_dim_date')
+              field: date_key
+      - name: product_id
+        description: "Product natural key"
+        tests:
+          - not_null
+      - name: variant_id
+        description: "Product variant identifier"
+      - name: sku
+        description: "Stock keeping unit"
+      - name: product_title
+        description: "Product title at time of order"
+        tests:
+          - not_null
+      - name: variant_title
+        description: "Variant title at time of order"
+      - name: product_type
+        description: "Product type"
+      - name: vendor
+        description: "Product vendor"
+      - name: quantity
+        description: "Quantity ordered"
+        tests:
+          - not_null
+      - name: price
+        description: "Unit price"
+        tests:
+          - not_null
+      - name: total_discount
+        description: "Total discount applied to line item"
+      - name: tax_amount
+        description: "Tax amount for line item"
+      - name: line_total
+        description: "Total amount for line item (price * quantity - discount + tax)"
+        tests:
+          - not_null
+      - name: line_total_before_discount
+        description: "Line total before discounts"
+        tests:
+          - not_null
+      - name: discount_rate
+        description: "Discount as percentage of line total"
+      - name: tax_rate
+        description: "Tax as percentage of line total"
+      - name: fulfillment_status
+        description: "Fulfillment status of line item"
+      - name: requires_shipping
+        description: "Boolean indicating if item requires shipping"
+        tests:
+          - accepted_values:
+              values: [true, false]
+      - name: taxable
+        description: "Boolean indicating if item is taxable"
+        tests:
+          - accepted_values:
+              values: [true, false]
+      - name: gift_card
+        description: "Boolean indicating if item is a gift card"
+        tests:
+          - accepted_values:
+              values: [true, false]
+      - name: grams
+        description: "Weight in grams"
+      - name: order_created_at
+        description: "Timestamp when order was created"
+        tests:
+          - not_null
+      - name: order_processed_at
+        description: "Timestamp when order was processed"
+      - name: financial_status
+        description: "Financial status of the order"
+      - name: order_total_price
+        description: "Total price of the entire order"
+      - name: order_subtotal_price
+        description: "Subtotal of the entire order"
+      - name: order_total_tax
+        description: "Total tax for the entire order"
+      - name: order_total_discounts
+        description: "Total discounts for the entire order"
+      - name: order_shipping_cost
+        description: "Shipping cost for the entire order"
+      - name: line_pct_of_order
+        description: "Percentage this line item represents of total order value"
+      - name: allocated_shipping
+        description: "Shipping cost allocated to this line item"
+      - name: allocated_order_discount
+        description: "Order-level discount allocated to this line item"
+      - name: channel_source_medium
+        description: "Channel source/medium for attribution"
+      - name: utm_source
+        description: "UTM source parameter"
+      - name: utm_medium
+        description: "UTM medium parameter"
+      - name: utm_campaign
+        description: "UTM campaign parameter"
+      - name: warehouse_updated_at
+        description: "Timestamp when record was last updated in warehouse"
+        tests:
+          - not_null
+
   - name: wh_fact_sessions
     description: "Website session fact table with engagement metrics, conversion indicators, and user journey context"
     columns:

@@ -15,18 +15,30 @@ date_dim as (
 
 ),
 
+channels as (
+
+    select * from {{ ref('wh_dim_channels_enhanced') }}
+
+),
+
 final as (
 
     select
         -- Surrogate keys
         row_number() over (order by s.session_id) as session_key,
         coalesce(d.date_key, -1) as session_date_key,
+        coalesce(c.channel_key, -1) as channel_key,
         
         -- Natural key
         s.session_id,
         
         -- User identification
         s.user_pseudo_id,
+        
+        -- Traffic source fields
+        s.traffic_source,
+        s.traffic_medium,
+        s.traffic_campaign,
         
         -- Session timing
         s.session_date,
@@ -125,6 +137,9 @@ final as (
     from sessions s
     left join date_dim d
         on s.session_date = d.date_actual
+    left join channels c
+        on s.traffic_source = c.channel_source
+        and s.traffic_medium = c.channel_medium
 
 )
 

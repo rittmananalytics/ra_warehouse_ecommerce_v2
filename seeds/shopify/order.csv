@@ -8995,3 +8995,16 @@ id,customer_id,email,created_at,processed_at,currency,total_price,subtotal_price
 8994,50,margot.collins@outlook.com,2025-07-19 08:48:29,2025-07-19 12:06:29,GBP,48.83,40.69,8.14,paid,fulfilled,4,2025-07-19 10:00:00
 8995,33,hazel.hill@gmail.com,2025-07-19 18:03:47,2025-07-19 21:12:47,GBP,18.97,15.81,3.16,pending,fulfilled,4,2025-07-19 10:00:00
 8996,32,nova.lopez@outlook.com,2025-07-19 08:16:55,2025-07-19 11:35:55,GBP,83.71,69.76,13.95,pending,fulfilled,4,2025-07-19 10:00:00
+11,18,aria.garcia@yahoo.co.uk,2025-07-12 19:58:05,2025-07-12 20:58:05,GBP,59.77,49.81,9.96,paid,fulfilled,1,2025-07-19 10:00:00
+12,19,ivy.martinez@hotmail.co.uk,2025-07-19 19:58:05,2025-07-19 22:58:05,GBP,63.55,52.96,10.59,paid,fulfilled,1,2025-07-19 10:00:00
+13,19,ivy.martinez@hotmail.co.uk,2025-07-14 19:58:05,2025-07-14 22:58:05,GBP,87.94,73.28,14.66,paid,fulfilled,4,2025-07-19 10:00:00
+14,21,maya.clark@gmail.com,2025-07-11 09:37:00,2025-07-11 12:37:00,GBP,289.26,241.05,48.21,paid,fulfilled,1,2025-07-19 10:00:00
+15,21,maya.clark@gmail.com,2025-07-04 09:37:00,2025-07-04 10:37:00,GBP,452.23,376.86,75.37,paid,fulfilled,4,2025-07-19 10:00:00
+16,22,willow.rodriguez@btinternet.com,2025-07-11 19:58:05,2025-07-11 21:58:05,GBP,341.24,284.37,56.87,paid,fulfilled,1,2025-07-19 10:00:00
+17,22,willow.rodriguez@btinternet.com,2025-07-09 19:58:05,2025-07-09 22:58:05,GBP,99.89,83.24,16.65,paid,fulfilled,1,2025-07-19 10:00:00
+18,22,willow.rodriguez@btinternet.com,2025-07-19 19:58:05,2025-07-19 22:58:05,GBP,71.98,59.98,12.0,paid,fulfilled,1,2025-07-19 10:00:00
+19,26,luna.hall@outlook.com,2025-07-10 19:58:05,2025-07-10 22:58:05,GBP,228.29,190.24,38.05,paid,fulfilled,4,2025-07-19 10:00:00
+20,32,nova.lopez@outlook.com,2025-07-19 19:58:05,2025-07-19 22:58:05,GBP,315.29,262.74,52.55,paid,fulfilled,4,2025-07-19 10:00:00
+21,32,nova.lopez@outlook.com,2025-07-21 19:58:05,2025-07-21 21:58:05,GBP,281.84,234.87,46.97,paid,fulfilled,4,2025-07-19 10:00:00
+22,35,eden.green@gmail.com,2025-05-23 09:37:00,2025-05-23 11:37:00,GBP,318.24,265.2,53.04,paid,fulfilled,4,2025-07-19 10:00:00
+23,35,eden.green@gmail.com,2025-05-18 09:37:00,2025-05-18 12:37:00,GBP,109.55,91.29,18.26,paid,fulfilled,1,2025-07-19 10:00:00

@@ -1,365 +1,220 @@
 view: fact_marketing_performance {
-  sql_table_name: `@{PROJECT_ID}.@{ECOMMERCE_DATASET}.fact_marketing_performance` ;;
+  sql_table_name: `ra-development.analytics_ecommerce_ecommerce.fact_marketing_performance` ;;
   
   # Primary Key
-  dimension: marketing_performance_sk {
+  dimension: marketing_key {
     primary_key: yes
     type: string
-    sql: ${TABLE}.marketing_performance_sk ;;
-    description: "Marketing performance surrogate key"
+    sql: ${TABLE}.marketing_key ;;
+    description: "Marketing activity surrogate key"
   }
 
-  # Foreign Keys
-  dimension: performance_date_key {
-    type: string
-    sql: ${TABLE}.performance_date_key ;;
-    description: "Performance date key (YYYYMMDD)"
+  # Date dimension
+  dimension_group: activity {
+    type: time
+    timeframes: [raw, date, week, month, quarter, year]
+    sql: ${TABLE}.activity_date ;;
+    description: "Activity date"
+  }
+
+  dimension: activity_date_key {
+    type: number
+    sql: CAST(FORMAT_DATE('%Y%m%d', ${TABLE}.activity_date) AS INT64) ;;
+    description: "Activity date key for joins"
     hidden: yes
   }
 
-  dimension: channel_sk {
-    type: string
-    sql: ${TABLE}.channel_sk ;;
-    description: "Channel surrogate key"
-    hidden: yes
-  }
-
-  # Campaign Identification
-  dimension: data_source {
-    type: string
-    sql: ${TABLE}.data_source ;;
-    description: "Marketing data source (google_ads, facebook_ads, etc.)"
-  }
-
+  # Marketing identifiers
   dimension: platform {
     type: string
     sql: ${TABLE}.platform ;;
-    description: "Advertising platform"
+    description: "Marketing platform (Google, Facebook, Instagram, etc.)"
   }
 
-  dimension: campaign_id {
+  dimension: marketing_type {
     type: string
-    sql: ${TABLE}.campaign_id ;;
-    description: "Campaign ID"
+    sql: ${TABLE}.marketing_type ;;
+    description: "Type of marketing (paid_advertising, organic_social, email_marketing)"
   }
 
-  dimension: campaign_name {
+  dimension: content_type {
     type: string
-    sql: ${TABLE}.campaign_name ;;
-    description: "Campaign name"
+    sql: ${TABLE}.content_type ;;
+    description: "Type of content (campaign, post, email, etc.)"
   }
 
-  dimension: ad_group_id {
+  dimension: content_name {
     type: string
-    sql: ${TABLE}.ad_group_id ;;
-    description: "Ad group ID"
+    sql: ${TABLE}.content_name ;;
+    description: "Name of the content/campaign"
   }
 
-  dimension: ad_group_name {
+  dimension: utm_source {
     type: string
-    sql: ${TABLE}.ad_group_name ;;
-    description: "Ad group name"
+    sql: ${TABLE}.utm_source ;;
+    description: "UTM source parameter"
   }
 
-  dimension: ad_id {
+  dimension: utm_medium {
     type: string
-    sql: ${TABLE}.ad_id ;;
-    description: "Ad ID"
+    sql: ${TABLE}.utm_medium ;;
+    description: "UTM medium parameter"
   }
 
-  dimension: ad_name {
+  dimension: source_medium {
     type: string
-    sql: ${TABLE}.ad_name ;;
-    description: "Ad name"
+    sql: CONCAT(${utm_source}, ' / ', ${utm_medium}) ;;
+    description: "Source/Medium combination"
   }
 
-  # Campaign Attributes
-  dimension: campaign_type {
-    type: string
-    sql: ${TABLE}.campaign_type ;;
-    description: "Campaign type"
-  }
-
-  dimension: campaign_status {
-    type: string
-    sql: ${TABLE}.campaign_status ;;
-    description: "Campaign status (active, paused, etc.)"
-  }
-
-  dimension: ad_status {
-    type: string
-    sql: ${TABLE}.ad_status ;;
-    description: "Ad status"
-  }
-
-  dimension: objective {
-    type: string
-    sql: ${TABLE}.objective ;;
-    description: "Campaign objective"
-  }
-
-  dimension: bid_strategy {
-    type: string
-    sql: ${TABLE}.bid_strategy ;;
-    description: "Bidding strategy"
-  }
-
-  # Performance Metrics - Impressions & Reach
-  dimension: impressions {
+  # Performance metrics
+  dimension: spend_amount {
     type: number
-    sql: ${TABLE}.impressions ;;
-    description: "Number of impressions"
+    sql: ${TABLE}.spend_amount ;;
+    description: "Advertising spend"
+    value_format_name: usd
   }
 
-  dimension: reach {
-    type: number
-    sql: ${TABLE}.reach ;;
-    description: "Number of unique users reached"
-  }
-
-  dimension: frequency {
-    type: number
-    sql: ${TABLE}.frequency ;;
-    description: "Average frequency per user"
-    value_format_name: decimal_2
-  }
-
-  # Performance Metrics - Engagement
   dimension: clicks {
     type: number
     sql: ${TABLE}.clicks ;;
     description: "Number of clicks"
   }
 
-  dimension: link_clicks {
+  dimension: impressions {
     type: number
-    sql: ${TABLE}.link_clicks ;;
-    description: "Number of link clicks"
+    sql: ${TABLE}.impressions ;;
+    description: "Number of impressions"
   }
 
-  dimension: likes {
-    type: number
-    sql: ${TABLE}.likes ;;
-    description: "Number of likes"
-  }
-
-  dimension: shares {
-    type: number
-    sql: ${TABLE}.shares ;;
-    description: "Number of shares"
-  }
-
-  dimension: comments {
-    type: number
-    sql: ${TABLE}.comments ;;
-    description: "Number of comments"
-  }
-
-  dimension: video_views {
-    type: number
-    sql: ${TABLE}.video_views ;;
-    description: "Number of video views"
-  }
-
-  # Performance Metrics - Costs
-  dimension: spend {
-    type: number
-    sql: ${TABLE}.spend ;;
-    description: "Total spend/cost"
-    value_format_name: usd
-  }
-
-  dimension: cost_per_click {
-    type: number
-    sql: ${TABLE}.cost_per_click ;;
-    description: "Cost per click (CPC)"
-    value_format_name: usd
-  }
-
-  dimension: cost_per_mille {
-    type: number
-    sql: ${TABLE}.cost_per_mille ;;
-    description: "Cost per thousand impressions (CPM)"
-    value_format_name: usd
-  }
-
-  # Performance Metrics - Conversions
   dimension: conversions {
     type: number
     sql: ${TABLE}.conversions ;;
     description: "Number of conversions"
   }
 
-  dimension: conversion_value {
+  dimension: revenue {
     type: number
-    sql: ${TABLE}.conversion_value ;;
-    description: "Total conversion value"
+    sql: ${TABLE}.revenue ;;
+    description: "Revenue attributed"
     value_format_name: usd
   }
 
-  dimension: cost_per_conversion {
+  dimension: cost_per_click {
     type: number
-    sql: ${TABLE}.cost_per_conversion ;;
-    description: "Cost per conversion"
+    sql: ${TABLE}.cost_per_click ;;
+    description: "Cost per click"
     value_format_name: usd
   }
 
-  # Calculated Performance Metrics
   dimension: click_through_rate {
     type: number
-    sql: CASE WHEN ${impressions} > 0 THEN ${clicks} / ${impressions} ELSE 0 END ;;
-    description: "Click-through rate (CTR)"
-    value_format_name: percent_2
-  }
-
-  dimension: conversion_rate {
-    type: number
-    sql: CASE WHEN ${clicks} > 0 THEN ${conversions} / ${clicks} ELSE 0 END ;;
-    description: "Conversion rate"
+    sql: ${TABLE}.click_through_rate ;;
+    description: "Click-through rate"
     value_format_name: percent_2
   }
 
   dimension: return_on_ad_spend {
     type: number
-    sql: CASE WHEN ${spend} > 0 THEN ${conversion_value} / ${spend} ELSE 0 END ;;
+    sql: ${TABLE}.return_on_ad_spend ;;
     description: "Return on ad spend (ROAS)"
     value_format_name: decimal_2
   }
 
   dimension: cost_per_acquisition {
     type: number
-    sql: CASE WHEN ${conversions} > 0 THEN ${spend} / ${conversions} ELSE 0 END ;;
+    sql: ${TABLE}.cost_per_acquisition ;;
     description: "Cost per acquisition (CPA)"
     value_format_name: usd
   }
 
-  # Performance Tiers
-  dimension: spend_tier {
-    type: tier
-    tiers: [0, 10, 50, 100, 500, 1000, 5000]
-    style: relational
-    sql: ${spend} ;;
-    description: "Spend tier categorization"
-  }
-
-  dimension: roas_tier {
-    type: tier
-    tiers: [0, 1, 2, 3, 4, 5, 10]
-    style: relational
-    sql: ${return_on_ad_spend} ;;
-    description: "ROAS tier categorization"
-  }
-
-  dimension: performance_category {
-    type: string
-    sql: CASE 
-      WHEN ${return_on_ad_spend} >= 4 THEN 'High Performer'
-      WHEN ${return_on_ad_spend} >= 2 THEN 'Good Performer'
-      WHEN ${return_on_ad_spend} >= 1 THEN 'Break Even'
-      ELSE 'Underperformer'
-    END ;;
-    description: "Performance category based on ROAS"
-  }
-
-  dimension: ctr_category {
-    type: string
-    sql: CASE 
-      WHEN ${click_through_rate} >= 0.02 THEN 'High CTR'
-      WHEN ${click_through_rate} >= 0.01 THEN 'Medium CTR'
-      ELSE 'Low CTR'
-    END ;;
-    description: "CTR category"
-  }
-
-  # Time Dimensions
-  dimension_group: performance {
-    type: time
-    timeframes: [raw, date, week, month, quarter, year, day_of_week]
-    sql: ${TABLE}.performance_date ;;
-    description: "Performance date"
-  }
-
-  dimension_group: campaign_start {
-    type: time
-    timeframes: [raw, date, week, month, quarter, year]
-    sql: ${TABLE}.campaign_start_date ;;
-    description: "Campaign start date"
-  }
-
-  dimension_group: campaign_end {
-    type: time
-    timeframes: [raw, date, week, month, quarter, year]
-    sql: ${TABLE}.campaign_end_date ;;
-    description: "Campaign end date"
-  }
-
-  dimension: campaign_duration_days {
+  # Social engagement metrics
+  dimension: likes {
     type: number
-    sql: DATE_DIFF(${campaign_end_date}, ${campaign_start_date}, DAY) ;;
-    description: "Campaign duration in days"
+    sql: ${TABLE}.likes ;;
+    description: "Number of likes (social posts)"
+  }
+
+  dimension: comments {
+    type: number
+    sql: ${TABLE}.comments ;;
+    description: "Number of comments (social posts)"
+  }
+
+  dimension: shares {
+    type: number
+    sql: ${TABLE}.shares ;;
+    description: "Number of shares (social posts)"
+  }
+
+  dimension: saves {
+    type: number
+    sql: ${TABLE}.saves ;;
+    description: "Number of saves (social posts)"
+  }
+
+  dimension: engagement_rate {
+    type: number
+    sql: ${TABLE}.engagement_rate ;;
+    description: "Engagement rate (social posts)"
+    value_format_name: percent_2
+  }
+
+  dimension: performance_tier {
+    type: string
+    sql: ${TABLE}.performance_tier ;;
+    description: "Performance tier classification"
+  }
+
+  # Metadata
+  dimension: source_table {
+    type: string
+    sql: ${TABLE}.source_table ;;
+    description: "Source table for this record"
   }
 
   # Measures
   measure: count {
     type: count
-    description: "Number of performance records"
-    drill_fields: [performance_date, platform, campaign_name, spend, conversions, return_on_ad_spend]
+    description: "Number of marketing activities"
+    drill_fields: [marketing_detail*]
   }
 
-  measure: total_impressions {
+  measure: total_spend {
     type: sum
-    sql: ${impressions} ;;
-    description: "Total impressions"
-    drill_fields: [platform, campaign_name, total_impressions]
+    sql: ${spend_amount} ;;
+    description: "Total advertising spend"
+    value_format_name: usd
   }
 
   measure: total_clicks {
     type: sum
     sql: ${clicks} ;;
     description: "Total clicks"
-    drill_fields: [platform, campaign_name, total_clicks]
   }
 
-  measure: total_spend {
+  measure: total_impressions {
     type: sum
-    sql: ${spend} ;;
-    description: "Total spend"
-    value_format_name: usd
-    drill_fields: [platform, campaign_name, total_spend]
+    sql: ${impressions} ;;
+    description: "Total impressions"
   }
 
   measure: total_conversions {
     type: sum
     sql: ${conversions} ;;
     description: "Total conversions"
-    drill_fields: [platform, campaign_name, total_conversions]
   }
 
-  measure: total_conversion_value {
+  measure: total_revenue {
     type: sum
-    sql: ${conversion_value} ;;
-    description: "Total conversion value"
+    sql: ${revenue} ;;
+    description: "Total attributed revenue"
     value_format_name: usd
-    drill_fields: [platform, campaign_name, total_conversion_value]
-  }
-
-  measure: overall_ctr {
-    type: number
-    sql: ${total_clicks} / NULLIF(${total_impressions}, 0) ;;
-    description: "Overall click-through rate"
-    value_format_name: percent_2
-  }
-
-  measure: overall_conversion_rate {
-    type: number
-    sql: ${total_conversions} / NULLIF(${total_clicks}, 0) ;;
-    description: "Overall conversion rate"
-    value_format_name: percent_2
   }
 
   measure: overall_roas {
     type: number
-    sql: ${total_conversion_value} / NULLIF(${total_spend}, 0) ;;
+    sql: ${total_revenue} / NULLIF(${total_spend}, 0) ;;
     description: "Overall return on ad spend"
     value_format_name: decimal_2
   }
@@ -371,60 +226,46 @@ view: fact_marketing_performance {
     value_format_name: usd
   }
 
+  measure: overall_ctr {
+    type: number
+    sql: ${total_clicks} / NULLIF(${total_impressions}, 0) ;;
+    description: "Overall click-through rate"
+    value_format_name: percent_2
+  }
+
   measure: average_cpc {
-    type: average
-    sql: ${cost_per_click} ;;
+    type: number
+    sql: ${total_spend} / NULLIF(${total_clicks}, 0) ;;
     description: "Average cost per click"
     value_format_name: usd
   }
 
-  measure: average_cpm {
+  # Social engagement measures
+  measure: total_engagements {
+    type: number
+    sql: COALESCE(${likes}, 0) + COALESCE(${comments}, 0) + COALESCE(${shares}, 0) + COALESCE(${saves}, 0) ;;
+    description: "Total social engagements"
+  }
+
+  measure: average_engagement_rate {
     type: average
-    sql: ${cost_per_mille} ;;
-    description: "Average cost per thousand impressions"
-    value_format_name: usd
+    sql: ${engagement_rate} ;;
+    description: "Average engagement rate"
+    value_format_name: percent_2
   }
 
-  measure: count_campaigns {
-    type: count_distinct
-    sql: ${campaign_id} ;;
-    description: "Number of unique campaigns"
-  }
-
-  measure: count_ad_groups {
-    type: count_distinct
-    sql: ${ad_group_id} ;;
-    description: "Number of unique ad groups"
-  }
-
-  measure: count_ads {
-    type: count_distinct
-    sql: ${ad_id} ;;
-    description: "Number of unique ads"
-  }
-
-  measure: total_reach {
-    type: sum
-    sql: ${reach} ;;
-    description: "Total reach"
-  }
-
-  measure: average_frequency {
-    type: average
-    sql: ${frequency} ;;
-    description: "Average frequency"
-    value_format_name: decimal_2
-  }
-
-  measure: total_video_views {
-    type: sum
-    sql: ${video_views} ;;
-    description: "Total video views"
-  }
-
-  measure: total_engagement {
-    type: sum
-    sql: ${likes} + ${shares} + ${comments} ;;
-    description: "Total engagement (likes + shares + comments)"
+  # Sets
+  set: marketing_detail {
+    fields: [
+      activity_date,
+      platform,
+      marketing_type,
+      content_name,
+      spend_amount,
+      clicks,
+      conversions,
+      revenue,
+      return_on_ad_spend
+    ]
   }
 }

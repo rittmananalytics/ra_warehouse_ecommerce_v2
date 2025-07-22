@@ -1,397 +1,343 @@
 view: dim_channels {
-  sql_table_name: `@{PROJECT_ID}.@{ECOMMERCE_DATASET}.dim_channels` ;;
+  sql_table_name: `ra-development.analytics_ecommerce_ecommerce.dim_channels_enhanced` ;;
   
   # Primary Key
-  dimension: channel_sk {
+  dimension: channel_key {
     primary_key: yes
-    type: string
-    sql: ${TABLE}.channel_sk ;;
+    type: number
+    sql: ${TABLE}.channel_key ;;
     description: "Channel surrogate key"
   }
 
-  # Channel Identification
+  # Natural Keys and Identifiers
   dimension: channel_id {
     type: string
     sql: ${TABLE}.channel_id ;;
     description: "Channel business key"
   }
 
-  dimension: channel_name {
+  dimension: channel_source {
     type: string
-    sql: ${TABLE}.channel_name ;;
-    description: "Channel name"
+    sql: ${TABLE}.channel_source ;;
+    description: "Traffic source (e.g., google, facebook, email)"
   }
 
-  dimension: channel_type {
+  dimension: channel_medium {
     type: string
-    sql: ${TABLE}.channel_type ;;
-    description: "Channel type (paid, organic, direct, etc.)"
+    sql: ${TABLE}.channel_medium ;;
+    description: "Traffic medium (e.g., cpc, organic, social)"
   }
 
-  dimension: platform {
+  dimension: channel_campaign {
     type: string
-    sql: ${TABLE}.platform ;;
-    description: "Platform name (Google, Facebook, Email, etc.)"
+    sql: ${TABLE}.channel_campaign ;;
+    description: "Campaign name"
   }
 
-  # Channel Classification
-  dimension: channel_category {
+  dimension: channel_data_source {
     type: string
-    sql: ${TABLE}.channel_category ;;
-    description: "High-level channel category"
+    sql: ${TABLE}.channel_data_source ;;
+    description: "Data source (GA4, Shopify, etc.)"
   }
 
-  dimension: channel_subcategory {
+  dimension: channel_group {
     type: string
-    sql: ${TABLE}.channel_subcategory ;;
-    description: "Channel subcategory"
+    sql: ${TABLE}.channel_group ;;
+    description: "Channel grouping"
   }
 
-  dimension: is_paid {
-    type: yesno
-    sql: ${TABLE}.is_paid ;;
-    description: "Channel is paid advertising"
-  }
-
-  dimension: is_organic {
-    type: yesno
-    sql: ${TABLE}.is_organic ;;
-    description: "Channel is organic/unpaid"
-  }
-
-  dimension: is_social {
-    type: yesno
-    sql: ${TABLE}.is_social ;;
-    description: "Channel is social media"
-  }
-
-  dimension: is_search {
-    type: yesno
-    sql: ${TABLE}.is_search ;;
-    description: "Channel is search-based"
-  }
-
-  dimension: is_display {
-    type: yesno
-    sql: ${TABLE}.is_display ;;
-    description: "Channel is display advertising"
-  }
-
-  dimension: is_email {
-    type: yesno
-    sql: ${TABLE}.is_email ;;
-    description: "Channel is email marketing"
-  }
-
-  dimension: is_direct {
-    type: yesno
-    sql: ${TABLE}.is_direct ;;
-    description: "Channel is direct traffic"
-  }
-
-  # Attribution & Cost Models
-  dimension: default_attribution_model {
+  dimension: attribution_type {
     type: string
-    sql: ${TABLE}.default_attribution_model ;;
-    description: "Default attribution model for channel"
+    sql: ${TABLE}.attribution_type ;;
+    description: "Attribution type"
   }
 
-  dimension: cost_model {
+  dimension: source_medium {
     type: string
-    sql: ${TABLE}.cost_model ;;
-    description: "Cost model (CPC, CPM, CPA, flat fee)"
+    sql: CONCAT(${channel_source}, ' / ', ${channel_medium}) ;;
+    description: "Source/Medium combination"
   }
 
-  dimension: typical_cac_range_low {
+  # Digital Engagement Metrics
+  dimension: unique_users {
     type: number
-    sql: ${TABLE}.typical_cac_range_low ;;
-    description: "Typical customer acquisition cost - low range"
+    sql: ${TABLE}.unique_users ;;
+    description: "Unique users from this channel"
+  }
+
+  dimension: total_events {
+    type: number
+    sql: ${TABLE}.total_events ;;
+    description: "Total events from this channel"
+  }
+
+  dimension: sessions {
+    type: number
+    sql: ${TABLE}.sessions ;;
+    description: "Sessions from this channel"
+  }
+
+  dimension: page_view_users {
+    type: number
+    sql: ${TABLE}.page_view_users ;;
+    description: "Users who viewed pages"
+  }
+
+  dimension: product_view_users {
+    type: number
+    sql: ${TABLE}.product_view_users ;;
+    description: "Users who viewed products"
+  }
+
+  dimension: add_to_cart_users {
+    type: number
+    sql: ${TABLE}.add_to_cart_users ;;
+    description: "Users who added to cart"
+  }
+
+  dimension: checkout_users {
+    type: number
+    sql: ${TABLE}.checkout_users ;;
+    description: "Users who began checkout"
+  }
+
+  dimension: purchase_users {
+    type: number
+    sql: ${TABLE}.purchase_users ;;
+    description: "Users who made purchases"
+  }
+
+  dimension: ga4_purchase_value {
+    type: number
+    sql: ${TABLE}.ga4_purchase_value ;;
+    description: "Purchase value from GA4"
     value_format_name: usd
   }
 
-  dimension: typical_cac_range_high {
+  dimension: ga4_purchases {
     type: number
-    sql: ${TABLE}.typical_cac_range_high ;;
-    description: "Typical customer acquisition cost - high range"
-    value_format_name: usd
+    sql: ${TABLE}.ga4_purchases ;;
+    description: "Number of purchases from GA4"
   }
 
-  dimension: typical_cac_midpoint {
+  # Commerce Metrics
+  dimension: total_orders {
     type: number
-    sql: (${typical_cac_range_low} + ${typical_cac_range_high}) / 2 ;;
-    description: "Typical CAC midpoint"
-    value_format_name: usd
+    sql: ${TABLE}.total_orders ;;
+    description: "Total orders from this channel"
   }
 
-  # Channel Performance Characteristics
-  dimension: avg_conversion_rate {
+  dimension: unique_customers {
     type: number
-    sql: ${TABLE}.avg_conversion_rate ;;
-    description: "Average conversion rate for channel"
-    value_format_name: percent_2
+    sql: ${TABLE}.unique_customers ;;
+    description: "Unique customers from this channel"
+  }
+
+  dimension: total_revenue {
+    type: number
+    sql: ${TABLE}.total_revenue ;;
+    description: "Total revenue from this channel"
+    value_format_name: usd
   }
 
   dimension: avg_order_value {
     type: number
     sql: ${TABLE}.avg_order_value ;;
-    description: "Average order value from channel"
+    description: "Average order value"
     value_format_name: usd
   }
 
-  dimension: avg_customer_lifetime_value {
+  dimension_group: first_order {
+    type: time
+    timeframes: [raw, date, week, month, quarter, year]
+    sql: ${TABLE}.first_order_date ;;
+    description: "First order date from this channel"
+  }
+
+  dimension_group: last_order {
+    type: time
+    timeframes: [raw, date, week, month, quarter, year]
+    sql: ${TABLE}.last_order_date ;;
+    description: "Last order date from this channel"
+  }
+
+  # Combined Performance Metrics
+  dimension: combined_revenue {
     type: number
-    sql: ${TABLE}.avg_customer_lifetime_value ;;
-    description: "Average customer lifetime value from channel"
+    sql: ${TABLE}.combined_revenue ;;
+    description: "Combined revenue (GA4 + Shopify)"
     value_format_name: usd
   }
 
-  dimension: customer_quality_score {
+  dimension: combined_transactions {
     type: number
-    sql: ${TABLE}.customer_quality_score ;;
-    description: "Customer quality score (1-10)"
-    value_format_name: decimal_1
+    sql: ${TABLE}.combined_transactions ;;
+    description: "Combined transactions"
   }
 
-  # Channel Targeting & Audience
-  dimension: primary_audience {
-    type: string
-    sql: ${TABLE}.primary_audience ;;
-    description: "Primary target audience"
-  }
-
-  dimension: age_targeting {
-    type: string
-    sql: ${TABLE}.age_targeting ;;
-    description: "Age targeting capabilities"
-  }
-
-  dimension: geo_targeting {
-    type: string
-    sql: ${TABLE}.geo_targeting ;;
-    description: "Geographic targeting capabilities"
-  }
-
-  dimension: interest_targeting {
-    type: string
-    sql: ${TABLE}.interest_targeting ;;
-    description: "Interest-based targeting capabilities"
-  }
-
-  dimension: device_targeting {
-    type: string
-    sql: ${TABLE}.device_targeting ;;
-    description: "Device targeting capabilities"
-  }
-
-  # Channel Capabilities
-  dimension: supports_remarketing {
-    type: yesno
-    sql: ${TABLE}.supports_remarketing ;;
-    description: "Channel supports remarketing"
-  }
-
-  dimension: supports_lookalike {
-    type: yesno
-    sql: ${TABLE}.supports_lookalike ;;
-    description: "Channel supports lookalike audiences"
-  }
-
-  dimension: supports_video {
-    type: yesno
-    sql: ${TABLE}.supports_video ;;
-    description: "Channel supports video ads"
-  }
-
-  dimension: supports_dynamic_ads {
-    type: yesno
-    sql: ${TABLE}.supports_dynamic_ads ;;
-    description: "Channel supports dynamic product ads"
-  }
-
-  dimension: real_time_bidding {
-    type: yesno
-    sql: ${TABLE}.real_time_bidding ;;
-    description: "Channel supports real-time bidding"
-  }
-
-  # Channel Metrics & Benchmarks
-  dimension: benchmark_ctr {
+  # Conversion Funnel Metrics
+  dimension: page_view_rate {
     type: number
-    sql: ${TABLE}.benchmark_ctr ;;
-    description: "Industry benchmark CTR"
+    sql: ${TABLE}.page_view_rate ;;
+    description: "Page view rate"
     value_format_name: percent_2
   }
 
-  dimension: benchmark_cpc {
+  dimension: product_view_rate {
     type: number
-    sql: ${TABLE}.benchmark_cpc ;;
-    description: "Industry benchmark CPC"
-    value_format_name: usd
+    sql: ${TABLE}.product_view_rate ;;
+    description: "Product view rate"
+    value_format_name: percent_2
   }
 
-  dimension: benchmark_roas {
+  dimension: add_to_cart_rate {
     type: number
-    sql: ${TABLE}.benchmark_roas ;;
-    description: "Industry benchmark ROAS"
-    value_format_name: decimal_2
+    sql: ${TABLE}.add_to_cart_rate ;;
+    description: "Add to cart rate"
+    value_format_name: percent_2
   }
 
-  # Channel Status & Operations
-  dimension: is_active {
+  dimension: checkout_rate {
+    type: number
+    sql: ${TABLE}.checkout_rate ;;
+    description: "Checkout rate"
+    value_format_name: percent_2
+  }
+
+  dimension: overall_conversion_rate {
+    type: number
+    sql: ${TABLE}.overall_conversion_rate ;;
+    description: "Overall conversion rate"
+    value_format_name: percent_2
+  }
+
+  dimension: cart_abandonment_rate {
+    type: number
+    sql: ${TABLE}.cart_abandonment_rate ;;
+    description: "Cart abandonment rate"
+    value_format_name: percent_2
+  }
+
+  # Categorizations
+  dimension: is_paid_channel {
     type: yesno
-    sql: ${TABLE}.is_active ;;
+    sql: ${TABLE}.is_paid_channel ;;
+    description: "Is paid advertising channel"
+  }
+
+  dimension: is_digital_channel {
+    type: yesno
+    sql: ${TABLE}.is_digital_channel ;;
+    description: "Is digital channel"
+  }
+
+  dimension: source_category {
+    type: string
+    sql: ${TABLE}.source_category ;;
+    description: "Source category"
+  }
+
+  dimension: channel_performance_tier {
+    type: string
+    sql: ${TABLE}.channel_performance_tier ;;
+    description: "Performance tier based on revenue"
+  }
+
+  dimension: conversion_performance_tier {
+    type: string
+    sql: ${TABLE}.conversion_performance_tier ;;
+    description: "Conversion performance tier"
+  }
+
+  dimension: engagement_level {
+    type: string
+    sql: ${TABLE}.engagement_level ;;
+    description: "Engagement level"
+  }
+
+  # Data Quality Flags
+  dimension: has_ga4_data {
+    type: yesno
+    sql: ${TABLE}.has_ga4_data ;;
+    description: "Has GA4 data"
+  }
+
+  dimension: has_order_data {
+    type: yesno
+    sql: ${TABLE}.has_order_data ;;
+    description: "Has order data"
+  }
+
+  dimension: is_active_channel {
+    type: yesno
+    sql: ${TABLE}.is_active_channel ;;
     description: "Channel is currently active"
   }
 
-  dimension: priority_level {
-    type: number
-    sql: ${TABLE}.priority_level ;;
-    description: "Channel priority level (1-5, 1=highest)"
-  }
-
-  dimension: budget_allocation_pct {
-    type: number
-    sql: ${TABLE}.budget_allocation_pct ;;
-    description: "Recommended budget allocation percentage"
-    value_format_name: percent_1
-  }
-
-  # Channel Performance Categories
-  dimension: performance_tier {
-    type: string
-    sql: CASE 
-      WHEN ${customer_quality_score} >= 8 THEN 'Premium'
-      WHEN ${customer_quality_score} >= 6 THEN 'Good'
-      WHEN ${customer_quality_score} >= 4 THEN 'Average'
-      ELSE 'Below Average'
-    END ;;
-    description: "Performance tier based on quality score"
-  }
-
-  dimension: cac_efficiency {
-    type: string
-    sql: CASE 
-      WHEN ${typical_cac_midpoint} <= 25 THEN 'Highly Efficient'
-      WHEN ${typical_cac_midpoint} <= 50 THEN 'Efficient'
-      WHEN ${typical_cac_midpoint} <= 100 THEN 'Moderate'
-      ELSE 'Expensive'
-    END ;;
-    description: "CAC efficiency category"
-  }
-
-  dimension: conversion_performance {
-    type: string
-    sql: CASE 
-      WHEN ${avg_conversion_rate} >= 0.05 THEN 'High Converting'
-      WHEN ${avg_conversion_rate} >= 0.02 THEN 'Medium Converting'
-      ELSE 'Low Converting'
-    END ;;
-    description: "Conversion performance category"
-  }
-
-  # Time Dimensions
-  dimension_group: created {
+  # Timestamps
+  dimension_group: warehouse_updated {
     type: time
-    timeframes: [raw, date, week, month, quarter, year]
-    sql: ${TABLE}.created_at ;;
-    description: "Channel definition creation date"
-  }
-
-  dimension_group: updated {
-    type: time
-    timeframes: [raw, date, week, month, quarter, year]
-    sql: ${TABLE}.updated_at ;;
-    description: "Channel definition last update date"
-  }
-
-  dimension_group: last_active {
-    type: time
-    timeframes: [raw, date, week, month, quarter, year]
-    sql: ${TABLE}.last_active_date ;;
-    description: "Last active date for channel"
+    timeframes: [raw, time, date, week, month, quarter, year]
+    sql: ${TABLE}.warehouse_updated_at ;;
+    description: "Warehouse update timestamp"
   }
 
   # Measures
   measure: count {
     type: count
     description: "Number of channels"
-    drill_fields: [channel_name, platform, channel_type, is_active]
+    drill_fields: [channel_detail*]
   }
 
-  measure: count_active {
-    type: count
-    filters: [is_active: "yes"]
-    description: "Number of active channels"
+  measure: total_channel_revenue {
+    type: sum
+    sql: ${total_revenue} ;;
+    description: "Total revenue across channels"
+    value_format_name: usd
   }
 
-  measure: count_paid {
-    type: count
-    filters: [is_paid: "yes"]
-    description: "Number of paid channels"
+  measure: total_channel_orders {
+    type: sum
+    sql: ${total_orders} ;;
+    description: "Total orders across channels"
   }
 
-  measure: count_organic {
-    type: count
-    filters: [is_organic: "yes"]
-    description: "Number of organic channels"
+  measure: total_channel_users {
+    type: sum
+    sql: ${unique_users} ;;
+    description: "Total users across channels"
   }
 
-  measure: average_conversion_rate {
+  measure: average_channel_conversion_rate {
     type: average
-    sql: ${avg_conversion_rate} ;;
-    description: "Average conversion rate across channels"
+    sql: ${overall_conversion_rate} ;;
+    description: "Average conversion rate"
     value_format_name: percent_2
   }
 
-  measure: average_order_value_all {
-    type: average
-    sql: ${avg_order_value} ;;
-    description: "Average AOV across channels"
-    value_format_name: usd
-  }
-
-  measure: average_cac {
-    type: average
-    sql: ${typical_cac_midpoint} ;;
-    description: "Average CAC across channels"
-    value_format_name: usd
-  }
-
-  measure: average_quality_score {
-    type: average
-    sql: ${customer_quality_score} ;;
-    description: "Average customer quality score"
-    value_format_name: decimal_1
-  }
-
-  measure: total_budget_allocation {
-    type: sum
-    sql: ${budget_allocation_pct} ;;
-    description: "Total budget allocation percentage"
-    value_format_name: percent_1
-  }
-
-  measure: count_remarketing_capable {
+  measure: paid_channels {
     type: count
-    filters: [supports_remarketing: "yes"]
-    description: "Channels supporting remarketing"
+    filters: [is_paid_channel: "yes"]
+    description: "Number of paid channels"
   }
 
-  measure: count_video_capable {
+  measure: active_channels {
     type: count
-    filters: [supports_video: "yes"]
-    description: "Channels supporting video ads"
+    filters: [is_active_channel: "yes"]
+    description: "Number of active channels"
   }
 
-  measure: premium_channels {
-    type: count
-    filters: [performance_tier: "Premium"]
-    description: "Number of premium performance channels"
-  }
-
-  measure: efficient_channels {
-    type: count
-    filters: [cac_efficiency: "Highly Efficient,Efficient"]
-    description: "Number of CAC-efficient channels"
+  # Sets
+  set: channel_detail {
+    fields: [
+      channel_id,
+      source_medium,
+      channel_group,
+      total_revenue,
+      total_orders,
+      unique_users,
+      overall_conversion_rate,
+      is_paid_channel
+    ]
   }
 }

@@ -1,11 +1,11 @@
 view: fact_data_quality {
-  sql_table_name: `@{PROJECT_ID}.@{ECOMMERCE_DATASET}.fact_data_quality` ;;
+  sql_table_name: `ra-development.analytics_ecommerce_ecommerce.fact_data_quality` ;;
   
   # Primary Key
-  dimension: data_quality_sk {
+  dimension: data_quality_key {
     primary_key: yes
-    type: string
-    sql: ${TABLE}.data_quality_sk ;;
+    type: number
+    sql: ${TABLE}.data_quality_key ;;
     description: "Data quality surrogate key"
   }
 

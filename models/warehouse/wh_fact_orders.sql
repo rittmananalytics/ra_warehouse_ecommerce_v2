@@ -21,12 +21,19 @@ date_dim as (
 
 ),
 
+channels as (
+
+    select * from {{ ref('wh_dim_channels_enhanced') }}
+
+),
+
 final as (
 
     select
         -- Surrogate keys
         row_number() over (order by o.order_id) as order_key,
         coalesce(c.customer_key, -1) as customer_key,
+        coalesce(ch.channel_key, -1) as channel_key,
         coalesce(d_created.date_key, -1) as order_date_key,
         coalesce(d_processed.date_key, -1) as processed_date_key,
         coalesce(d_cancelled.date_key, -1) as cancelled_date_key,
@@ -80,6 +87,19 @@ final as (
         o.referring_site,
         o.landing_site_base_url,
         o.order_note,
+        
+        -- Channel information
+        case
+            when o.source_name = 'web' and o.referring_site like '%google%' and o.landing_site_base_url like '%organic%' then 'google / organic'
+            when o.source_name = 'web' and o.referring_site like '%google%' then 'google / cpc'
+            when o.source_name = 'web' and o.referring_site like '%facebook%' then 'facebook / social'
+            when o.source_name = 'web' and o.referring_site like '%instagram%' then 'instagram / social'
+            when o.source_name = 'web' and o.referring_site like '%pinterest%' then 'pinterest / social'
+            when o.source_name = 'web' and o.referring_site like '%tiktok%' then 'tiktok / social'
+            when o.source_name = 'email' then 'email / email'
+            when o.source_name = 'web' and (o.referring_site is null or o.referring_site = '') then '(direct) / (none)'
+            else coalesce(o.source_name || ' / ' || o.referring_site, '(direct) / (none)')
+        end as channel_source_medium,
         
         -- Shipping information
         o.shipping_company,
@@ -144,6 +164,9 @@ final as (
     left join customers c
         on o.customer_id = c.customer_id
         and c.is_current = true
+    left join channels ch
+        on concat('shopify_', coalesce(o.source_name, 'unknown')) = ch.channel_id
+        and ch.is_current = true
     left join date_dim d_created
         on date(o.order_created_at) = d_created.date_actual
     left join date_dim d_processed

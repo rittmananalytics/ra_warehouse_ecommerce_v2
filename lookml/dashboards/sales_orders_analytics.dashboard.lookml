@@ -16,7 +16,7 @@
     ui_config:
       type: relative_timeframes
       display: inline
-    model: ra_ecommerce_analytics
+    model: ecommerce_demo
     explore: orders
     field: order_date.calendar_date
     
@@ -29,8 +29,8 @@
     ui_config:
       type: checkboxes
       display: popover
-    model: ra_ecommerce_analytics
-    explore: orders
+    model: ecommerce_demo
+    explore: order_items
     field: products.vendor
     
   - name: customer_country
@@ -42,19 +42,19 @@
     ui_config:
       type: checkboxes
       display: popover
-    model: ra_ecommerce_analytics
-    explore: orders
-    field: orders.shipping_country
+    model: ecommerce_demo
+    explore: order_items
+    field: customers.country
     
   elements:
   
   # Sales KPIs
   - title: Total Revenue
     name: sales_total_revenue
-    model: ra_ecommerce_analytics
-    explore: orders
+    model: ecommerce_demo
+    explore: order_items
     type: single_value
-    fields: [orders.total_revenue]
+    fields: [order_items.total_revenue]
     limit: 500
     custom_color_enabled: true
     show_single_value_title: true
@@ -63,7 +63,7 @@
     listen:
       Date Range: order_date.calendar_date
       Product Vendor: products.vendor
-      Customer Country: orders.shipping_country
+      Customer Country: customers.country
     row: 0
     col: 0
     width: 6
@@ -71,10 +71,10 @@
     
   - title: Total Orders
     name: sales_total_orders
-    model: ra_ecommerce_analytics
-    explore: orders
+    model: ecommerce_demo
+    explore: order_items
     type: single_value
-    fields: [orders.count_orders]
+    fields: [order_items.count_orders]
     limit: 500
     custom_color_enabled: true
     show_single_value_title: true
@@ -83,7 +83,7 @@
     listen:
       Date Range: order_date.calendar_date
       Product Vendor: products.vendor
-      Customer Country: orders.shipping_country
+      Customer Country: customers.country
     row: 0
     col: 6
     width: 6
@@ -91,8 +91,8 @@
     
   - title: Average Order Value
     name: sales_aov
-    model: ra_ecommerce_analytics
-    explore: orders
+    model: ecommerce_demo
+    explore: order_items
     type: single_value
     fields: [orders.average_order_value]
     limit: 500
@@ -111,10 +111,10 @@
     
   - title: Units Sold
     name: sales_units_sold
-    model: ra_ecommerce_analytics
+    model: ecommerce_demo
     explore: orders
     type: single_value
-    fields: [orders.total_quantity_sold]
+    fields: [orders.total_items_ordered]
     limit: 500
     custom_color_enabled: true
     show_single_value_title: true
@@ -132,10 +132,10 @@
   # Daily Sales Trend
   - title: Daily Sales Trend
     name: daily_sales_trend
-    model: ra_ecommerce_analytics
+    model: ecommerce_demo
     explore: orders
     type: looker_line
-    fields: [order_date.calendar_date, orders.total_revenue, orders.count_orders]
+    fields: [order_date.calendar_date, orders.total_revenue, orders.count]
     fill_fields: [order_date.calendar_date]
     sorts: [order_date.calendar_date desc]
     limit: 500
@@ -166,8 +166,8 @@
     y_axes: [{label: Revenue, orientation: left, series: [{axisId: orders.total_revenue,
             id: orders.total_revenue, name: Total Revenue}], showLabels: true, showValues: true,
         valueFormat: '$#,##0', unpinAxis: false, tickDensity: default, tickDensityCustom: 5,
-        type: linear}, {label: Orders, orientation: right, series: [{axisId: orders.count_orders,
-            id: orders.count_orders, name: Count Orders}], showLabels: true, showValues: true,
+        type: linear}, {label: Orders, orientation: right, series: [{axisId: orders.count,
+            id: orders.count, name: Count Orders}], showLabels: true, showValues: true,
         valueFormat: '#,##0', unpinAxis: false, tickDensity: default, tickDensityCustom: 5,
         type: linear}]
     listen:
@@ -182,7 +182,7 @@
   # Sales by Product Category
   - title: Sales by Product Type
     name: sales_by_product_type
-    model: ra_ecommerce_analytics
+    model: ecommerce_demo
     explore: orders
     type: looker_pie
     fields: [products.product_type, orders.total_revenue]
@@ -211,10 +211,10 @@
   # Sales by Country
   - title: Sales by Country
     name: sales_by_country
-    model: ra_ecommerce_analytics
+    model: ecommerce_demo
     explore: orders
     type: looker_bar
-    fields: [orders.shipping_country, orders.total_revenue, orders.count_orders]
+    fields: [orders.shipping_country, orders.total_revenue, orders.count]
     sorts: [orders.total_revenue desc]
     limit: 15
     x_axis_gridlines: false
@@ -247,8 +247,8 @@
     y_axes: [{label: Revenue, orientation: left, series: [{axisId: orders.total_revenue,
             id: orders.total_revenue, name: Total Revenue}], showLabels: true, showValues: true,
         valueFormat: '$#,##0', unpinAxis: false, tickDensity: default, tickDensityCustom: 5,
-        type: linear}, {label: Orders, orientation: right, series: [{axisId: orders.count_orders,
-            id: orders.count_orders, name: Count Orders}], showLabels: true, showValues: true,
+        type: linear}, {label: Orders, orientation: right, series: [{axisId: orders.count,
+            id: orders.count, name: Count Orders}], showLabels: true, showValues: true,
         valueFormat: '#,##0', unpinAxis: false, tickDensity: default, tickDensityCustom: 5,
         type: linear}]
     listen:
@@ -263,10 +263,10 @@
   # Order Size Distribution
   - title: Order Size Distribution
     name: order_size_distribution
-    model: ra_ecommerce_analytics
+    model: ecommerce_demo
     explore: orders
     type: looker_column
-    fields: [orders.order_size_category, orders.count_orders, orders.average_order_value]
+    fields: [orders.order_size_category, orders.count, orders.average_order_value]
     sorts: [orders.average_order_value]
     limit: 500
     x_axis_gridlines: false
@@ -296,8 +296,8 @@
     show_totals_labels: false
     show_silhouette: false
     totals_color: "#808080"
-    y_axes: [{label: Order Count, orientation: left, series: [{axisId: orders.count_orders,
-            id: orders.count_orders, name: Count Orders}], showLabels: true, showValues: true,
+    y_axes: [{label: Order Count, orientation: left, series: [{axisId: orders.count,
+            id: orders.count, name: Count Orders}], showLabels: true, showValues: true,
         valueFormat: '#,##0', unpinAxis: false, tickDensity: default, tickDensityCustom: 5,
         type: linear}, {label: Average Order Value, orientation: right, series: [{axisId: orders.average_order_value,
             id: orders.average_order_value, name: Average Order Value}], showLabels: true,
@@ -315,10 +315,10 @@
   # Top Customers by Revenue
   - title: Top Customers by Revenue
     name: top_customers_revenue
-    model: ra_ecommerce_analytics
+    model: ecommerce_demo
     explore: orders
     type: looker_bar
-    fields: [customers.full_name, customers.email, orders.total_revenue, orders.count_orders]
+    fields: [customers.full_name, customers.customer_email, orders.total_revenue, orders.count]
     filters:
       customers.is_current: "Yes"
     sorts: [orders.total_revenue desc]
