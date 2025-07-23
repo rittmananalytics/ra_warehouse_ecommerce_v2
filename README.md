@@ -25,7 +25,7 @@ A comprehensive dbt project for building a modern ecommerce data warehouse with 
 
 ## 🎯 Overview
 
-The Ra Ecommerce Data Warehouse v2 is a production-ready dbt project that integrates data from multiple ecommerce and marketing platforms to provide comprehensive business intelligence and analytics capabilities. The warehouse follows best practices for data modeling, includes extensive data quality monitoring, and provides pre-built analytics for common ecommerce use cases.
+The Ra Ecommerce Data Warehouse v2 is a starter dbt project that integrates data from multiple ecommerce and marketing platforms to provide comprehensive business intelligence and analytics capabilities. The warehouse follows best practices for data modeling, includes extensive data quality monitoring, and provides pre-built analytics for common ecommerce use cases.
 
 ### Key Features
 
