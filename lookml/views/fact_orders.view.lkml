@@ -47,7 +47,7 @@ view: fact_orders {
 
   # Natural Key
   dimension: order_id {
-    type: string
+    type: number
     sql: ${TABLE}.order_id ;;
     description: "Order business key"
   }
@@ -60,7 +60,7 @@ view: fact_orders {
   }
 
   dimension: customer_id {
-    type: string
+    type: number
     sql: ${TABLE}.customer_id ;;
     description: "Customer ID"
   }
@@ -98,6 +98,13 @@ view: fact_orders {
     timeframes: [raw, time, date, week, month, quarter, year]
     sql: ${TABLE}.order_cancelled_at ;;
     description: "Order cancelled timestamp"
+  }
+
+  dimension_group: warehouse_updated {
+    type: time
+    timeframes: [raw, time, date, week, month, quarter, year]
+    sql: ${TABLE}.warehouse_updated_at ;;
+    description: "Warehouse update timestamp"
   }
 
   # Status Fields
@@ -232,11 +239,29 @@ view: fact_orders {
     value_format_name: usd
   }
 
+  dimension: discount_count {
+    type: number
+    sql: ${TABLE}.discount_count ;;
+    description: "Number of discounts applied"
+  }
+
+  dimension: order_value_category {
+    type: string
+    sql: ${TABLE}.order_value_category ;;
+    description: "Order value category"
+  }
+
   # Order Source Information
   dimension: source_name {
     type: string
     sql: ${TABLE}.source_name ;;
     description: "Order source name"
+  }
+
+  dimension: processing_method {
+    type: string
+    sql: ${TABLE}.processing_method ;;
+    description: "Order processing method"
   }
 
   dimension: referring_site {
@@ -245,17 +270,133 @@ view: fact_orders {
     description: "Referring site"
   }
 
-  dimension: landing_page {
+  dimension: landing_site_base_url {
     type: string
-    sql: ${TABLE}.landing_page ;;
-    description: "Landing page URL"
+    sql: ${TABLE}.landing_site_base_url ;;
+    description: "Landing site base URL"
   }
 
-  # Classification Fields
-  dimension: has_discount {
+  dimension: order_note {
+    type: string
+    sql: ${TABLE}.order_note ;;
+    description: "Order notes"
+  }
+
+  dimension: channel_source_medium {
+    type: string
+    sql: ${TABLE}.channel_source_medium ;;
+    description: "Channel source/medium"
+  }
+
+  # Shipping Information
+  dimension: shipping_company {
+    type: string
+    sql: ${TABLE}.shipping_company ;;
+    description: "Shipping company"
+  }
+
+  dimension: tracking_company {
+    type: string
+    sql: ${TABLE}.tracking_company ;;
+    description: "Tracking company"
+  }
+
+  dimension: tracking_number {
+    type: string
+    sql: ${TABLE}.tracking_number ;;
+    description: "Tracking number"
+  }
+
+  # Shipping Address
+  dimension: shipping_address_first_name {
+    type: string
+    sql: ${TABLE}.shipping_address_first_name ;;
+    description: "Shipping first name"
+    group_label: "Shipping Address"
+  }
+
+  dimension: shipping_address_last_name {
+    type: string
+    sql: ${TABLE}.shipping_address_last_name ;;
+    description: "Shipping last name"
+    group_label: "Shipping Address"
+  }
+
+  dimension: shipping_address_company {
+    type: string
+    sql: ${TABLE}.shipping_address_company ;;
+    description: "Shipping company name"
+    group_label: "Shipping Address"
+  }
+
+  dimension: shipping_address_phone {
+    type: string
+    sql: ${TABLE}.shipping_address_phone ;;
+    description: "Shipping phone"
+    group_label: "Shipping Address"
+  }
+
+  dimension: shipping_address_address_1 {
+    type: string
+    sql: ${TABLE}.shipping_address_address_1 ;;
+    description: "Shipping address line 1"
+    group_label: "Shipping Address"
+  }
+
+  dimension: shipping_address_address_2 {
+    type: string
+    sql: ${TABLE}.shipping_address_address_2 ;;
+    description: "Shipping address line 2"
+    group_label: "Shipping Address"
+  }
+
+  dimension: shipping_address_city {
+    type: string
+    sql: ${TABLE}.shipping_address_city ;;
+    description: "Shipping city"
+    group_label: "Shipping Address"
+  }
+
+  dimension: shipping_address_province {
+    type: string
+    sql: ${TABLE}.shipping_address_province ;;
+    description: "Shipping province/state"
+    group_label: "Shipping Address"
+  }
+
+  dimension: shipping_address_province_code {
+    type: string
+    sql: ${TABLE}.shipping_address_province_code ;;
+    description: "Shipping province/state code"
+    group_label: "Shipping Address"
+  }
+
+  dimension: shipping_address_country {
+    type: string
+    sql: ${TABLE}.shipping_address_country ;;
+    description: "Shipping country"
+    group_label: "Shipping Address"
+  }
+
+  dimension: shipping_address_country_code {
+    type: string
+    sql: ${TABLE}.shipping_address_country_code ;;
+    description: "Shipping country code"
+    group_label: "Shipping Address"
+  }
+
+  dimension: shipping_address_zip {
+    type: string
+    sql: ${TABLE}.shipping_address_zip ;;
+    description: "Shipping ZIP/postal code"
+    group_label: "Shipping Address"
+  }
+
+  # Order Flags
+  dimension: is_cancelled {
     type: yesno
-    sql: ${TABLE}.has_discount ;;
-    description: "Order has discount"
+    sql: ${TABLE}.is_cancelled ;;
+    description: "Order is cancelled"
   }
 
   dimension: has_refund {
@@ -264,31 +405,86 @@ view: fact_orders {
     description: "Order has refund"
   }
 
-  dimension: order_type {
-    type: string
-    sql: ${TABLE}.order_type ;;
-    description: "Order type classification"
-  }
-
-  dimension: discount_category {
-    type: string
-    sql: ${TABLE}.discount_category ;;
-    description: "Discount category"
-  }
-
-  dimension: order_size_category {
-    type: string
-    sql: ${TABLE}.order_size_category ;;
-    description: "Order size category"
-  }
-
-  # NOTE: is_first_order and days_since_previous_order fields don't exist in BigQuery table
-  # These would need to be calculated in the dbt model or as derived dimensions here
-
-  dimension: is_cancelled {
+  dimension: is_multi_product_order {
     type: yesno
-    sql: ${TABLE}.is_cancelled ;;
-    description: "Order is cancelled"
+    sql: ${TABLE}.is_multi_product_order ;;
+    description: "Order contains multiple products"
+  }
+
+  dimension: has_discount {
+    type: yesno
+    sql: ${TABLE}.has_discount ;;
+    description: "Order has discount"
+  }
+
+  # Rate Metrics
+  dimension: discount_rate {
+    type: number
+    sql: ${TABLE}.discount_rate ;;
+    description: "Discount rate"
+    value_format_name: percent_2
+  }
+
+  dimension: tax_rate {
+    type: number
+    sql: ${TABLE}.tax_rate ;;
+    description: "Tax rate"
+    value_format_name: percent_2
+  }
+
+  dimension: shipping_rate {
+    type: number
+    sql: ${TABLE}.shipping_rate ;;
+    description: "Shipping rate"
+    value_format_name: percent_2
+  }
+
+  # Net Values
+  dimension: net_order_value {
+    type: number
+    sql: ${TABLE}.net_order_value ;;
+    description: "Net order value"
+    value_format_name: usd
+  }
+
+  dimension: net_subtotal {
+    type: number
+    sql: ${TABLE}.net_subtotal ;;
+    description: "Net subtotal"
+    value_format_name: usd
+  }
+
+  dimension: net_tax {
+    type: number
+    sql: ${TABLE}.net_tax ;;
+    description: "Net tax"
+    value_format_name: usd
+  }
+
+  # Processing Time Metrics
+  dimension: hours_to_process {
+    type: number
+    sql: ${TABLE}.hours_to_process ;;
+    description: "Hours to process order"
+  }
+
+  dimension: hours_to_cancellation {
+    type: number
+    sql: ${TABLE}.hours_to_cancellation ;;
+    description: "Hours to cancellation"
+  }
+
+  # Time Analysis
+  dimension: order_time_of_day {
+    type: string
+    sql: ${TABLE}.order_time_of_day ;;
+    description: "Time of day when order was placed"
+  }
+
+  dimension: order_day_type {
+    type: string
+    sql: ${TABLE}.order_day_type ;;
+    description: "Day type (weekday/weekend)"
   }
 
   # Measures
@@ -332,10 +528,10 @@ view: fact_orders {
     value_format_name: usd
   }
 
-  measure: discount_rate {
-    type: number
-    sql: ${total_discount_given} / NULLIF(${total_revenue} + ${total_discount_given}, 0) ;;
-    description: "Discount rate"
+  measure: average_discount_rate {
+    type: average
+    sql: ${discount_rate} ;;
+    description: "Average discount rate"
     value_format_name: percent_2
   }
 
@@ -359,8 +555,33 @@ view: fact_orders {
     description: "Number of orders with discounts"
   }
 
-  # NOTE: first_time_orders measures removed because is_first_order field doesn't exist in BigQuery
-  # These would need the is_first_order field to be calculated in the dbt model first
+  measure: multi_product_order_rate {
+    type: number
+    sql: COUNT(CASE WHEN ${is_multi_product_order} THEN 1 END) / NULLIF(${count}, 0) ;;
+    description: "Percentage of multi-product orders"
+    value_format_name: percent_2
+  }
+
+  measure: average_processing_hours {
+    type: average
+    sql: ${hours_to_process} ;;
+    description: "Average hours to process"
+    value_format_name: decimal_1
+  }
+
+  measure: total_shipping_revenue {
+    type: sum
+    sql: ${shipping_cost} ;;
+    description: "Total shipping revenue"
+    value_format_name: usd
+  }
+
+  measure: total_tax_collected {
+    type: sum
+    sql: ${total_tax} ;;
+    description: "Total tax collected"
+    value_format_name: usd
+  }
 
   # Drill fields
   set: order_detail {

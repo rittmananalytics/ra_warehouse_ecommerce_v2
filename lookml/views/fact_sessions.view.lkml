@@ -327,6 +327,15 @@ view: fact_sessions {
     description: "Session engagement score (0-100)"
   }
 
+  dimension_group: warehouse_updated {
+    type: time
+    timeframes: [raw, date, week, month, quarter, year]
+    convert_tz: no
+    datatype: timestamp
+    sql: ${TABLE}.warehouse_updated_at ;;
+    description: "Warehouse update timestamp"
+  }
+
   # Measures
   measure: count {
     type: count

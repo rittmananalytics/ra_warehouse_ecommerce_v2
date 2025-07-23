@@ -1,5 +1,5 @@
 view: dim_channels {
-  sql_table_name: `ra-development.analytics_ecommerce_ecommerce.dim_channels_enhanced` ;;
+  sql_table_name: `ra-development.analytics_ecommerce_ecommerce.dim_channels` ;;
   
   # Primary Key
   dimension: channel_key {
@@ -19,13 +19,13 @@ view: dim_channels {
   dimension: channel_source {
     type: string
     sql: ${TABLE}.channel_source ;;
-    description: "Traffic source (e.g., google, facebook, email)"
+    description: "Traffic source"
   }
 
   dimension: channel_medium {
     type: string
     sql: ${TABLE}.channel_medium ;;
-    description: "Traffic medium (e.g., cpc, organic, social)"
+    description: "Traffic medium"
   }
 
   dimension: channel_campaign {
@@ -37,7 +37,7 @@ view: dim_channels {
   dimension: channel_data_source {
     type: string
     sql: ${TABLE}.channel_data_source ;;
-    description: "Data source (GA4, Shopify, etc.)"
+    description: "Data source"
   }
 
   dimension: channel_group {
@@ -50,12 +50,6 @@ view: dim_channels {
     type: string
     sql: ${TABLE}.attribution_type ;;
     description: "Attribution type"
-  }
-
-  dimension: source_medium {
-    type: string
-    sql: CONCAT(${channel_source}, ' / ', ${channel_medium}) ;;
-    description: "Source/Medium combination"
   }
 
   # Digital Engagement Metrics
@@ -110,8 +104,8 @@ view: dim_channels {
   dimension: ga4_purchase_value {
     type: number
     sql: ${TABLE}.ga4_purchase_value ;;
-    description: "Purchase value from GA4"
     value_format_name: usd
+    description: "Purchase value from GA4"
   }
 
   dimension: ga4_purchases {
@@ -136,27 +130,27 @@ view: dim_channels {
   dimension: total_revenue {
     type: number
     sql: ${TABLE}.total_revenue ;;
-    description: "Total revenue from this channel"
     value_format_name: usd
+    description: "Total revenue from this channel"
   }
 
   dimension: avg_order_value {
     type: number
     sql: ${TABLE}.avg_order_value ;;
-    description: "Average order value"
     value_format_name: usd
+    description: "Average order value"
   }
 
   dimension_group: first_order {
     type: time
-    timeframes: [raw, date, week, month, quarter, year]
+    timeframes: [raw, time, date, week, month, quarter, year]
     sql: ${TABLE}.first_order_date ;;
     description: "First order date from this channel"
   }
 
   dimension_group: last_order {
     type: time
-    timeframes: [raw, date, week, month, quarter, year]
+    timeframes: [raw, time, date, week, month, quarter, year]
     sql: ${TABLE}.last_order_date ;;
     description: "Last order date from this channel"
   }
@@ -165,8 +159,8 @@ view: dim_channels {
   dimension: combined_revenue {
     type: number
     sql: ${TABLE}.combined_revenue ;;
-    description: "Combined revenue (GA4 + Shopify)"
     value_format_name: usd
+    description: "Combined revenue (GA4 + Shopify)"
   }
 
   dimension: combined_transactions {
@@ -175,106 +169,192 @@ view: dim_channels {
     description: "Combined transactions"
   }
 
-  # Conversion Funnel Metrics
-  dimension: page_view_rate {
+  # Conversion Metrics
+  dimension: session_conversion_rate {
     type: number
-    sql: ${TABLE}.page_view_rate ;;
-    description: "Page view rate"
+    sql: ${TABLE}.session_conversion_rate ;;
     value_format_name: percent_2
+    description: "Session conversion rate"
   }
 
-  dimension: product_view_rate {
+  dimension: cart_conversion_rate {
     type: number
-    sql: ${TABLE}.product_view_rate ;;
-    description: "Product view rate"
+    sql: ${TABLE}.cart_conversion_rate ;;
     value_format_name: percent_2
+    description: "Cart conversion rate"
   }
 
-  dimension: add_to_cart_rate {
+  dimension: user_conversion_rate {
     type: number
-    sql: ${TABLE}.add_to_cart_rate ;;
-    description: "Add to cart rate"
+    sql: ${TABLE}.user_conversion_rate ;;
     value_format_name: percent_2
+    description: "User conversion rate"
   }
 
-  dimension: checkout_rate {
+  dimension: revenue_per_session {
     type: number
-    sql: ${TABLE}.checkout_rate ;;
-    description: "Checkout rate"
-    value_format_name: percent_2
+    sql: ${TABLE}.revenue_per_session ;;
+    value_format_name: usd
+    description: "Revenue per session"
   }
 
-  dimension: overall_conversion_rate {
+  dimension: revenue_per_customer {
     type: number
-    sql: ${TABLE}.overall_conversion_rate ;;
-    description: "Overall conversion rate"
-    value_format_name: percent_2
-  }
-
-  dimension: cart_abandonment_rate {
-    type: number
-    sql: ${TABLE}.cart_abandonment_rate ;;
-    description: "Cart abandonment rate"
-    value_format_name: percent_2
+    sql: ${TABLE}.revenue_per_customer ;;
+    value_format_name: usd
+    description: "Revenue per customer"
   }
 
   # Categorizations
+  dimension: channel_tier {
+    type: string
+    sql: ${TABLE}.channel_tier ;;
+    description: "Channel tier"
+  }
+
+  dimension: traffic_volume_tier {
+    type: string
+    sql: ${TABLE}.traffic_volume_tier ;;
+    description: "Traffic volume tier"
+  }
+
   dimension: is_paid_channel {
     type: yesno
     sql: ${TABLE}.is_paid_channel ;;
     description: "Is paid advertising channel"
   }
 
-  dimension: is_digital_channel {
+  dimension: is_direct_channel {
     type: yesno
-    sql: ${TABLE}.is_digital_channel ;;
-    description: "Is digital channel"
+    sql: ${TABLE}.is_direct_channel ;;
+    description: "Is direct channel"
   }
 
-  dimension: source_category {
-    type: string
-    sql: ${TABLE}.source_category ;;
-    description: "Source category"
+  dimension: is_organic_channel {
+    type: yesno
+    sql: ${TABLE}.is_organic_channel ;;
+    description: "Is organic channel"
   }
 
-  dimension: channel_performance_tier {
-    type: string
-    sql: ${TABLE}.channel_performance_tier ;;
-    description: "Performance tier based on revenue"
+  dimension: has_digital_attribution {
+    type: yesno
+    sql: ${TABLE}.has_digital_attribution ;;
+    description: "Has digital attribution"
   }
 
-  dimension: conversion_performance_tier {
-    type: string
-    sql: ${TABLE}.conversion_performance_tier ;;
-    description: "Conversion performance tier"
+  dimension: has_commerce_attribution {
+    type: yesno
+    sql: ${TABLE}.has_commerce_attribution ;;
+    description: "Has commerce attribution"
   }
 
-  dimension: engagement_level {
+  # Scoring and Classification
+  dimension: channel_priority_score {
+    type: number
+    sql: ${TABLE}.channel_priority_score ;;
+    description: "Channel priority score"
+  }
+
+  dimension: channel_maturity {
     type: string
-    sql: ${TABLE}.engagement_level ;;
-    description: "Engagement level"
+    sql: ${TABLE}.channel_maturity ;;
+    description: "Channel maturity"
+  }
+
+  dimension: performance_segment {
+    type: string
+    sql: ${TABLE}.performance_segment ;;
+    description: "Performance segment"
+  }
+
+  dimension: funnel_performance {
+    type: string
+    sql: ${TABLE}.funnel_performance ;;
+    description: "Funnel performance"
+  }
+
+  dimension: channel_health {
+    type: string
+    sql: ${TABLE}.channel_health ;;
+    description: "Channel health"
+  }
+
+  dimension: roi_efficiency {
+    type: string
+    sql: ${TABLE}.roi_efficiency ;;
+    description: "ROI efficiency"
+  }
+
+  dimension: attribution_completeness {
+    type: string
+    sql: ${TABLE}.attribution_completeness ;;
+    description: "Attribution completeness"
+  }
+
+  dimension: strategic_importance {
+    type: string
+    sql: ${TABLE}.strategic_importance ;;
+    description: "Strategic importance"
   }
 
   # Data Quality Flags
-  dimension: has_ga4_data {
+  dimension: has_known_source {
     type: yesno
-    sql: ${TABLE}.has_ga4_data ;;
-    description: "Has GA4 data"
+    sql: ${TABLE}.has_known_source ;;
+    description: "Has known source"
   }
 
-  dimension: has_order_data {
+  dimension: has_known_medium {
     type: yesno
-    sql: ${TABLE}.has_order_data ;;
-    description: "Has order data"
+    sql: ${TABLE}.has_known_medium ;;
+    description: "Has known medium"
   }
 
-  dimension: is_active_channel {
+  dimension: has_digital_activity {
     type: yesno
-    sql: ${TABLE}.is_active_channel ;;
-    description: "Channel is currently active"
+    sql: ${TABLE}.has_digital_activity ;;
+    description: "Has digital activity"
   }
 
-  # Timestamps
+  dimension: has_commerce_activity {
+    type: yesno
+    sql: ${TABLE}.has_commerce_activity ;;
+    description: "Has commerce activity"
+  }
+
+  dimension: has_revenue_attribution {
+    type: yesno
+    sql: ${TABLE}.has_revenue_attribution ;;
+    description: "Has revenue attribution"
+  }
+
+  dimension: has_conversion_data {
+    type: yesno
+    sql: ${TABLE}.has_conversion_data ;;
+    description: "Has conversion data"
+  }
+
+  # SCD Type 2 Dimensions
+  dimension_group: effective_from {
+    type: time
+    timeframes: [raw, time, date, week, month, quarter, year]
+    sql: ${TABLE}.effective_from ;;
+    description: "Effective from timestamp"
+  }
+
+  dimension_group: effective_to {
+    type: time
+    timeframes: [raw, time, date, week, month, quarter, year]
+    sql: ${TABLE}.effective_to ;;
+    description: "Effective to timestamp"
+  }
+
+  dimension: is_current {
+    type: yesno
+    sql: ${TABLE}.is_current ;;
+    description: "Is current record"
+  }
+
   dimension_group: warehouse_updated {
     type: time
     timeframes: [raw, time, date, week, month, quarter, year]
@@ -285,15 +365,14 @@ view: dim_channels {
   # Measures
   measure: count {
     type: count
-    description: "Number of channels"
-    drill_fields: [channel_detail*]
+    drill_fields: [channel_key, channel_id, channel_source, channel_medium]
   }
 
   measure: total_channel_revenue {
     type: sum
     sql: ${total_revenue} ;;
-    description: "Total revenue across channels"
     value_format_name: usd
+    description: "Total revenue across channels"
   }
 
   measure: total_channel_orders {
@@ -308,11 +387,17 @@ view: dim_channels {
     description: "Total users across channels"
   }
 
-  measure: average_channel_conversion_rate {
+  measure: total_sessions {
+    type: sum
+    sql: ${sessions} ;;
+    description: "Total sessions across channels"
+  }
+
+  measure: avg_conversion_rate {
     type: average
-    sql: ${overall_conversion_rate} ;;
-    description: "Average conversion rate"
+    sql: ${user_conversion_rate} ;;
     value_format_name: percent_2
+    description: "Average user conversion rate"
   }
 
   measure: paid_channels {
@@ -321,23 +406,21 @@ view: dim_channels {
     description: "Number of paid channels"
   }
 
-  measure: active_channels {
+  measure: organic_channels {
     type: count
-    filters: [is_active_channel: "yes"]
-    description: "Number of active channels"
+    filters: [is_organic_channel: "yes"]
+    description: "Number of organic channels"
   }
 
-  # Sets
-  set: channel_detail {
-    fields: [
-      channel_id,
-      source_medium,
-      channel_group,
-      total_revenue,
-      total_orders,
-      unique_users,
-      overall_conversion_rate,
-      is_paid_channel
-    ]
+  measure: current_channels {
+    type: count
+    filters: [is_current: "yes"]
+    description: "Number of current channels"
+  }
+
+  measure: channels_with_revenue {
+    type: count
+    filters: [has_revenue_attribution: "yes"]
+    description: "Channels with revenue attribution"
   }
 }

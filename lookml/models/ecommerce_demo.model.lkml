@@ -224,6 +224,65 @@ explore: data_quality {
   description: "Monitor pipeline health and data quality metrics"
 }
 
+# Email Marketing Explore
+explore: email_marketing {
+  from: fact_email_marketing
+  label: "Email Marketing Performance"
+  description: "Email campaign performance metrics and engagement"
+  
+  # Date dimension
+  join: event_date {
+    from: dim_date
+    type: left_outer
+    sql_on: ${email_marketing.date_key} = ${event_date.date_key} ;;
+    relationship: many_to_one
+    fields: [event_date.calendar_date, event_date.calendar_week, event_date.calendar_month, 
+             event_date.calendar_quarter, event_date.calendar_year, event_date.day_of_week, 
+             event_date.day_of_month, event_date.is_weekend]
+  }
+}
+
+# Social Posts Explore
+explore: social_posts {
+  from: fact_social_posts
+  label: "Social Media Performance"
+  description: "Social media content performance and engagement analytics"
+  
+  # Date dimension
+  join: post_date {
+    from: dim_date
+    type: left_outer
+    sql_on: ${social_posts.post_date} = ${post_date.calendar_date} ;;
+    relationship: many_to_one
+    fields: [post_date.calendar_date, post_date.calendar_week, post_date.calendar_month, 
+             post_date.calendar_quarter, post_date.calendar_year, post_date.day_of_week, 
+             post_date.day_of_month, post_date.is_weekend]
+  }
+  
+  # Social content dimension
+  join: social_content {
+    from: dim_social_content
+    type: left_outer
+    sql_on: ${social_posts.post_id} = ${social_content.post_id} ;;
+    relationship: many_to_one
+  }
+}
+
+# Customer Metrics Explore
+explore: customer_metrics {
+  from: dim_customer_metrics
+  label: "Customer Analytics"
+  description: "Comprehensive customer metrics including RFM, CLV, and predictive analytics"
+  
+  # Customer dimension
+  join: customers {
+    from: dim_customers
+    type: left_outer
+    sql_on: ${customer_metrics.customer_key} = ${customers.customer_key} ;;
+    relationship: many_to_one
+  }
+}
+
 # Executive Overview Explore - Combines key metrics
 explore: executive_overview {
   from: fact_orders

@@ -11,7 +11,7 @@ view: dim_customers {
 
   # Business Key
   dimension: customer_id {
-    type: string
+    type: number
     sql: ${TABLE}.customer_id ;;
     description: "Original customer business key"
   }
@@ -42,63 +42,76 @@ view: dim_customers {
   }
 
   dimension: phone {
-    type: string
+    type: number
     sql: ${TABLE}.phone ;;
     description: "Customer phone number"
   }
 
-  # Address Information
+  # Date Dimensions
+  dimension_group: customer_created {
+    type: time
+    timeframes: [raw, date, week, month, quarter, year]
+    convert_tz: no
+    datatype: timestamp
+    sql: ${TABLE}.customer_created_at ;;
+    description: "Customer creation date"
+  }
+
+  dimension_group: customer_updated {
+    type: time
+    timeframes: [raw, date, week, month, quarter, year]
+    convert_tz: no
+    datatype: timestamp
+    sql: ${TABLE}.customer_updated_at ;;
+    description: "Customer last update date"
+  }
+
+  # Customer Status
+  dimension: customer_state {
+    type: number
+    sql: ${TABLE}.customer_state ;;
+    description: "Customer account state"
+  }
+
+  # Address Information - These fields are INTEGER type in BigQuery
   dimension: city {
-    type: string
+    type: number
     sql: ${TABLE}.city ;;
     description: "City"
   }
 
   dimension: state_province {
-    type: string
+    type: number
     sql: ${TABLE}.state_province ;;
     description: "State or province"
   }
 
   dimension: state_province_code {
-    type: string
+    type: number
     sql: ${TABLE}.state_province_code ;;
     description: "State or province code"
   }
 
   dimension: country {
-    type: string
+    type: number
     sql: ${TABLE}.country ;;
     description: "Country"
   }
 
   dimension: country_code {
-    type: string
+    type: number
     sql: ${TABLE}.country_code ;;
     description: "Country code"
   }
 
   dimension: postal_code {
-    type: string
+    type: number
     sql: ${TABLE}.postal_code ;;
     description: "Postal/ZIP code"
   }
 
-  dimension: region {
-    type: string
-    sql: ${TABLE}.region ;;
-    description: "Geographic region"
-  }
-
-  # Customer Status
-  dimension: customer_state {
-    type: string
-    sql: ${TABLE}.customer_state ;;
-    description: "Customer account state"
-  }
-
   dimension: accepts_marketing {
-    type: yesno
+    type: string
     sql: ${TABLE}.accepts_marketing ;;
     description: "Customer accepts marketing communications"
   }
@@ -137,7 +150,6 @@ view: dim_customers {
     value_format_name: usd
   }
 
-  # Customer Date Dimensions
   dimension_group: first_order {
     type: time
     timeframes: [raw, date, week, month, quarter, year]
@@ -195,6 +207,12 @@ view: dim_customers {
     description: "Average order value segment"
   }
 
+  dimension: region {
+    type: string
+    sql: ${TABLE}.region ;;
+    description: "Geographic region"
+  }
+
   # Data Quality Flags
   dimension: has_email {
     type: yesno
@@ -245,24 +263,6 @@ view: dim_customers {
     description: "Current version indicator"
   }
 
-  dimension_group: customer_created {
-    type: time
-    timeframes: [raw, date, week, month, quarter, year]
-    convert_tz: no
-    datatype: timestamp
-    sql: ${TABLE}.customer_created_at ;;
-    description: "Customer creation date"
-  }
-
-  dimension_group: customer_updated {
-    type: time
-    timeframes: [raw, date, week, month, quarter, year]
-    convert_tz: no
-    datatype: timestamp
-    sql: ${TABLE}.customer_updated_at ;;
-    description: "Customer last update date"
-  }
-
   dimension_group: warehouse_updated {
     type: time
     timeframes: [raw, date, week, month, quarter, year]
@@ -275,7 +275,7 @@ view: dim_customers {
   # Measures
   measure: count {
     type: count
-    drill_fields: [customer_id, full_name, email, total_spent, orders_count]
+    drill_fields: [customer_id, full_name, customer_email, calculated_lifetime_value, calculated_order_count]
   }
 
   measure: count_current {
@@ -286,7 +286,7 @@ view: dim_customers {
 
   measure: count_accepts_marketing {
     type: count
-    filters: [accepts_marketing: "yes", is_current: "yes"]
+    filters: [accepts_marketing: "true", is_current: "yes"]
     description: "Count of customers accepting marketing"
   }
 
@@ -320,7 +320,7 @@ view: dim_customers {
 
   measure: marketing_opt_in_rate {
     type: number
-    sql: COUNT(CASE WHEN ${accepts_marketing} AND ${is_current} THEN 1 END) / NULLIF(${count_current}, 0) ;;
+    sql: COUNT(CASE WHEN ${accepts_marketing} = 'true' AND ${is_current} THEN 1 END) / NULLIF(${count_current}, 0) ;;
     value_format_name: percent_1
     description: "Percentage of customers accepting marketing"
   }

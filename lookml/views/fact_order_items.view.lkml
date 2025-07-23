@@ -11,13 +11,13 @@ view: fact_order_items {
 
   # Natural Keys
   dimension: order_line_id {
-    type: string
+    type: number
     sql: ${TABLE}.order_line_id ;;
     description: "Order line ID"
   }
 
   dimension: order_id {
-    type: string
+    type: number
     sql: ${TABLE}.order_id ;;
     description: "Order ID"
   }
@@ -67,13 +67,13 @@ view: fact_order_items {
 
   # Product Details
   dimension: product_id {
-    type: string
+    type: number
     sql: ${TABLE}.product_id ;;
     description: "Product ID"
   }
 
   dimension: variant_id {
-    type: string
+    type: number
     sql: ${TABLE}.variant_id ;;
     description: "Product variant ID"
   }
@@ -103,7 +103,7 @@ view: fact_order_items {
   }
 
   dimension: product_type {
-    type: string
+    type: number
     sql: ${TABLE}.product_type ;;
     description: "Product type"
   }
@@ -118,120 +118,60 @@ view: fact_order_items {
   dimension: unit_price {
     type: number
     sql: ${TABLE}.unit_price ;;
-    description: "Unit price"
     value_format_name: usd
+    description: "Unit price"
   }
 
   dimension: line_price {
     type: number
     sql: ${TABLE}.line_price ;;
-    description: "Line price (quantity * unit price)"
     value_format_name: usd
+    description: "Line price (quantity * unit price)"
   }
 
   dimension: line_discount {
     type: number
     sql: ${TABLE}.line_discount ;;
-    description: "Line discount amount"
     value_format_name: usd
+    description: "Line discount amount"
   }
 
   dimension: line_tax {
     type: number
     sql: ${TABLE}.line_tax ;;
-    description: "Line tax amount"
     value_format_name: usd
+    description: "Line tax amount"
   }
 
   dimension: line_total {
     type: number
     sql: ${TABLE}.line_total ;;
-    description: "Line total (price - discount + tax)"
     value_format_name: usd
+    description: "Line total (price - discount + tax)"
   }
 
   dimension: line_share_of_order {
     type: number
     sql: ${TABLE}.line_share_of_order ;;
-    description: "Line item's share of order subtotal"
     value_format_name: percent_2
+    description: "Line item's share of order subtotal"
   }
 
   dimension: allocated_shipping {
     type: number
     sql: ${TABLE}.allocated_shipping ;;
-    description: "Allocated shipping cost"
     value_format_name: usd
+    description: "Allocated shipping cost"
   }
 
-  # NOTE: allocated_order_discount and final_line_total don't exist in BigQuery
-  # Using line_total instead which is the actual calculated field
-
-  # Order Information
-  dimension: order_name {
-    type: string
-    sql: ${TABLE}.order_name ;;
-    description: "Order name/number"
-  }
-
-  dimension: customer_email {
-    type: string
-    sql: ${TABLE}.customer_email ;;
-    description: "Customer email"
-  }
-
-  dimension: financial_status {
-    type: string
-    sql: ${TABLE}.financial_status ;;
-    description: "Order financial status"
-  }
-
-  dimension: fulfillment_status {
-    type: string
-    sql: ${TABLE}.fulfillment_status ;;
-    description: "Order fulfillment status"
-  }
-
-  dimension: source_name {
-    type: string
-    sql: ${TABLE}.source_name ;;
-    description: "Order source"
-  }
-
-  # Discount Information
-  dimension: discount_code {
-    type: string
-    sql: ${TABLE}.discount_code ;;
-    description: "Discount code applied"
-  }
-
-  dimension: discount_type {
-    type: string
-    sql: ${TABLE}.discount_type ;;
-    description: "Discount type"
-  }
-
-  dimension: discount_percentage {
+  dimension: allocated_refund {
     type: number
-    sql: ${TABLE}.discount_percentage ;;
-    description: "Discount percentage"
-    value_format_name: percent_2
+    sql: ${TABLE}.allocated_refund ;;
+    value_format_name: usd
+    description: "Allocated refund amount"
   }
 
-  # Calculated Fields
-  dimension: discount_rate {
-    type: number
-    sql: ${TABLE}.discount_rate ;;
-    description: "Line discount rate"
-    value_format_name: percent_2
-  }
-
-  dimension: has_discount {
-    type: yesno
-    sql: ${TABLE}.has_discount ;;
-    description: "Line has discount"
-  }
-
+  # Product Attributes
   dimension: is_gift_card {
     type: yesno
     sql: ${TABLE}.is_gift_card ;;
@@ -250,27 +190,32 @@ view: fact_order_items {
     description: "Product is taxable"
   }
 
-  dimension: is_cancelled {
-    type: yesno
-    sql: ${TABLE}.is_cancelled ;;
-    description: "Order is cancelled"
+  # Fulfillment Information
+  dimension: fulfillment_status {
+    type: string
+    sql: ${TABLE}.fulfillment_status ;;
+    description: "Line item fulfillment status"
   }
 
-  dimension: has_refund {
-    type: yesno
-    sql: ${TABLE}.has_refund ;;
-    description: "Order has refund"
+  dimension: fulfillment_service {
+    type: string
+    sql: ${TABLE}.fulfillment_service ;;
+    description: "Fulfillment service"
   }
 
-  # NOTE: price_bucket and quantity_bucket fields don't exist in BigQuery table
-  # These would need to be calculated as derived dimensions if needed
-
-  # Date/Time Dimensions
+  # Timestamps
   dimension_group: order_created {
     type: time
     timeframes: [raw, time, date, week, month, quarter, year]
     sql: ${TABLE}.order_created_at ;;
     description: "Order creation timestamp"
+  }
+
+  dimension_group: order_updated {
+    type: time
+    timeframes: [raw, time, date, week, month, quarter, year]
+    sql: ${TABLE}.order_updated_at ;;
+    description: "Order updated timestamp"
   }
 
   dimension_group: processed {
@@ -287,16 +232,86 @@ view: fact_order_items {
     description: "Order cancelled timestamp"
   }
 
-  dimension_group: order_updated {
-    type: time
-    timeframes: [raw, time, date, week, month, quarter, year]
-    sql: ${TABLE}.order_updated_at ;;
-    description: "Order updated timestamp"
+  # Order Information
+  dimension: financial_status {
+    type: string
+    sql: ${TABLE}.financial_status ;;
+    description: "Order financial status"
   }
 
+  dimension: order_fulfillment_status {
+    type: string
+    sql: ${TABLE}.order_fulfillment_status ;;
+    description: "Order fulfillment status"
+  }
+
+  dimension: currency_code {
+    type: string
+    sql: ${TABLE}.currency_code ;;
+    description: "Currency code"
+  }
+
+  dimension: customer_email {
+    type: string
+    sql: ${TABLE}.customer_email ;;
+    description: "Customer email"
+  }
+
+  dimension: source_name {
+    type: string
+    sql: ${TABLE}.source_name ;;
+    description: "Order source"
+  }
+
+  # Attribution Information
+  dimension: referring_site {
+    type: string
+    sql: ${TABLE}.referring_site ;;
+    description: "Referring site"
+  }
+
+  dimension: landing_site_base_url {
+    type: string
+    sql: ${TABLE}.landing_site_base_url ;;
+    description: "Landing site base URL"
+  }
+
+  dimension: channel_source_medium {
+    type: string
+    sql: ${TABLE}.channel_source_medium ;;
+    description: "Channel source/medium"
+  }
+
+  # Order Status Flags
+  dimension: is_cancelled {
+    type: yesno
+    sql: ${TABLE}.is_cancelled ;;
+    description: "Order is cancelled"
+  }
+
+  dimension: has_refund {
+    type: yesno
+    sql: ${TABLE}.has_refund ;;
+    description: "Order has refund"
+  }
+
+  dimension: has_discount {
+    type: yesno
+    sql: ${TABLE}.has_discount ;;
+    description: "Line has discount"
+  }
+
+  dimension: discount_rate {
+    type: number
+    sql: ${TABLE}.discount_rate ;;
+    value_format_name: percent_2
+    description: "Line discount rate"
+  }
+
+  # Metadata
   dimension_group: warehouse_updated {
     type: time
-    timeframes: [raw, time, date]
+    timeframes: [raw, time, date, week, month, quarter, year]
     sql: ${TABLE}.warehouse_updated_at ;;
     description: "Warehouse updated timestamp"
   }
@@ -304,8 +319,7 @@ view: fact_order_items {
   # Measures
   measure: count {
     type: count
-    description: "Number of order items"
-    drill_fields: [order_item_detail*]
+    drill_fields: [order_item_key, order_id, product_title]
   }
 
   measure: count_orders {
@@ -323,64 +337,71 @@ view: fact_order_items {
   measure: total_revenue {
     type: sum
     sql: ${line_total} ;;
-    description: "Total revenue"
     value_format_name: usd
+    description: "Total revenue"
   }
 
   measure: total_product_revenue {
     type: sum
     sql: ${line_price} ;;
-    description: "Total product revenue (before discounts)"
     value_format_name: usd
+    description: "Total product revenue (before discounts)"
   }
 
   measure: total_discount {
     type: sum
     sql: ${line_discount} ;;
-    description: "Total discounts"
     value_format_name: usd
+    description: "Total discounts"
   }
 
   measure: total_tax {
     type: sum
     sql: ${line_tax} ;;
-    description: "Total tax"
     value_format_name: usd
+    description: "Total tax"
   }
 
   measure: total_shipping {
     type: sum
     sql: ${allocated_shipping} ;;
-    description: "Total allocated shipping"
     value_format_name: usd
+    description: "Total allocated shipping"
+  }
+
+  measure: total_refunds {
+    type: sum
+    sql: ${allocated_refund} ;;
+    value_format_name: usd
+    description: "Total allocated refunds"
   }
 
   measure: average_unit_price {
     type: average
     sql: ${unit_price} ;;
-    description: "Average unit price"
     value_format_name: usd
+    description: "Average unit price"
   }
 
   measure: average_quantity_per_line {
     type: average
     sql: ${quantity} ;;
-    description: "Average quantity per line"
     value_format_name: decimal_1
+    description: "Average quantity per line"
   }
 
   measure: average_line_total {
     type: average
     sql: ${line_total} ;;
-    description: "Average line total"
     value_format_name: usd
+    description: "Average line total"
   }
 
   measure: discount_rate_overall {
     type: number
     sql: ${total_discount} / NULLIF(${total_product_revenue}, 0) ;;
-    description: "Overall discount rate"
     value_format_name: percent_2
+    description: "Overall discount rate"
   }
 
   measure: items_with_discount {
@@ -393,20 +414,19 @@ view: fact_order_items {
     type: sum
     sql: ${line_total} ;;
     filters: [is_gift_card: "yes"]
-    description: "Gift card sales"
     value_format_name: usd
+    description: "Gift card sales"
   }
 
-  # Sets
-  set: order_item_detail {
-    fields: [
-      order_id,
-      product_title,
-      variant_title,
-      quantity,
-      unit_price,
-      line_total,
-      discount_rate
-    ]
+  measure: cancelled_items {
+    type: count
+    filters: [is_cancelled: "yes"]
+    description: "Number of cancelled items"
+  }
+
+  measure: refunded_items {
+    type: count
+    filters: [has_refund: "yes"]
+    description: "Number of refunded items"
   }
 }

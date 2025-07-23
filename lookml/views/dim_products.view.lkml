@@ -11,28 +11,22 @@ view: dim_products {
 
   # Business Key
   dimension: product_id {
-    type: string
+    type: number
     sql: ${TABLE}.product_id ;;
     description: "Original product business key"
   }
 
   # Product Identification
-  dimension: handle {
+  dimension: product_title {
     type: string
-    sql: ${TABLE}.handle ;;
-    description: "Product URL handle"
-  }
-
-  dimension: title {
-    type: string
-    sql: ${TABLE}.title ;;
+    sql: ${TABLE}.product_title ;;
     description: "Product title"
   }
 
-  dimension: vendor {
+  dimension: product_handle {
     type: string
-    sql: ${TABLE}.vendor ;;
-    description: "Product vendor/brand"
+    sql: ${TABLE}.product_handle ;;
+    description: "Product URL handle"
   }
 
   dimension: product_type {
@@ -41,194 +35,282 @@ view: dim_products {
     description: "Product type/category"
   }
 
-  # Product Details
-  dimension: body_html {
+  dimension: vendor {
     type: string
-    sql: ${TABLE}.body_html ;;
-    description: "Product description HTML"
+    sql: ${TABLE}.vendor ;;
+    description: "Product vendor/brand"
   }
 
-  dimension: status {
+  # Product Timestamps
+  dimension_group: product_created {
+    type: time
+    timeframes: [raw, date, week, month, quarter, year]
+    convert_tz: no
+    datatype: timestamp
+    sql: ${TABLE}.product_created_at ;;
+    description: "Product creation date"
+  }
+
+  dimension_group: product_updated {
+    type: time
+    timeframes: [raw, date, week, month, quarter, year]
+    convert_tz: no
+    datatype: timestamp
+    sql: ${TABLE}.product_updated_at ;;
+    description: "Product last update date"
+  }
+
+  dimension_group: product_published {
+    type: time
+    timeframes: [raw, date, week, month, quarter, year]
+    convert_tz: no
+    datatype: timestamp
+    sql: ${TABLE}.product_published_at ;;
+    description: "Product publish date"
+  }
+
+  # Product Status
+  dimension: product_status {
     type: string
-    sql: ${TABLE}.status ;;
+    sql: ${TABLE}.product_status ;;
     description: "Product status (active, draft, archived)"
   }
 
-  dimension: tags {
+  dimension: product_tags {
     type: string
-    sql: ${TABLE}.tags ;;
+    sql: ${TABLE}.product_tags ;;
     description: "Product tags (comma-separated)"
   }
 
-  # Pricing Information
-  dimension: price {
+  # Product Options - Note: These are INTEGER in BigQuery
+  dimension: option_1_name {
     type: number
-    sql: ${TABLE}.price ;;
-    description: "Product price"
+    sql: ${TABLE}.option_1_name ;;
+    description: "Option 1 name"
+  }
+
+  dimension: option_1_value {
+    type: number
+    sql: ${TABLE}.option_1_value ;;
+    description: "Option 1 value"
+  }
+
+  dimension: option_2_name {
+    type: number
+    sql: ${TABLE}.option_2_name ;;
+    description: "Option 2 name"
+  }
+
+  dimension: option_2_value {
+    type: number
+    sql: ${TABLE}.option_2_value ;;
+    description: "Option 2 value"
+  }
+
+  dimension: option_3_name {
+    type: number
+    sql: ${TABLE}.option_3_name ;;
+    description: "Option 3 name"
+  }
+
+  dimension: option_3_value {
+    type: number
+    sql: ${TABLE}.option_3_value ;;
+    description: "Option 3 value"
+  }
+
+  # Sales Metrics
+  dimension: total_orders {
+    type: number
+    sql: ${TABLE}.total_orders ;;
+    description: "Total orders containing this product"
+  }
+
+  dimension: total_line_items {
+    type: number
+    sql: ${TABLE}.total_line_items ;;
+    description: "Total line items for this product"
+  }
+
+  dimension: total_quantity_sold {
+    type: number
+    sql: ${TABLE}.total_quantity_sold ;;
+    description: "Total quantity sold"
+  }
+
+  dimension: total_revenue {
+    type: number
+    sql: ${TABLE}.total_revenue ;;
+    description: "Total revenue generated"
     value_format_name: usd
   }
 
-  dimension: compare_at_price {
+  dimension: avg_selling_price {
     type: number
-    sql: ${TABLE}.compare_at_price ;;
-    description: "Compare at price (MSRP)"
+    sql: ${TABLE}.avg_selling_price ;;
+    description: "Average selling price"
     value_format_name: usd
   }
 
-  dimension: cost {
+  dimension: max_selling_price {
     type: number
-    sql: ${TABLE}.cost ;;
-    description: "Product cost"
+    sql: ${TABLE}.max_selling_price ;;
+    description: "Maximum selling price"
     value_format_name: usd
   }
 
-  # Pricing Calculations
-  dimension: discount_amount {
+  dimension: min_selling_price {
     type: number
-    sql: ${compare_at_price} - ${price} ;;
-    description: "Discount amount"
+    sql: ${TABLE}.min_selling_price ;;
+    description: "Minimum selling price"
     value_format_name: usd
   }
 
-  dimension: discount_percentage {
+  dimension: total_discounts_given {
     type: number
-    sql: CASE 
-      WHEN ${compare_at_price} > 0 
-      THEN ((${compare_at_price} - ${price}) / ${compare_at_price}) * 100
-      ELSE 0 
-    END ;;
-    description: "Discount percentage"
-    value_format_name: percent_1
-  }
-
-  dimension: margin_amount {
-    type: number
-    sql: ${price} - ${cost} ;;
-    description: "Gross margin amount"
+    sql: ${TABLE}.total_discounts_given ;;
+    description: "Total discounts given"
     value_format_name: usd
   }
 
-  dimension: margin_percentage {
+  dimension: avg_discount_percent {
     type: number
-    sql: CASE 
-      WHEN ${price} > 0 
-      THEN ((${price} - ${cost}) / ${price}) * 100
-      ELSE 0 
-    END ;;
-    description: "Gross margin percentage"
-    value_format_name: percent_1
+    sql: ${TABLE}.avg_discount_percent ;;
+    description: "Average discount percentage"
+    value_format_name: percent_2
   }
 
-  # Inventory Management
-  dimension: sku {
-    type: string
-    sql: ${TABLE}.sku ;;
-    description: "Stock keeping unit"
-  }
-
-  dimension: barcode {
-    type: string
-    sql: ${TABLE}.barcode ;;
-    description: "Product barcode"
-  }
-
-  dimension: inventory_quantity {
+  # Inventory Metrics
+  dimension: total_inventory {
     type: number
-    sql: ${TABLE}.inventory_quantity ;;
-    description: "Current inventory quantity"
+    sql: ${TABLE}.total_inventory ;;
+    description: "Total inventory across all locations"
   }
 
-  dimension: inventory_policy {
-    type: string
-    sql: ${TABLE}.inventory_policy ;;
-    description: "Inventory policy (deny, continue)"
-  }
-
-  dimension: fulfillment_service {
-    type: string
-    sql: ${TABLE}.fulfillment_service ;;
-    description: "Fulfillment service"
-  }
-
-  dimension: inventory_management {
-    type: string
-    sql: ${TABLE}.inventory_management ;;
-    description: "Inventory management system"
-  }
-
-  # Physical Attributes
-  dimension: weight {
+  dimension: avg_variant_inventory {
     type: number
-    sql: ${TABLE}.weight ;;
-    description: "Product weight"
-    value_format_name: decimal_2
+    sql: ${TABLE}.avg_variant_inventory ;;
+    description: "Average inventory per variant"
+    value_format_name: decimal_1
   }
 
-  dimension: weight_unit {
+  dimension: variant_count {
+    type: number
+    sql: ${TABLE}.variant_count ;;
+    description: "Number of variants"
+  }
+
+  # Performance Categories
+  dimension: product_performance_category {
     type: string
-    sql: ${TABLE}.weight_unit ;;
-    description: "Weight unit (grams, pounds, etc.)"
+    sql: ${TABLE}.product_performance_category ;;
+    description: "Product performance category"
   }
 
-  dimension: requires_shipping {
+  dimension: inventory_status_category {
+    type: string
+    sql: ${TABLE}.inventory_status_category ;;
+    description: "Inventory status category"
+  }
+
+  # Product Flags
+  dimension: is_active {
     type: yesno
-    sql: ${TABLE}.requires_shipping ;;
-    description: "Product requires shipping"
+    sql: ${TABLE}.is_active ;;
+    description: "Product is active"
   }
 
-  dimension: taxable {
+  dimension: is_published {
     type: yesno
-    sql: ${TABLE}.taxable ;;
-    description: "Product is taxable"
+    sql: ${TABLE}.is_published ;;
+    description: "Product is published"
   }
 
-  # Product Categorization
+  dimension: has_inventory {
+    type: yesno
+    sql: ${TABLE}.has_inventory ;;
+    description: "Product has inventory"
+  }
+
+  dimension: has_sales {
+    type: yesno
+    sql: ${TABLE}.has_sales ;;
+    description: "Product has sales"
+  }
+
+  # Product Tiers
+  dimension: revenue_tier {
+    type: string
+    sql: ${TABLE}.revenue_tier ;;
+    description: "Revenue tier"
+  }
+
   dimension: price_tier {
-    type: tier
-    tiers: [0, 25, 50, 100, 250, 500, 1000]
-    style: relational
-    sql: ${price} ;;
-    description: "Price tier categorization"
+    type: string
+    sql: ${TABLE}.price_tier ;;
+    description: "Price tier"
   }
 
-  dimension: inventory_status {
+  dimension: sales_volume_tier {
     type: string
-    sql: CASE 
-      WHEN ${inventory_quantity} <= 0 THEN 'Out of Stock'
-      WHEN ${inventory_quantity} <= 10 THEN 'Low Stock'
-      WHEN ${inventory_quantity} <= 50 THEN 'Medium Stock'
-      ELSE 'High Stock'
-    END ;;
-    description: "Inventory status based on quantity"
+    sql: ${TABLE}.sales_volume_tier ;;
+    description: "Sales volume tier"
   }
 
-  dimension: margin_category {
+  dimension: discount_tier {
     type: string
-    sql: CASE 
-      WHEN ${margin_percentage} < 20 THEN 'Low Margin'
-      WHEN ${margin_percentage} < 40 THEN 'Medium Margin'
-      ELSE 'High Margin'
-    END ;;
-    description: "Margin category"
+    sql: ${TABLE}.discount_tier ;;
+    description: "Discount tier"
+  }
+
+  dimension: product_lifecycle_stage {
+    type: string
+    sql: ${TABLE}.product_lifecycle_stage ;;
+    description: "Product lifecycle stage"
+  }
+
+  # Product Attributes
+  dimension: has_variants {
+    type: yesno
+    sql: ${TABLE}.has_variants ;;
+    description: "Product has variants"
+  }
+
+  dimension: has_tags {
+    type: yesno
+    sql: ${TABLE}.has_tags ;;
+    description: "Product has tags"
+  }
+
+  dimension: has_options {
+    type: yesno
+    sql: ${TABLE}.has_options ;;
+    description: "Product has options"
+  }
+
+  dimension: has_vendor {
+    type: yesno
+    sql: ${TABLE}.has_vendor ;;
+    description: "Product has vendor"
   }
 
   # SCD Type 2 Fields
-  dimension_group: valid_from {
+  dimension_group: effective_from {
     type: time
     timeframes: [raw, date, week, month, quarter, year]
     convert_tz: no
     datatype: timestamp
-    sql: ${TABLE}.valid_from ;;
-    description: "Valid from date for SCD Type 2"
+    sql: ${TABLE}.effective_from ;;
+    description: "Effective from date for SCD Type 2"
   }
 
-  dimension_group: valid_to {
+  dimension_group: effective_to {
     type: time
     timeframes: [raw, date, week, month, quarter, year]
     convert_tz: no
     datatype: timestamp
-    sql: ${TABLE}.valid_to ;;
-    description: "Valid to date for SCD Type 2"
+    sql: ${TABLE}.effective_to ;;
+    description: "Effective to date for SCD Type 2"
   }
 
   dimension: is_current {
@@ -237,37 +319,19 @@ view: dim_products {
     description: "Current version indicator"
   }
 
-  dimension_group: created {
+  dimension_group: warehouse_updated {
     type: time
     timeframes: [raw, date, week, month, quarter, year]
     convert_tz: no
     datatype: timestamp
-    sql: ${TABLE}.created_at ;;
-    description: "Product creation date"
-  }
-
-  dimension_group: updated {
-    type: time
-    timeframes: [raw, date, week, month, quarter, year]
-    convert_tz: no
-    datatype: timestamp
-    sql: ${TABLE}.updated_at ;;
-    description: "Product last update date"
-  }
-
-  dimension_group: published {
-    type: time
-    timeframes: [raw, date, week, month, quarter, year]
-    convert_tz: no
-    datatype: timestamp
-    sql: ${TABLE}.published_at ;;
-    description: "Product publish date"
+    sql: ${TABLE}.warehouse_updated_at ;;
+    description: "Warehouse update timestamp"
   }
 
   # Measures
   measure: count {
     type: count
-    drill_fields: [product_id, title, vendor, product_type, price]
+    drill_fields: [product_id, product_title, vendor, product_type, revenue_tier]
   }
 
   measure: count_current {
@@ -278,46 +342,72 @@ view: dim_products {
 
   measure: count_active {
     type: count
-    filters: [status: "active", is_current: "yes"]
+    filters: [is_active: "yes", is_current: "yes"]
     description: "Count of active products"
   }
 
-  measure: average_price {
-    type: average
-    sql: ${price} ;;
-    value_format_name: usd
-    description: "Average product price"
-  }
-
-  measure: total_inventory_value {
-    type: sum
-    sql: ${price} * ${inventory_quantity} ;;
-    value_format_name: usd
-    description: "Total inventory value at current prices"
-  }
-
-  measure: average_margin_percentage {
-    type: average
-    sql: ${margin_percentage} ;;
-    value_format_name: percent_1
-    description: "Average gross margin percentage"
-  }
-
-  measure: total_inventory_quantity {
-    type: sum
-    sql: ${inventory_quantity} ;;
-    description: "Total inventory quantity"
-  }
-
-  measure: count_out_of_stock {
+  measure: count_published {
     type: count
-    filters: [inventory_quantity: "<=0", is_current: "yes"]
-    description: "Count of out of stock products"
+    filters: [is_published: "yes", is_current: "yes"]
+    description: "Count of published products"
   }
 
-  measure: count_low_stock {
+  measure: count_with_inventory {
     type: count
-    filters: [inventory_quantity: "<=10", is_current: "yes"]
-    description: "Count of low stock products"
+    filters: [has_inventory: "yes", is_current: "yes"]
+    description: "Count of products with inventory"
+  }
+
+  measure: count_with_sales {
+    type: count
+    filters: [has_sales: "yes", is_current: "yes"]
+    description: "Count of products with sales"
+  }
+
+  measure: sum_total_revenue {
+    type: sum
+    sql: ${total_revenue} ;;
+    value_format_name: usd
+    description: "Total revenue across all products"
+  }
+
+  measure: average_revenue_per_product {
+    type: average
+    sql: ${total_revenue} ;;
+    value_format_name: usd
+    description: "Average revenue per product"
+  }
+
+  measure: sum_total_quantity_sold {
+    type: sum
+    sql: ${total_quantity_sold} ;;
+    description: "Total quantity sold across all products"
+  }
+
+  measure: average_selling_price_overall {
+    type: average
+    sql: ${avg_selling_price} ;;
+    value_format_name: usd
+    description: "Average selling price across all products"
+  }
+
+  measure: sum_total_inventory {
+    type: sum
+    sql: ${total_inventory} ;;
+    description: "Total inventory across all products"
+  }
+
+  measure: average_discount_percentage {
+    type: average
+    sql: ${avg_discount_percent} ;;
+    value_format_name: percent_2
+    description: "Average discount percentage"
+  }
+
+  measure: average_variant_count {
+    type: average
+    sql: ${variant_count} ;;
+    value_format_name: decimal_1
+    description: "Average number of variants per product"
   }
 }
