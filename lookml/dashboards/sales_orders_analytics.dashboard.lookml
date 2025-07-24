@@ -18,7 +18,7 @@
       display: inline
     model: ecommerce_demo
     explore: orders
-    field: order_date.calendar_date
+    field: order_date.date_actual_date
     
   - name: product_vendor
     title: Product Vendor
@@ -61,7 +61,7 @@
     show_comparison: false
     value_format: "$#,##0"
     listen:
-      Date Range: order_date.calendar_date
+      Date Range: order_date.date_actual_date
       Product Vendor: products.vendor
       Customer Country: customers.country
     row: 0
@@ -81,7 +81,7 @@
     show_comparison: false
     value_format: "#,##0"
     listen:
-      Date Range: order_date.calendar_date
+      Date Range: order_date.date_actual_date
       Product Vendor: products.vendor
       Customer Country: customers.country
     row: 0
@@ -101,7 +101,7 @@
     show_comparison: false
     value_format: "$#,##0"
     listen:
-      Date Range: order_date.calendar_date
+      Date Range: order_date.date_actual_date
       Product Vendor: products.vendor
       Customer Country: orders.shipping_country
     row: 0
@@ -121,7 +121,7 @@
     show_comparison: false
     value_format: "#,##0"
     listen:
-      Date Range: order_date.calendar_date
+      Date Range: order_date.date_actual_date
       Product Vendor: products.vendor
       Customer Country: orders.shipping_country
     row: 0
@@ -135,9 +135,9 @@
     model: ecommerce_demo
     explore: orders
     type: looker_line
-    fields: [order_date.calendar_date, orders.total_revenue, orders.count]
-    fill_fields: [order_date.calendar_date]
-    sorts: [order_date.calendar_date desc]
+    fields: [order_date.date_actual_date, orders.total_revenue, orders.count]
+    fill_fields: [order_date.date_actual_date]
+    sorts: [order_date.date_actual_date desc]
     limit: 500
     x_axis_gridlines: false
     y_axis_gridlines: true
@@ -171,7 +171,7 @@
         valueFormat: '#,##0', unpinAxis: false, tickDensity: default, tickDensityCustom: 5,
         type: linear}]
     listen:
-      Date Range: order_date.calendar_date
+      Date Range: order_date.date_actual_date
       Product Vendor: products.vendor
       Customer Country: orders.shipping_country
     row: 4
@@ -200,7 +200,7 @@
     series_colors: {}
     value_format: "$#,##0"
     listen:
-      Date Range: order_date.calendar_date
+      Date Range: order_date.date_actual_date
       Product Vendor: products.vendor
       Customer Country: orders.shipping_country
     row: 12
@@ -252,7 +252,7 @@
         valueFormat: '#,##0', unpinAxis: false, tickDensity: default, tickDensityCustom: 5,
         type: linear}]
     listen:
-      Date Range: order_date.calendar_date
+      Date Range: order_date.date_actual_date
       Product Vendor: products.vendor
       Customer Country: orders.shipping_country
     row: 12
@@ -304,7 +304,7 @@
         showValues: true, valueFormat: '$#,##0', unpinAxis: false, tickDensity: default,
         tickDensityCustom: 5, type: linear}]
     listen:
-      Date Range: order_date.calendar_date
+      Date Range: order_date.date_actual_date
       Product Vendor: products.vendor
       Customer Country: orders.shipping_country
     row: 20
@@ -352,7 +352,7 @@
     totals_color: "#808080"
     value_format: "$#,##0"
     listen:
-      Date Range: order_date.calendar_date
+      Date Range: order_date.date_actual_date
       Product Vendor: products.vendor
       Customer Country: orders.shipping_country
     row: 20

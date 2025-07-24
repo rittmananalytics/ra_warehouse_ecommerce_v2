@@ -103,7 +103,7 @@ view: fact_order_items {
   }
 
   dimension: product_type {
-    type: number
+    type: string
     sql: ${TABLE}.product_type ;;
     description: "Product type"
   }

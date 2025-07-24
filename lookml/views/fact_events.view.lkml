@@ -35,12 +35,7 @@ view: fact_events {
     type: number
     sql: ${TABLE}.event_timestamp ;;
     description: "Event timestamp"
-  }
-
-  dimension: event_date {
-    type: date
-    sql: ${TABLE}.event_date ;;
-    description: "Event date"
+    hidden: yes
   }
 
   dimension_group: event {
@@ -48,6 +43,13 @@ view: fact_events {
     timeframes: [raw, time, hour, date, week, month, quarter, year]
     sql: TIMESTAMP_MICROS(${event_timestamp}) ;;
     description: "Event timestamp as datetime"
+  }
+
+  dimension_group: event_date_only {
+    type: time
+    timeframes: [raw, date, week, month, quarter, year]
+    sql: ${TABLE}.event_date ;;
+    description: "Event date from table"
   }
 
   # Event Attributes
@@ -195,11 +197,7 @@ view: fact_events {
   }
 
   # Time Analysis
-  dimension: event_hour {
-    type: number
-    sql: ${TABLE}.event_hour ;;
-    description: "Hour of day (0-23)"
-  }
+  # Note: event_hour is already included in the event dimension_group timeframes above
 
   dimension: event_time_of_day {
     type: string

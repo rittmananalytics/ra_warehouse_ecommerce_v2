@@ -155,8 +155,9 @@ view: dim_social_content {
   }
 
   # Date Dimensions
-  dimension: post_date {
-    type: date
+  dimension_group: post {
+    type: time
+    timeframes: [raw, date, week, month, quarter, year]
     sql: ${TABLE}.post_date ;;
     description: "Date content was posted"
   }

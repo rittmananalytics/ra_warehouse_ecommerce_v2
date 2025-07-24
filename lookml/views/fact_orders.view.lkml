@@ -250,6 +250,20 @@ view: fact_orders {
     sql: ${TABLE}.order_value_category ;;
     description: "Order value category"
   }
+  
+  # Order size category based on total quantity
+  dimension: order_size_category {
+    type: string
+    sql: CASE 
+      WHEN ${total_quantity} = 1 THEN 'Single Item'
+      WHEN ${total_quantity} BETWEEN 2 AND 3 THEN '2-3 Items'
+      WHEN ${total_quantity} BETWEEN 4 AND 5 THEN '4-5 Items'
+      WHEN ${total_quantity} BETWEEN 6 AND 10 THEN '6-10 Items'
+      WHEN ${total_quantity} > 10 THEN '11+ Items'
+      ELSE 'Unknown'
+    END ;;
+    description: "Order size category based on quantity"
+  }
 
   # Order Source Information
   dimension: source_name {
@@ -376,6 +390,13 @@ view: fact_orders {
     sql: ${TABLE}.shipping_address_country ;;
     description: "Shipping country"
     group_label: "Shipping Address"
+  }
+  
+  # Alias for shipping_country to match dashboard references
+  dimension: shipping_country {
+    type: string
+    sql: ${TABLE}.shipping_address_country ;;
+    description: "Shipping country"
   }
 
   dimension: shipping_address_country_code {

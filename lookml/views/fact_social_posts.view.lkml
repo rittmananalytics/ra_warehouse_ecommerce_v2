@@ -47,8 +47,9 @@ view: fact_social_posts {
     description: "Original post ID"
   }
 
-  dimension: post_date {
-    type: date
+  dimension_group: post {
+    type: time
+    timeframes: [raw, date, week, month, quarter, year]
     sql: ${TABLE}.post_date ;;
     description: "Date of post"
   }
