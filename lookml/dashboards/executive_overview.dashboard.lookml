@@ -20,7 +20,7 @@
     model: ecommerce_demo
     explore: executive_overview
     listens_to_filters: []
-    field: exec_order_date.calendar_date
+    field: exec_order_date.date_actual_date
     
   elements:
   
@@ -31,8 +31,6 @@
     explore: executive_overview
     type: single_value
     fields: [executive_overview.total_revenue]
-    filters:
-      exec_order_date.calendar_date: "30 days"
     limit: 500
     custom_color_enabled: true
     show_single_value_title: true
@@ -46,7 +44,7 @@
     value_format: "$#,##0"
     series_types: {}
     listen:
-      Date Range: exec_order_date.calendar_date
+      date_range: exec_order_date.date_actual_date
     row: 0
     col: 0
     width: 4
@@ -58,15 +56,13 @@
     explore: executive_overview
     type: single_value
     fields: [executive_overview.count]
-    filters:
-      exec_order_date.calendar_date: "30 days"
     limit: 500
     custom_color_enabled: true
     show_single_value_title: true
     show_comparison: false
     value_format: "#,##0"
     listen:
-      Date Range: exec_order_date.calendar_date
+      date_range: exec_order_date.date_actual_date
     row: 0
     col: 4
     width: 4
@@ -78,15 +74,13 @@
     explore: executive_overview
     type: single_value
     fields: [executive_overview.average_order_value]
-    filters:
-      exec_order_date.calendar_date: "30 days"
     limit: 500
     custom_color_enabled: true
     show_single_value_title: true
     show_comparison: false
     value_format: "$#,##0"
     listen:
-      Date Range: exec_order_date.calendar_date
+      date_range: exec_order_date.date_actual_date
     row: 0
     col: 8
     width: 4
@@ -98,15 +92,13 @@
     explore: executive_overview
     type: single_value
     fields: [exec_customers.count_current]
-    filters:
-      exec_order_date.calendar_date: "30 days"
     limit: 500
     custom_color_enabled: true
     show_single_value_title: true
     show_comparison: false
     value_format: "#,##0"
     listen:
-      Date Range: exec_order_date.calendar_date
+      date_range: exec_order_date.date_actual_date
     row: 0
     col: 12
     width: 4
@@ -118,15 +110,13 @@
     explore: executive_overview
     type: single_value
     fields: [exec_marketing.overall_cpa]
-    filters:
-      exec_order_date.calendar_date: "30 days"
     limit: 500
     custom_color_enabled: true
     show_single_value_title: true
     show_comparison: false
     value_format: "$#,##0"
     listen:
-      Date Range: exec_order_date.calendar_date
+      date_range: exec_order_date.date_actual_date
     row: 0
     col: 16
     width: 4
@@ -138,15 +128,13 @@
     explore: executive_overview
     type: single_value
     fields: [exec_marketing.overall_roas]
-    filters:
-      exec_order_date.calendar_date: "30 days"
     limit: 500
     custom_color_enabled: true
     show_single_value_title: true
     show_comparison: false
     value_format: "0.00x"
     listen:
-      Date Range: exec_order_date.calendar_date
+      date_range: exec_order_date.date_actual_date
     row: 0
     col: 20
     width: 4
@@ -160,8 +148,6 @@
     type: looker_line
     fields: [exec_order_date.calendar_date, executive_overview.total_revenue]
     fill_fields: [exec_order_date.calendar_date]
-    filters:
-      exec_order_date.calendar_date: "30 days"
     sorts: [exec_order_date.calendar_date]
     limit: 500
     x_axis_gridlines: false
@@ -190,7 +176,7 @@
     interpolation: linear
     value_format: "$#,##0"
     listen:
-      Date Range: exec_order_date.calendar_date
+      date_range: exec_order_date.date_actual_date
     row: 4
     col: 0
     width: 12
@@ -202,14 +188,12 @@
     explore: executive_overview
     type: looker_pie
     fields: [exec_channels.source_medium, executive_overview.count]
-    filters:
-      exec_order_date.calendar_date: "30 days"
     sorts: [executive_overview.count desc]
     limit: 10
     value_labels: legend
     label_type: labPer
     listen:
-      Date Range: exec_order_date.calendar_date
+      date_range: exec_order_date.date_actual_date
     row: 4
     col: 12
     width: 12
@@ -222,8 +206,6 @@
     explore: executive_overview
     type: looker_column
     fields: [executive_overview.financial_status, executive_overview.count]
-    filters:
-      exec_order_date.calendar_date: "30 days"
     sorts: [executive_overview.count desc]
     limit: 500
     x_axis_gridlines: false
@@ -254,7 +236,7 @@
     show_silhouette: false
     totals_color: "#808080"
     listen:
-      Date Range: exec_order_date.calendar_date
+      date_range: exec_order_date.date_actual_date
     row: 10
     col: 0
     width: 8
@@ -303,7 +285,7 @@
       exec_marketing.total_spend: "#E52165"
       exec_marketing.total_revenue: "#0071F2"
     listen:
-      Date Range: exec_order_date.calendar_date
+      date_range: exec_order_date.date_actual_date
     row: 10
     col: 8
     width: 16
@@ -316,8 +298,6 @@
     explore: executive_overview
     type: looker_funnel
     fields: [exec_sessions.count, exec_sessions.add_to_cart_rate, exec_sessions.conversion_rate]
-    filters:
-      exec_order_date.calendar_date: "30 days"
     limit: 500
     leftAxisLabelVisible: false
     leftAxisLabel: ''
@@ -332,7 +312,7 @@
     labelColorEnabled: false
     labelColor: "#FFF"
     listen:
-      Date Range: exec_order_date.calendar_date
+      date_range: exec_order_date.date_actual_date
     row: 16
     col: 0
     width: 24

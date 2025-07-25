@@ -395,7 +395,11 @@ view: fact_orders {
   # Alias for shipping_country to match dashboard references
   dimension: shipping_country {
     type: string
-    sql: ${TABLE}.shipping_address_country ;;
+    sql: COALESCE(
+      NULLIF(TRIM(${TABLE}.shipping_address_country), ''),
+      NULLIF(TRIM(${TABLE}.billing_address_country), ''),
+      'Unknown'
+    ) ;;
     description: "Shipping country"
   }
 

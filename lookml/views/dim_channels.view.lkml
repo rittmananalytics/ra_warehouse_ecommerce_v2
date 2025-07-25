@@ -52,6 +52,12 @@ view: dim_channels {
     description: "Channel display name"
   }
 
+  dimension: source_medium {
+    type: string
+    sql: CONCAT(${channel_source}, ' / ', ${channel_medium}) ;;
+    description: "Source / Medium combination"
+  }
+
   dimension: attribution_type {
     type: string
     sql: ${TABLE}.attribution_type ;;

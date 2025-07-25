@@ -49,7 +49,7 @@ view: fact_customer_journey {
     type: number
     sql: ${TABLE}.channel_key ;;
     description: "Channel surrogate key"
-    hidden: yes
+    hidden: no
   }
 
   # Business Keys

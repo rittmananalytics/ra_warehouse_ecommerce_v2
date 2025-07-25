@@ -312,8 +312,7 @@ explore: customer_metrics {
 }
 
 # Attribution Analysis Explore
-explore: attribution_analysis {
-  from: fact_customer_journey
+explore: fact_customer_journey {
   label: "Attribution Analysis"
   description: "Multi-touch attribution and customer journey analysis"
   
@@ -321,7 +320,7 @@ explore: attribution_analysis {
   join: attribution_date {
     from: dim_date
     type: left_outer
-    sql_on: ${attribution_analysis.session_date_key} = ${attribution_date.date_key} ;;
+    sql_on: ${fact_customer_journey.session_date_key} = ${attribution_date.date_key} ;;
     relationship: many_to_one
     fields: [attribution_date.date_actual_date, attribution_date.date_actual_week, 
              attribution_date.date_actual_month, attribution_date.date_actual_quarter, 
@@ -332,7 +331,7 @@ explore: attribution_analysis {
   join: touchpoint_channels {
     from: dim_channels
     type: left_outer
-    sql_on: ${attribution_analysis.channel_key} = ${touchpoint_channels.channel_key} ;;
+    sql_on: ${fact_customer_journey.channel_key} = ${touchpoint_channels.channel_key} ;;
     relationship: many_to_one
   }
   
@@ -340,7 +339,7 @@ explore: attribution_analysis {
   join: customers {
     from: dim_customers
     type: left_outer
-    sql_on: ${attribution_analysis.customer_key} = ${customers.customer_key} ;;
+    sql_on: ${fact_customer_journey.customer_key} = ${customers.customer_key} ;;
     relationship: many_to_one
   }
   
@@ -348,7 +347,7 @@ explore: attribution_analysis {
   join: orders {
     from: fact_orders
     type: left_outer
-    sql_on: ${attribution_analysis.order_key} = ${orders.order_key} ;;
+    sql_on: ${fact_customer_journey.order_key} = ${orders.order_key} ;;
     relationship: many_to_one
   }
 }

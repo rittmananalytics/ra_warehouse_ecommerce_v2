@@ -44,7 +44,7 @@
       display: popover
     model: ecommerce_demo
     explore: order_items
-    field: orders.shipping_country
+    field: order_items.order_country
     
   elements:
   
@@ -63,7 +63,7 @@
     listen:
       date_range: order_date.date_actual_date
       product_vendor: products.vendor
-      customer_country: orders.shipping_country
+      customer_country: order_items.order_country
     row: 0
     col: 0
     width: 6
@@ -83,7 +83,7 @@
     listen:
       date_range: order_date.date_actual_date
       product_vendor: products.vendor
-      customer_country: orders.shipping_country
+      customer_country: order_items.order_country
     row: 0
     col: 6
     width: 6
@@ -103,7 +103,7 @@
     listen:
       date_range: order_date.date_actual_date
       product_vendor: products.vendor
-      customer_country: orders.shipping_country
+      customer_country: order_items.order_country
     row: 0
     col: 12
     width: 6
@@ -123,7 +123,7 @@
     listen:
       date_range: order_date.date_actual_date
       product_vendor: products.vendor
-      customer_country: orders.shipping_country
+      customer_country: order_items.order_country
     row: 0
     col: 18
     width: 6
@@ -173,7 +173,7 @@
     listen:
       date_range: order_date.date_actual_date
       product_vendor: products.vendor
-      customer_country: orders.shipping_country
+      customer_country: order_items.order_country
     row: 4
     col: 0
     width: 24
@@ -202,7 +202,7 @@
     listen:
       date_range: order_date.date_actual_date
       product_vendor: products.vendor
-      customer_country: orders.shipping_country
+      customer_country: order_items.order_country
     row: 12
     col: 0
     width: 12
@@ -212,10 +212,10 @@
   - title: Sales by Country
     name: sales_by_country
     model: ecommerce_demo
-    explore: orders
+    explore: order_items
     type: looker_bar
-    fields: [orders.shipping_country, orders.total_revenue, orders.count]
-    sorts: [orders.total_revenue desc]
+    fields: [order_items.order_country, order_items.total_revenue, order_items.count_orders]
+    sorts: [order_items.total_revenue desc]
     limit: 15
     x_axis_gridlines: false
     y_axis_gridlines: true
@@ -254,7 +254,7 @@
     listen:
       date_range: order_date.date_actual_date
       product_vendor: products.vendor
-      customer_country: orders.shipping_country
+      customer_country: order_items.order_country
     row: 12
     col: 12
     width: 12
@@ -306,7 +306,7 @@
     listen:
       date_range: order_date.date_actual_date
       product_vendor: products.vendor
-      customer_country: orders.shipping_country
+      customer_country: order_items.order_country
     row: 20
     col: 0
     width: 12
@@ -354,7 +354,7 @@
     listen:
       date_range: order_date.date_actual_date
       product_vendor: products.vendor
-      customer_country: orders.shipping_country
+      customer_country: order_items.order_country
     row: 20
     col: 12
     width: 12

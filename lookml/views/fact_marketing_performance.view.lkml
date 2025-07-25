@@ -232,42 +232,54 @@ view: fact_marketing_performance {
     drill_fields: [marketing_key, activity_date, platform, content_name]
   }
 
+  measure: records_with_spend {
+    type: count
+    filters: [spend_amount: ">0"]
+    description: "Count of records with spend > 0"
+  }
+
+  measure: records_with_nulls {
+    type: count
+    filters: [spend_amount: "NULL"]
+    description: "Count of records with NULL spend"
+  }
+
   measure: total_spend {
     type: sum
-    sql: ${spend_amount} ;;
+    sql: COALESCE(${spend_amount}, 0) ;;
     value_format_name: usd
     description: "Total advertising spend"
   }
 
   measure: total_revenue {
     type: sum
-    sql: ${revenue} ;;
+    sql: COALESCE(${revenue}, 0) ;;
     value_format_name: usd
     description: "Total attributed revenue"
   }
 
   measure: total_profit {
     type: sum
-    sql: ${profit} ;;
+    sql: COALESCE(${profit}, 0) ;;
     value_format_name: usd
     description: "Total profit"
   }
 
   measure: total_impressions {
     type: sum
-    sql: ${impressions} ;;
+    sql: COALESCE(${impressions}, 0) ;;
     description: "Total impressions"
   }
 
   measure: total_clicks {
     type: sum
-    sql: ${clicks} ;;
+    sql: COALESCE(${clicks}, 0) ;;
     description: "Total clicks"
   }
 
   measure: total_conversions {
     type: sum
-    sql: ${conversions} ;;
+    sql: COALESCE(${conversions}, 0) ;;
     description: "Total conversions"
   }
 
@@ -355,5 +367,19 @@ view: fact_marketing_performance {
     sql: ${total_conversions} / NULLIF(${total_clicks}, 0) ;;
     value_format_name: percent_2
     description: "Overall conversion rate"
+  }
+
+  # Debug measure to check if data exists
+  measure: debug_total_spend {
+    type: number
+    sql: SUM(${TABLE}.spend_amount) ;;
+    value_format_name: usd
+    description: "Debug: Direct sum of spend_amount from table"
+  }
+
+  measure: debug_row_count {
+    type: count_distinct
+    sql: ${TABLE}.marketing_key ;;
+    description: "Debug: Count of distinct marketing keys"
   }
 }
