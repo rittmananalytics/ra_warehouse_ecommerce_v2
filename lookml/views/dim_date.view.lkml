@@ -18,6 +18,12 @@ view: dim_date {
     description: "Calendar date"
   }
 
+  dimension: calendar_date {
+    type: date
+    sql: ${TABLE}.date_actual ;;
+    description: "Calendar date (alias for date_actual)"
+  }
+
   # Year Dimensions
   dimension: year_number {
     type: number

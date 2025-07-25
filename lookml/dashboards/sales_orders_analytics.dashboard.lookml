@@ -44,7 +44,7 @@
       display: popover
     model: ecommerce_demo
     explore: order_items
-    field: customers.country
+    field: orders.shipping_country
     
   elements:
   
@@ -61,9 +61,9 @@
     show_comparison: false
     value_format: "$#,##0"
     listen:
-      Date Range: order_date.date_actual_date
-      Product Vendor: products.vendor
-      Customer Country: customers.country
+      date_range: order_date.date_actual_date
+      product_vendor: products.vendor
+      customer_country: orders.shipping_country
     row: 0
     col: 0
     width: 6
@@ -81,9 +81,9 @@
     show_comparison: false
     value_format: "#,##0"
     listen:
-      Date Range: order_date.date_actual_date
-      Product Vendor: products.vendor
-      Customer Country: customers.country
+      date_range: order_date.date_actual_date
+      product_vendor: products.vendor
+      customer_country: orders.shipping_country
     row: 0
     col: 6
     width: 6
@@ -101,9 +101,9 @@
     show_comparison: false
     value_format: "$#,##0"
     listen:
-      Date Range: order_date.date_actual_date
-      Product Vendor: products.vendor
-      Customer Country: orders.shipping_country
+      date_range: order_date.date_actual_date
+      product_vendor: products.vendor
+      customer_country: orders.shipping_country
     row: 0
     col: 12
     width: 6
@@ -121,9 +121,9 @@
     show_comparison: false
     value_format: "#,##0"
     listen:
-      Date Range: order_date.date_actual_date
-      Product Vendor: products.vendor
-      Customer Country: orders.shipping_country
+      date_range: order_date.date_actual_date
+      product_vendor: products.vendor
+      customer_country: orders.shipping_country
     row: 0
     col: 18
     width: 6
@@ -171,9 +171,9 @@
         valueFormat: '#,##0', unpinAxis: false, tickDensity: default, tickDensityCustom: 5,
         type: linear}]
     listen:
-      Date Range: order_date.date_actual_date
-      Product Vendor: products.vendor
-      Customer Country: orders.shipping_country
+      date_range: order_date.date_actual_date
+      product_vendor: products.vendor
+      customer_country: orders.shipping_country
     row: 4
     col: 0
     width: 24
@@ -200,9 +200,9 @@
     series_colors: {}
     value_format: "$#,##0"
     listen:
-      Date Range: order_date.date_actual_date
-      Product Vendor: products.vendor
-      Customer Country: orders.shipping_country
+      date_range: order_date.date_actual_date
+      product_vendor: products.vendor
+      customer_country: orders.shipping_country
     row: 12
     col: 0
     width: 12
@@ -252,9 +252,9 @@
         valueFormat: '#,##0', unpinAxis: false, tickDensity: default, tickDensityCustom: 5,
         type: linear}]
     listen:
-      Date Range: order_date.date_actual_date
-      Product Vendor: products.vendor
-      Customer Country: orders.shipping_country
+      date_range: order_date.date_actual_date
+      product_vendor: products.vendor
+      customer_country: orders.shipping_country
     row: 12
     col: 12
     width: 12
@@ -304,9 +304,9 @@
         showValues: true, valueFormat: '$#,##0', unpinAxis: false, tickDensity: default,
         tickDensityCustom: 5, type: linear}]
     listen:
-      Date Range: order_date.date_actual_date
-      Product Vendor: products.vendor
-      Customer Country: orders.shipping_country
+      date_range: order_date.date_actual_date
+      product_vendor: products.vendor
+      customer_country: orders.shipping_country
     row: 20
     col: 0
     width: 12
@@ -352,9 +352,9 @@
     totals_color: "#808080"
     value_format: "$#,##0"
     listen:
-      Date Range: order_date.date_actual_date
-      Product Vendor: products.vendor
-      Customer Country: orders.shipping_country
+      date_range: order_date.date_actual_date
+      product_vendor: products.vendor
+      customer_country: orders.shipping_country
     row: 20
     col: 12
     width: 12

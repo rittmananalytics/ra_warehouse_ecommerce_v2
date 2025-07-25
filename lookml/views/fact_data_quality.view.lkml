@@ -16,6 +16,19 @@ view: fact_data_quality {
     description: "Data source name"
   }
 
+  # Data Layer Dimension
+  dimension: data_layer {
+    type: string
+    sql: CASE 
+      WHEN ${source_rows} > 0 THEN 'Source'
+      WHEN ${staging_rows} > 0 THEN 'Staging'
+      WHEN ${integration_rows} > 0 THEN 'Integration'
+      WHEN ${warehouse_rows} > 0 THEN 'Warehouse'
+      ELSE 'Unknown'
+    END ;;
+    description: "Data layer for filtering"
+  }
+
   # Row Count Metrics
   dimension: source_rows {
     type: number
@@ -274,5 +287,75 @@ view: fact_data_quality {
     type: count
     filters: [health_status: "Healthy"]
     description: "Number of healthy sources"
+  }
+
+  # Additional measures needed by dashboard
+  measure: average_pipeline_health {
+    type: average
+    sql: ${overall_pipeline_health_score} ;;
+    value_format_name: decimal_1
+    description: "Average pipeline health score"
+  }
+
+  measure: total_data_volume {
+    type: sum
+    sql: COALESCE(${source_rows}, 0) + COALESCE(${staging_rows}, 0) + 
+         COALESCE(${integration_rows}, 0) + COALESCE(${warehouse_rows}, 0) ;;
+    description: "Total data volume across all layers"
+  }
+
+  measure: average_flow_efficiency {
+    type: average
+    sql: (${staging_flow_pct} + ${integration_flow_pct} + ${warehouse_flow_pct}) / 3 ;;
+    value_format_name: percent_2
+    description: "Average flow efficiency across layers"
+  }
+
+  measure: data_quality_score {
+    type: average
+    sql: (${source_quality_score} + ${staging_quality_score} + 
+          ${integration_quality_score} + ${warehouse_quality_score}) / 4 ;;
+    value_format_name: decimal_2
+    description: "Average data quality score across layers"
+  }
+
+  measure: source_to_staging_flow_pct {
+    type: average
+    sql: ${staging_flow_pct} ;;
+    value_format_name: percent_2
+    description: "Source to staging flow percentage"
+  }
+
+  measure: staging_to_integration_flow_pct {
+    type: average
+    sql: ${integration_flow_pct} ;;
+    value_format_name: percent_2
+    description: "Staging to integration flow percentage"
+  }
+
+  measure: integration_to_warehouse_flow_pct {
+    type: average
+    sql: ${warehouse_flow_pct} ;;
+    value_format_name: percent_2
+    description: "Integration to warehouse flow percentage"
+  }
+
+  measure: end_to_end_flow_pct {
+    type: number
+    sql: ${total_warehouse_rows} / NULLIF(${total_source_rows}, 0) ;;
+    value_format_name: percent_2
+    description: "End-to-end data flow percentage"
+  }
+
+  measure: total_errors {
+    type: sum
+    sql: ${total_tests_run} - ${total_tests_passed} ;;
+    description: "Total number of test errors"
+  }
+
+  measure: total_warnings {
+    type: count
+    filters: [health_status: "Warning"]
+    description: "Total number of warnings"
   }
 }

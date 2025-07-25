@@ -239,6 +239,17 @@ explore: data_quality {
   from: fact_data_quality
   label: "Data Quality Monitoring"
   description: "Monitor pipeline health and data quality metrics"
+  
+  # Date dimension
+  join: quality_date {
+    from: dim_date
+    type: left_outer
+    sql_on: ${data_quality.report_date} = ${quality_date.date_actual_date} ;;
+    relationship: many_to_one
+    fields: [quality_date.date_actual_date, quality_date.date_actual_week, quality_date.date_actual_month, 
+             quality_date.date_actual_quarter, quality_date.date_actual_year, quality_date.date_actual_day_of_week, 
+             quality_date.date_actual_day_of_month, quality_date.is_weekend, quality_date.date_key]
+  }
 }
 
 # Email Marketing Explore
@@ -296,6 +307,48 @@ explore: customer_metrics {
     from: dim_customers
     type: left_outer
     sql_on: ${customer_metrics.customer_key} = ${customers.customer_key} ;;
+    relationship: many_to_one
+  }
+}
+
+# Attribution Analysis Explore
+explore: attribution_analysis {
+  from: fact_customer_journey
+  label: "Attribution Analysis"
+  description: "Multi-touch attribution and customer journey analysis"
+  
+  # Date dimension for attribution
+  join: attribution_date {
+    from: dim_date
+    type: left_outer
+    sql_on: ${attribution_analysis.session_date_key} = ${attribution_date.date_key} ;;
+    relationship: many_to_one
+    fields: [attribution_date.date_actual_date, attribution_date.date_actual_week, 
+             attribution_date.date_actual_month, attribution_date.date_actual_quarter, 
+             attribution_date.date_actual_year, attribution_date.calendar_date]
+  }
+  
+  # Channel dimension for touchpoints
+  join: touchpoint_channels {
+    from: dim_channels
+    type: left_outer
+    sql_on: ${attribution_analysis.channel_key} = ${touchpoint_channels.channel_key} ;;
+    relationship: many_to_one
+  }
+  
+  # Customer dimension
+  join: customers {
+    from: dim_customers
+    type: left_outer
+    sql_on: ${attribution_analysis.customer_key} = ${customers.customer_key} ;;
+    relationship: many_to_one
+  }
+  
+  # Order dimension
+  join: orders {
+    from: fact_orders
+    type: left_outer
+    sql_on: ${attribution_analysis.order_key} = ${orders.order_key} ;;
     relationship: many_to_one
   }
 }

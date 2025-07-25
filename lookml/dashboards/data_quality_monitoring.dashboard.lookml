@@ -18,7 +18,7 @@
       display: inline
     model: ecommerce_demo
     explore: data_quality
-    field: quality_date.calendar_date
+    field: quality_date.date_actual_date
     
   - name: data_source_filter
     title: Data Source
@@ -71,9 +71,9 @@
           palette_id: 56d0c358-10a0-4fd6-aa0b-b117bef527ab}, bold: false, italic: false,
         strikethrough: false, fields: !!null ''}]
     listen:
-      Date Range: quality_date.calendar_date
-      Data Source: data_quality.data_source
-      Data Layer: data_quality.data_layer
+      date_range: quality_date.date_actual_date
+      data_source_filter: data_quality.data_source
+      data_layer_filter: data_quality.data_layer
     row: 0
     col: 0
     width: 4
@@ -101,9 +101,9 @@
           palette_id: 56d0c358-10a0-4fd6-aa0b-b117bef527ab}, bold: false, italic: false,
         strikethrough: false, fields: !!null ''}]
     listen:
-      Date Range: quality_date.calendar_date
-      Data Source: data_quality.data_source
-      Data Layer: data_quality.data_layer
+      date_range: quality_date.date_actual_date
+      data_source_filter: data_quality.data_source
+      data_layer_filter: data_quality.data_layer
     row: 0
     col: 4
     width: 4
@@ -121,9 +121,9 @@
     show_comparison: false
     value_format: "#,##0"
     listen:
-      Date Range: quality_date.calendar_date
-      Data Source: data_quality.data_source
-      Data Layer: data_quality.data_layer
+      date_range: quality_date.date_actual_date
+      data_source_filter: data_quality.data_source
+      data_layer_filter: data_quality.data_layer
     row: 0
     col: 8
     width: 4
@@ -148,9 +148,9 @@
           palette_id: 56d0c358-10a0-4fd6-aa0b-b117bef527ab}, bold: false, italic: false,
         strikethrough: false, fields: !!null ''}]
     listen:
-      Date Range: quality_date.calendar_date
-      Data Source: data_quality.data_source
-      Data Layer: data_quality.data_layer
+      date_range: quality_date.date_actual_date
+      data_source_filter: data_quality.data_source
+      data_layer_filter: data_quality.data_layer
     row: 0
     col: 12
     width: 4
@@ -178,9 +178,9 @@
           palette_id: 56d0c358-10a0-4fd6-aa0b-b117bef527ab}, bold: false, italic: false,
         strikethrough: false, fields: !!null ''}]
     listen:
-      Date Range: quality_date.calendar_date
-      Data Source: data_quality.data_source
-      Data Layer: data_quality.data_layer
+      date_range: quality_date.date_actual_date
+      data_source_filter: data_quality.data_source
+      data_layer_filter: data_quality.data_layer
     row: 0
     col: 16
     width: 4
@@ -208,9 +208,9 @@
           palette_id: 56d0c358-10a0-4fd6-aa0b-b117bef527ab}, bold: false, italic: false,
         strikethrough: false, fields: !!null ''}]
     listen:
-      Date Range: quality_date.calendar_date
-      Data Source: data_quality.data_source
-      Data Layer: data_quality.data_layer
+      date_range: quality_date.date_actual_date
+      data_source_filter: data_quality.data_source
+      data_layer_filter: data_quality.data_layer
     row: 0
     col: 20
     width: 4
@@ -222,10 +222,9 @@
     model: ecommerce_demo
     explore: data_quality
     type: looker_line
-    fields: [quality_date.calendar_date, data_quality.average_pipeline_health, 
+    fields: [quality_date.date_actual_date, data_quality.average_pipeline_health, 
              data_quality.overall_test_pass_rate, data_quality.average_flow_efficiency]
-    fill_fields: [quality_date.calendar_date]
-    sorts: [quality_date.calendar_date desc]
+    sorts: [quality_date.date_actual_date desc]
     limit: 500
     x_axis_gridlines: false
     y_axis_gridlines: true
@@ -262,9 +261,9 @@
         valueFormat: '0.0%', unpinAxis: false, tickDensity: default, tickDensityCustom: 5,
         type: linear}]
     listen:
-      Date Range: quality_date.calendar_date
-      Data Source: data_quality.data_source
-      Data Layer: data_quality.data_layer
+      date_range: quality_date.date_actual_date
+      data_source_filter: data_quality.data_source
+      data_layer_filter: data_quality.data_layer
     row: 4
     col: 0
     width: 24
@@ -317,9 +316,9 @@
       Critical - data_quality.count: "#d62728"
       Failed - data_quality.count: "#8b0000"
     listen:
-      Date Range: quality_date.calendar_date
-      Data Source: data_quality.data_source
-      Data Layer: data_quality.data_layer
+      date_range: quality_date.date_actual_date
+      data_source_filter: data_quality.data_source
+      data_layer_filter: data_quality.data_layer
     row: 12
     col: 0
     width: 12
@@ -365,9 +364,9 @@
     totals_color: "#808080"
     value_format: "0%"
     listen:
-      Date Range: quality_date.calendar_date
-      Data Source: data_quality.data_source
-      Data Layer: data_quality.data_layer
+      date_range: quality_date.date_actual_date
+      data_source_filter: data_quality.data_source
+      data_layer_filter: data_quality.data_layer
     row: 12
     col: 12
     width: 12
@@ -392,9 +391,9 @@
     series_colors: {}
     value_format: "#,##0"
     listen:
-      Date Range: quality_date.calendar_date
-      Data Source: data_quality.data_source
-      Data Layer: data_quality.data_layer
+      date_range: quality_date.date_actual_date
+      data_source_filter: data_quality.data_source
+      data_layer_filter: data_quality.data_layer
     row: 20
     col: 0
     width: 12
@@ -440,9 +439,9 @@
       data_quality.total_errors: "#d62728"
       data_quality.total_warnings: "#ff7f0e"
     listen:
-      Date Range: quality_date.calendar_date
-      Data Source: data_quality.data_source
-      Data Layer: data_quality.data_layer
+      date_range: quality_date.date_actual_date
+      data_source_filter: data_quality.data_source
+      data_layer_filter: data_quality.data_layer
     row: 20
     col: 12
     width: 12

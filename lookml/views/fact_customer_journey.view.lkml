@@ -45,6 +45,13 @@ view: fact_customer_journey {
     hidden: yes
   }
 
+  dimension: channel_key {
+    type: number
+    sql: ${TABLE}.channel_key ;;
+    description: "Channel surrogate key"
+    hidden: yes
+  }
+
   # Business Keys
   dimension: shopify_customer_id {
     type: number
@@ -387,5 +394,12 @@ view: fact_customer_journey {
     sql: ${conversion_count}*1.0 / NULLIF(${count},0) ;;
     value_format_name: percent_2
     description: "Session conversion rate"
+  }
+
+  measure: total_revenue {
+    type: sum
+    sql: ${shopify_order_value} ;;
+    value_format_name: usd
+    description: "Total revenue (alias for total_shopify_order_value)"
   }
 }

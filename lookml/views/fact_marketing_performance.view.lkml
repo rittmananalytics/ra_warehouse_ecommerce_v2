@@ -10,12 +10,6 @@ view: fact_marketing_performance {
   }
 
   # Date dimension
-  dimension: activity_date {
-    type: date
-    sql: ${TABLE}.activity_date ;;
-    description: "Activity date"
-  }
-
   dimension_group: activity {
     type: time
     timeframes: [raw, date, week, month, quarter, year, day_of_week, week_of_year]
@@ -46,6 +40,22 @@ view: fact_marketing_performance {
     type: string
     sql: ${TABLE}.content_name ;;
     description: "Name of the content/campaign"
+  }
+
+  dimension: campaign_name {
+    type: string
+    sql: ${TABLE}.content_name ;;
+    description: "Campaign name"
+  }
+
+  dimension: campaign_status {
+    type: string
+    sql: CASE 
+      WHEN ${activity_date} >= CURRENT_DATE() - 7 THEN 'active'
+      WHEN ${activity_date} >= CURRENT_DATE() - 30 THEN 'recent'
+      ELSE 'inactive'
+    END ;;
+    description: "Campaign status based on activity"
   }
 
   dimension: utm_source {
@@ -338,5 +348,12 @@ view: fact_marketing_performance {
     sql: ${performance_score} ;;
     value_format_name: decimal_2
     description: "Average performance score"
+  }
+
+  measure: overall_conversion_rate {
+    type: number
+    sql: ${total_conversions} / NULLIF(${total_clicks}, 0) ;;
+    value_format_name: percent_2
+    description: "Overall conversion rate"
   }
 }

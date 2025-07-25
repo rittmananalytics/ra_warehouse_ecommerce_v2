@@ -46,6 +46,12 @@ view: dim_channels {
     description: "Channel grouping"
   }
 
+  dimension: channel_name {
+    type: string
+    sql: COALESCE(${channel_campaign}, ${channel_group}, CONCAT(${channel_source}, ' / ', ${channel_medium})) ;;
+    description: "Channel display name"
+  }
+
   dimension: attribution_type {
     type: string
     sql: ${TABLE}.attribution_type ;;
